@@ -1,0 +1,163 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - Daaru Hiraa</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#003527">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary: #003527;
+            --secondary: #1b6b4f;
+            --surface: #f9f9f9;
+            --on-surface: #1b1b1b;
+            --secondary-container: #a6f2cf;
+            --on-secondary-container: #247155;
+            --surface-container: #eeeeee;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--surface);
+            color: var(--on-surface);
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+        }
+        .card {
+            background: #fff;
+            border: 3px solid #000;
+            box-shadow: 8px 8px 0px 0px rgba(0,0,0,1);
+            border-radius: 16px;
+            padding: 48px 40px;
+            max-width: 440px;
+            width: 100%;
+        }
+        .icon-wrap {
+            width: 96px;
+            height: 96px;
+            background: var(--secondary-container);
+            border: 3px solid #000;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 28px;
+            box-shadow: 4px 4px 0 0 rgba(0,0,0,1);
+            font-size: 48px;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--primary);
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+        p {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #555;
+            margin-bottom: 32px;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary);
+            color: #fff;
+            border: 3px solid #000;
+            padding: 14px 28px;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 12px;
+            box-shadow: 4px 4px 0 0 rgba(0,0,0,1);
+            cursor: pointer;
+            transition: all 0.15s;
+            text-decoration: none;
+            width: 100%;
+            justify-content: center;
+        }
+        .btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 0 rgba(0,0,0,1); }
+        .btn-secondary {
+            background: var(--surface-container);
+            color: var(--on-surface);
+            margin-top: 12px;
+        }
+        .tips {
+            background: var(--secondary-container);
+            border: 2px solid #000;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 28px;
+            text-align: left;
+        }
+        .tips h3 {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--on-secondary-container);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .tips ul {
+            list-style: none;
+            font-size: 13px;
+            color: var(--on-secondary-container);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .tips ul li { display: flex; align-items: center; gap: 8px; }
+        .brand {
+            margin-top: 32px;
+            font-size: 12px;
+            color: #aaa;
+            font-weight: 600;
+        }
+        @media (max-width: 480px) {
+            .card { padding: 32px 24px; }
+            h1 { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon-wrap">🕌</div>
+        <h1>Tidak Ada Koneksi</h1>
+        <p>
+            Kamu sedang offline. Beberapa halaman yang pernah kamu kunjungi mungkin masih bisa diakses, tapi fitur real-time membutuhkan koneksi internet.
+        </p>
+
+        <a href="/dashboard" class="btn">
+            🏠 Coba Buka Dashboard
+        </a>
+        <button onclick="window.location.reload()" class="btn btn-secondary">
+            🔄 Coba Lagi
+        </button>
+
+        <div class="tips">
+            <h3>💡 Tersedia Offline</h3>
+            <ul>
+                <li>📅 Jadwal kajian terakhir yang dibuka</li>
+                <li>📊 Rekap absensi (data cache)</li>
+                <li>🤲 Tasbih Digital</li>
+                <li>📝 Refleksi yang sudah disimpan</li>
+            </ul>
+        </div>
+
+        <p class="brand">Daaru Hiraa · #IlmuBerkah</p>
+    </div>
+
+    <script>
+        // Auto-redirect when connection returns
+        window.addEventListener('online', () => {
+            window.location.reload();
+        });
+    </script>
+</body>
+</html>

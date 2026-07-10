@@ -1,0 +1,72 @@
+﻿{
+    "name": "Daaru Hiraa",
+    "short_name": "Daaru Hiraa",
+    "description": "Aplikasi manajemen kajian dan kegiatan santri pondok pesantren",
+    "start_url": "/dashboard",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "theme_color": "#003527",
+    "background_color": "#003527",
+    "lang": "id",
+    "dir": "ltr",
+    "categories": ["education", "productivity"],
+    "icons": [
+        {
+            "src": "/icons/icon-72.png",
+            "sizes": "72x72",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-144.png",
+            "sizes": "144x144",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Dashboard Daaru Hiraa"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Dashboard",
+            "short_name": "Dashboard",
+            "description": "Buka dashboard utama",
+            "url": "/dashboard",
+            "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "Scan Absensi",
+            "short_name": "Absensi",
+            "description": "Scan QR code absensi",
+            "url": "/attendance/scan",
+            "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "Kajian",
+            "short_name": "Kajian",
+            "description": "Lihat jadwal kajian",
+            "url": "/kajian",
+            "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+        }
+    ]
+}
