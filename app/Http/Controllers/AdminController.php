@@ -32,9 +32,9 @@ class AdminController extends Controller
 
         $persen = ($totalSantri > 0) ? round(($hadirHariIni / $totalSantri) * 100) : 0;
 
-        // Refleksi & saran terbaru
-        $refleksiTerbaru = Reflection::orderBy('created_at', 'desc')->take(5)->get();
-        $saranTerbaru = Suggestion::orderBy('created_at', 'desc')->take(5)->get();
+        // Refleksi & saran terbaru (dengan eager loading)
+        $refleksiTerbaru = Reflection::with('user')->orderBy('created_at', 'desc')->take(5)->get();
+        $saranTerbaru = Suggestion::with('student')->orderBy('created_at', 'desc')->take(5)->get();
 
         // Ustadz scheduled for today (from asatiz_attendance table — recorded)
         $recordedAttendances = AsatizAttendance::with('asatiz')

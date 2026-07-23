@@ -355,25 +355,35 @@ class RekapController extends Controller
         $monthName = $monthNames[$month];
 
         if ($view === 'tahunan') {
+            // Ambil semua hadir per santri per bulan — 1 query saja
+            $yearlyLogs = AttendanceLog::selectRaw('student_id, MONTH(attendance_date) as month, COUNT(*) as count')
+                ->whereYear('attendance_date', $year)
+                ->where('session_type', 'Kajian')
+                ->whereIn('status', ['H', 'I'])
+                ->groupBy('student_id', 'month')
+                ->get()
+                ->groupBy('student_id');
+
+            // KBM days per bulan — 12 query total (bukan N santri x 12 bulan x 2)
+            $kbmPerBulan = [];
+            for ($m = 1; $m <= 12; $m++) {
+                $kbmPerBulan[$m] = AttendanceLog::whereMonth('attendance_date', $m)
+                    ->whereYear('attendance_date', $year)
+                    ->where('session_type', 'Kajian')
+                    ->distinct('attendance_date')
+                    ->count('attendance_date');
+            }
+
             $rows = [];
             foreach ($santris as $index => $santri) {
+                $santriLogs = $yearlyLogs->get($santri->id, collect())->keyBy('month');
                 $totalHadirYearly = 0;
                 $totalKBMYearly = 0;
                 $monthlyPercentages = [];
 
                 for ($m = 1; $m <= 12; $m++) {
-                    $hadir = AttendanceLog::where('student_id', $santri->id)
-                        ->whereMonth('attendance_date', $m)
-                        ->whereYear('attendance_date', $year)
-                        ->where('session_type', 'Kajian')
-                        ->whereIn('status', ['H', 'I'])
-                        ->count();
-
-                    $totalKBM = AttendanceLog::whereMonth('attendance_date', $m)
-                        ->whereYear('attendance_date', $year)
-                        ->where('session_type', 'Kajian')
-                        ->distinct('attendance_date')
-                        ->count('attendance_date');
+                    $hadir = isset($santriLogs[$m]) ? $santriLogs[$m]->count : 0;
+                    $totalKBM = $kbmPerBulan[$m];
 
                     $totalHadirYearly += $hadir;
                     $totalKBMYearly += $totalKBM;
