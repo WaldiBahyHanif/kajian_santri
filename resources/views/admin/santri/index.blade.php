@@ -97,10 +97,31 @@
         @endif
     </div>
 
+    <!-- Filter Status Tabs -->
+    <div class="flex flex-wrap gap-2 mb-4">
+        <a href="{{ route('admin.santri.index', ['status' => 'Aktif']) }}"
+           class="px-4 py-2 font-black rounded-lg border-4 border-black text-xs uppercase transition-all shadow-[3px_3px_0_0_#000] active:translate-y-0.5 active:shadow-none flex items-center gap-2 {{ $statusFilter === 'Aktif' ? 'bg-[#39FF14] text-black' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
+            <span>🟢 Santri Aktif</span>
+            <span class="bg-black text-white px-2 py-0.5 rounded-full text-[10px] font-black">{{ $countAktif }}</span>
+        </a>
+        <a href="{{ route('admin.santri.index', ['status' => 'Lulus']) }}"
+           class="px-4 py-2 font-black rounded-lg border-4 border-black text-xs uppercase transition-all shadow-[3px_3px_0_0_#000] active:translate-y-0.5 active:shadow-none flex items-center gap-2 {{ $statusFilter === 'Lulus' ? 'bg-purple-300 text-black' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
+            <span>🎓 Alumni / Lulus</span>
+            <span class="bg-black text-white px-2 py-0.5 rounded-full text-[10px] font-black">{{ $countLulus }}</span>
+        </a>
+        <a href="{{ route('admin.santri.index', ['status' => 'all']) }}"
+           class="px-4 py-2 font-black rounded-lg border-4 border-black text-xs uppercase transition-all shadow-[3px_3px_0_0_#000] active:translate-y-0.5 active:shadow-none flex items-center gap-2 {{ $statusFilter === 'all' ? 'bg-yellow-300 text-black' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
+            <span>👥 Semua Santri</span>
+            <span class="bg-black text-white px-2 py-0.5 rounded-full text-[10px] font-black">{{ $countSemua }}</span>
+        </a>
+    </div>
+
     <!-- Data Table -->
     <div class="bg-white border-4 border-black rounded-lg overflow-hidden shadow-[4px_4px_0_0_#000]">
         <div class="p-4 bg-black text-white font-black flex justify-between items-center">
-            <span class="uppercase text-sm tracking-widest">Daftar Santri & Musyrif ({{ $santris->count() }})</span>
+            <span class="uppercase text-sm tracking-widest">
+                Daftar {{ $statusFilter === 'Aktif' ? 'Santri Aktif' : ($statusFilter === 'Lulus' ? 'Alumni / Santri Lulus' : 'Semua Santri & Musyrif') }} ({{ $santris->count() }})
+            </span>
         </div>
 
         <div x-data="{ editOpen: false, data: {} }">
@@ -117,7 +138,7 @@
                 <span class="col-span-2 text-right">Aksi</span>
             </div>
 
-            @foreach($santris as $s)
+            @forelse($santris as $s)
             <div class="p-3 border-b-2 border-gray-200 grid grid-cols-1 lg:grid-cols-12 gap-2 items-center hover:bg-yellow-50 transition-colors">
                 {{-- Nama (mobile: tampil semua info) --}}
                 <div class="lg:col-span-2">
@@ -172,8 +193,12 @@
                         </button>
                     </form>
                 </div>
+            @empty
+            <div class="p-8 text-center text-gray-500 font-bold">
+                <span class="material-symbols-outlined text-4xl text-gray-400 block mb-2">group_off</span>
+                Tidak ada data santri ditemukan untuk kategori ini.
             </div>
-            @endforeach
+            @endforelse
 
             <!-- Edit Modal -->
             <div x-show="editOpen" x-cloak class="fixed inset-0 bg-black/70 z-[100] flex items-center justify-center p-4">

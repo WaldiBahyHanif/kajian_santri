@@ -9,12 +9,33 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminSantriController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $santris = Student::whereIn('title', ['Santri', 'Musyrif'])->orderBy('name', 'asc')->get();
+        $statusFilter = $request->query('status', 'Aktif');
+
+        $query = Student::whereIn('title', ['Santri', 'Musyrif']);
+
+        if (in_array($statusFilter, ['Aktif', 'Lulus'])) {
+            $query->where('status_aktif', $statusFilter);
+        }
+
+        $santris = $query->orderBy('name', 'asc')->get();
+
+        $countAktif = Student::whereIn('title', ['Santri', 'Musyrif'])->where('status_aktif', 'Aktif')->count();
+        $countLulus = Student::whereIn('title', ['Santri', 'Musyrif'])->where('status_aktif', 'Lulus')->count();
+        $countSemua = Student::whereIn('title', ['Santri', 'Musyrif'])->count();
+
         // Get unique generations for the rollover modal dropdown
         $generations = Student::whereNotNull('generation')->where('generation', '!=', '')->distinct()->pluck('generation')->sort()->values();
-        return view('admin.santri.index', compact('santris', 'generations'));
+
+        return view('admin.santri.index', compact(
+            'santris',
+            'generations',
+            'statusFilter',
+            'countAktif',
+            'countLulus',
+            'countSemua'
+        ));
     }
 
     public function store(Request $request)
