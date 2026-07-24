@@ -28,9 +28,9 @@
 <div x-data="{ rolloverOpen: false }">
     
     <!-- Top Action bar -->
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
         <h3 class="font-black text-xl uppercase text-black">Data Master Santri</h3>
-        <button @click="rolloverOpen = true" class="bg-purple-300 text-black border-4 border-black px-4 py-2 font-black shadow-[4px_4px_0_0_#000] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-y-1 active:shadow-none transition-all text-xs uppercase flex items-center gap-2 cursor-pointer">
+        <button @click="rolloverOpen = true" class="w-full sm:w-auto justify-center bg-purple-300 text-black border-4 border-black px-4 py-2 font-black shadow-[4px_4px_0_0_#000] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-y-1 active:shadow-none transition-all text-xs uppercase flex items-center gap-2 cursor-pointer">
             <span class="material-symbols-outlined text-sm font-black">school</span> LULUSKAN ANGKATAN
         </button>
     </div>
@@ -62,31 +62,31 @@
     </div>
 
     <!-- Form Tambah -->
-    <div class="bg-white p-5 rounded-lg border-4 border-black shadow-[4px_4px_0_0_#000] mb-6">
+    <div class="bg-white p-4 sm:p-5 rounded-lg border-4 border-black shadow-[4px_4px_0_0_#000] mb-6">
         <h3 class="font-black text-lg mb-4 uppercase flex items-center gap-2">
             <span class="material-symbols-outlined text-[#00E5FF]">person_add</span> Tambah Santri / Musyrif
         </h3>
         <form action="{{ route('admin.santri.store') }}" method="POST" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             @csrf
-            <input type="text" name="name" placeholder="Nama Lengkap" class="border-4 border-black p-2.5 rounded-lg font-bold focus:outline-none focus:bg-yellow-50 text-black placeholder-gray-500 text-sm" required>
-            <input type="text" name="username" placeholder="Username" class="border-4 border-black p-2.5 rounded-lg font-bold focus:outline-none focus:bg-yellow-50 text-black placeholder-gray-500 text-sm" required>
+            <input type="text" name="name" placeholder="Nama Lengkap" class="w-full border-4 border-black p-2.5 rounded-lg font-bold focus:outline-none focus:bg-yellow-50 text-black placeholder-gray-500 text-sm" required>
+            <input type="text" name="username" placeholder="Username" class="w-full border-4 border-black p-2.5 rounded-lg font-bold focus:outline-none focus:bg-yellow-50 text-black placeholder-gray-500 text-sm" required>
             <div class="grid grid-cols-2 gap-3">
-                <select name="title" class="border-4 border-black p-2.5 rounded-lg font-bold focus:outline-none focus:bg-yellow-50 text-black text-sm">
+                <select name="title" class="w-full border-4 border-black p-2.5 rounded-lg font-bold focus:outline-none focus:bg-yellow-50 text-black text-sm">
                     <option value="Santri">SANTRI</option>
                     <option value="Musyrif">MUSYRIF</option>
                 </select>
-                <select name="status_aktif" class="border-4 border-black p-2.5 rounded-lg font-bold focus:outline-none focus:bg-yellow-50 text-black text-sm">
+                <select name="status_aktif" class="w-full border-4 border-black p-2.5 rounded-lg font-bold focus:outline-none focus:bg-yellow-50 text-black text-sm">
                     <option value="Aktif">AKTIF</option>
                     <option value="Lulus">LULUS</option>
                 </select>
             </div>
-            <input type="text" name="universitas" list="existing-universities" placeholder="Universitas (opsional)" class="border-4 border-black p-2.5 rounded-lg font-bold focus:outline-none focus:bg-yellow-50 text-black placeholder-gray-500 text-sm">
+            <input type="text" name="universitas" list="existing-universities" placeholder="Universitas (opsional)" class="w-full border-4 border-black p-2.5 rounded-lg font-bold focus:outline-none focus:bg-yellow-50 text-black placeholder-gray-500 text-sm">
             <div class="grid grid-cols-2 gap-3">
-                <input type="text" name="room" placeholder="Kamar" class="border-4 border-black p-2.5 rounded-lg font-bold focus:outline-none focus:bg-yellow-50 text-black placeholder-gray-500 text-sm">
-                <input type="text" name="generation" placeholder="Angkatan Pondok" class="border-4 border-black p-2.5 rounded-lg font-bold focus:outline-none focus:bg-yellow-50 text-black placeholder-gray-500 text-sm">
+                <input type="text" name="room" placeholder="Kamar" class="w-full border-4 border-black p-2.5 rounded-lg font-bold focus:outline-none focus:bg-yellow-50 text-black placeholder-gray-500 text-sm">
+                <input type="text" name="generation" placeholder="Angkatan Pondok" class="w-full border-4 border-black p-2.5 rounded-lg font-bold focus:outline-none focus:bg-yellow-50 text-black placeholder-gray-500 text-sm">
             </div>
-            <input type="number" name="angkatan" placeholder="Tahun Masuk Kuliah (mis. 2023)" min="2000" max="2099" class="border-4 border-black p-2.5 rounded-lg font-bold focus:outline-none focus:bg-yellow-50 text-black placeholder-gray-500 text-sm">
-            <button type="submit" class="bg-black text-white px-4 py-2.5 font-black rounded-lg border-4 border-black hover:bg-[#FFDE00] hover:text-black shadow-[4px_4px_0_0_#000] active:translate-y-1 active:shadow-none transition-all text-sm uppercase">
+            <input type="number" name="angkatan" placeholder="Tahun Masuk Kuliah (mis. 2023)" min="2000" max="2099" class="w-full border-4 border-black p-2.5 rounded-lg font-bold focus:outline-none focus:bg-yellow-50 text-black placeholder-gray-500 text-sm">
+            <button type="submit" class="w-full bg-black text-white px-4 py-2.5 font-black rounded-lg border-4 border-black hover:bg-[#FFDE00] hover:text-black shadow-[4px_4px_0_0_#000] active:translate-y-1 active:shadow-none transition-all text-sm uppercase">
                 + Simpan Santri
             </button>
         </form>
@@ -98,19 +98,19 @@
     </div>
 
     <!-- Filter Status Tabs -->
-    <div class="flex flex-wrap gap-2 mb-4">
+    <div class="flex flex-wrap gap-2 mb-4 overflow-x-auto pb-1 max-w-full">
         <a href="{{ route('admin.santri.index', ['status' => 'Aktif']) }}"
-           class="px-4 py-2 font-black rounded-lg border-4 border-black text-xs uppercase transition-all shadow-[3px_3px_0_0_#000] active:translate-y-0.5 active:shadow-none flex items-center gap-2 {{ $statusFilter === 'Aktif' ? 'bg-[#39FF14] text-black' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
+           class="px-3 sm:px-4 py-2 font-black rounded-lg border-4 border-black text-xs uppercase transition-all shadow-[3px_3px_0_0_#000] active:translate-y-0.5 active:shadow-none flex items-center gap-1.5 shrink-0 {{ $statusFilter === 'Aktif' ? 'bg-[#39FF14] text-black' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
             <span>🟢 Santri Aktif</span>
             <span class="bg-black text-white px-2 py-0.5 rounded-full text-[10px] font-black">{{ $countAktif }}</span>
         </a>
         <a href="{{ route('admin.santri.index', ['status' => 'Lulus']) }}"
-           class="px-4 py-2 font-black rounded-lg border-4 border-black text-xs uppercase transition-all shadow-[3px_3px_0_0_#000] active:translate-y-0.5 active:shadow-none flex items-center gap-2 {{ $statusFilter === 'Lulus' ? 'bg-purple-300 text-black' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
+           class="px-3 sm:px-4 py-2 font-black rounded-lg border-4 border-black text-xs uppercase transition-all shadow-[3px_3px_0_0_#000] active:translate-y-0.5 active:shadow-none flex items-center gap-1.5 shrink-0 {{ $statusFilter === 'Lulus' ? 'bg-purple-300 text-black' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
             <span>🎓 Alumni / Lulus</span>
             <span class="bg-black text-white px-2 py-0.5 rounded-full text-[10px] font-black">{{ $countLulus }}</span>
         </a>
         <a href="{{ route('admin.santri.index', ['status' => 'all']) }}"
-           class="px-4 py-2 font-black rounded-lg border-4 border-black text-xs uppercase transition-all shadow-[3px_3px_0_0_#000] active:translate-y-0.5 active:shadow-none flex items-center gap-2 {{ $statusFilter === 'all' ? 'bg-yellow-300 text-black' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
+           class="px-3 sm:px-4 py-2 font-black rounded-lg border-4 border-black text-xs uppercase transition-all shadow-[3px_3px_0_0_#000] active:translate-y-0.5 active:shadow-none flex items-center gap-1.5 shrink-0 {{ $statusFilter === 'all' ? 'bg-yellow-300 text-black' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
             <span>👥 Semua Santri</span>
             <span class="bg-black text-white px-2 py-0.5 rounded-full text-[10px] font-black">{{ $countSemua }}</span>
         </a>
@@ -119,12 +119,12 @@
     <!-- Data Table -->
     <div class="bg-white border-4 border-black rounded-lg overflow-hidden shadow-[4px_4px_0_0_#000]">
         <div class="p-4 bg-black text-white font-black flex justify-between items-center">
-            <span class="uppercase text-sm tracking-widest">
+            <span class="uppercase text-sm tracking-widest truncate">
                 Daftar {{ $statusFilter === 'Aktif' ? 'Santri Aktif' : ($statusFilter === 'Lulus' ? 'Alumni / Santri Lulus' : 'Semua Santri & Musyrif') }} ({{ $santris->count() }})
             </span>
         </div>
 
-        <div x-data="{ editOpen: false, data: {} }">
+        <div x-data="{ editOpen: false, data: {} }" class="overflow-x-auto">
             <!-- Table Header -->
             <div class="hidden lg:grid grid-cols-12 gap-2 p-3 bg-gray-100 border-b-4 border-black text-xs font-black uppercase">
                 <span class="col-span-2">Nama</span>
@@ -141,12 +141,18 @@
             @forelse($santris as $s)
             <div class="p-3 border-b-2 border-gray-200 grid grid-cols-1 lg:grid-cols-12 gap-2 items-center hover:bg-yellow-50 transition-colors">
                 {{-- Nama (mobile: tampil semua info) --}}
-                <div class="lg:col-span-2">
-                    <span class="font-black text-sm">{{ $s->name }}</span>
-                    <span class="lg:hidden text-xs text-gray-500 block mt-0.5">
-                        {{ $s->username }} · {{ $s->title }} · {{ $s->status_aktif === 'Lulus' ? 'Alumni' : $s->status_aktif }}
+                <div class="lg:col-span-2 min-w-0">
+                    <div class="flex items-center justify-between gap-2 lg:block">
+                        <span class="font-black text-sm block truncate">{{ $s->name }}</span>
+                        <div class="flex gap-1 items-center lg:hidden shrink-0">
+                            <span class="text-[10px] px-2 py-0.5 rounded border-2 border-black font-black uppercase {{ $s->title === 'Musyrif' ? 'bg-purple-300' : 'bg-cyan-300' }}">{{ $s->title }}</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded border-2 border-black font-black {{ $s->status_aktif === 'Aktif' ? 'bg-green-300' : 'bg-gray-300' }}">{{ $s->status_aktif === 'Lulus' ? 'Alumni' : $s->status_aktif }}</span>
+                        </div>
+                    </div>
+                    <span class="lg:hidden text-xs text-gray-500 block mt-1 break-words">
+                        {{ $s->username }}
                         @if($s->universitas) · 🎓 {{ $s->universitas }}@if($s->angkatan) '{{ substr($s->angkatan, 2) }}@endif @endif
-                        · Ang. Pdok: {{ $s->generation ?? '-' }}
+                        · Kamar: {{ $s->room ?? '-' }} · Ang. Pdok: {{ $s->generation ?? '-' }}
                     </span>
                 </div>
                 {{-- Universitas --}}
@@ -180,7 +186,7 @@
                 {{-- Streak --}}
                 <div class="hidden lg:flex lg:col-span-1 justify-center text-sm font-black">{{ $s->current_streak ?? 0 }}</div>
                 {{-- Aksi --}}
-                <div class="lg:col-span-2 flex justify-end gap-2">
+                <div class="lg:col-span-2 flex justify-end gap-2 mt-2 lg:mt-0">
                     <button type="button"
                         @click="data = { id: {{ $s->id }}, name: '{{ addslashes($s->name) }}', username: '{{ addslashes($s->username) }}', title: '{{ $s->title }}', status_aktif: '{{ $s->status_aktif }}', room: '{{ addslashes($s->room ?? '') }}', generation: '{{ addslashes($s->generation ?? '') }}', universitas: '{{ addslashes($s->universitas ?? '') }}', angkatan: '{{ $s->angkatan ?? '' }}' }; editOpen = true"
                         class="bg-cyan-300 text-black px-3 py-1 rounded border-2 border-black text-xs font-black shadow-[2px_2px_0_0_#000] active:translate-y-0.5 active:shadow-none transition-all">
@@ -193,6 +199,7 @@
                         </button>
                     </form>
                 </div>
+            </div>
             @empty
             <div class="p-8 text-center text-gray-500 font-bold">
                 <span class="material-symbols-outlined text-4xl text-gray-400 block mb-2">group_off</span>
