@@ -91,18 +91,22 @@ class DashboardController extends Controller
 
         $upcomingKajian = collect();
         foreach ($upcomingKajianRaw as $k) {
+            $id = data_get($k, 'id');
+            if (!$id) continue;
+
             $item = new \stdClass();
-            $item->id = 'event_' . $k->id;
+            $item->id = 'event_' . $id;
             $item->is_routine = false;
-            $item->title = $k->title;
-            $item->asatiz = $k->asatiz;
-            $item->asatiz_id = $k->asatiz_id;
-            $item->program = $k->program;
-            $item->date = \Carbon\Carbon::parse($k->date);
-            $item->time = $k->time;
-            $item->location = $k->location;
-            $item->description = $k->description;
-            $item->quota = $k->quota;
+            $item->title = data_get($k, 'title');
+            $item->asatiz = data_get($k, 'asatiz');
+            $item->asatiz_id = data_get($k, 'asatiz_id');
+            $item->program = data_get($k, 'program');
+            $rawDate = data_get($k, 'date');
+            $item->date = $rawDate instanceof \Carbon\Carbon ? $rawDate : \Carbon\Carbon::parse($rawDate);
+            $item->time = data_get($k, 'time');
+            $item->location = data_get($k, 'location');
+            $item->description = data_get($k, 'description');
+            $item->quota = data_get($k, 'quota');
 
             $kajianDateTime = \Carbon\Carbon::parse($item->date->format('Y-m-d') . ' ' . $item->time);
             $diffInMinutes = now()->diffInMinutes($kajianDateTime, false);
@@ -125,20 +129,23 @@ class DashboardController extends Controller
             $currentDate = now()->addDays($i);
             $dayOfWeekIso = $currentDate->dayOfWeekIso;
 
-            $dayTopics = $topics->where('day_index', $dayOfWeekIso);
+            $dayTopics = collect($topics)->filter(fn($t) => data_get($t, 'day_index') == $dayOfWeekIso);
 
             foreach ($dayTopics as $topic) {
+                $topicId = data_get($topic, 'id');
+                if (!$topicId) continue;
+
                 $item = new \stdClass();
-                $item->id = 'routine_' . $topic->id;
+                $item->id = 'routine_' . $topicId;
                 $item->is_routine = true;
-                $item->title = $topic->title;
-                $item->asatiz = $topic->asatiz;
-                $item->asatiz_id = $topic->asatiz_id;
+                $item->title = data_get($topic, 'title');
+                $item->asatiz = data_get($topic, 'asatiz');
+                $item->asatiz_id = data_get($topic, 'asatiz_id');
                 $item->program = null;
                 $item->date = $currentDate->copy()->startOfDay();
-                $item->time = $topic->start_time ?? '00:00:00';
+                $item->time = data_get($topic, 'start_time') ?? '00:00:00';
                 $item->location = 'Aula Utama Pondok';
-                $item->description = $topic->description;
+                $item->description = data_get($topic, 'description');
                 $item->quota = null;
 
                 $kajianDateTime = \Carbon\Carbon::parse($currentDate->format('Y-m-d') . ' ' . $item->time);
