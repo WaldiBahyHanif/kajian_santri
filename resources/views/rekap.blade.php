@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html class="antialiased" lang="id">
 <head>
     <meta charset="utf-8"/>
@@ -329,7 +329,7 @@
                             $delay = min($i * 0.05, 1.5);
                         @endphp
                         <div class="flex items-center gap-3 group" style="animation: fadeInUp 0.4s ease forwards; animation-delay: {{ $delay }}s; opacity: 0;">
-                            <div class="w-36 md:w-48 text-xs font-body font-bold text-on-surface truncate shrink-0" title="{{ $stat['name'] }}">
+                            <div class="w-28 sm:w-36 md:w-48 text-[11px] sm:text-xs font-body font-bold text-on-surface truncate shrink-0" title="{{ $stat['name'] }}">
                                 {{ $stat['name'] }}
                             </div>
                             <div class="flex-1 bg-surface-container-high dark:bg-surface-container rounded-full h-7 relative overflow-hidden border-2 border-black/10 dark:border-white/10">

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html class="antialiased" lang="id">
 <head>
     <meta charset="utf-8"/>
@@ -214,6 +214,27 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+        }
+        /* Mobile optimization: make sticky columns narrower so more date columns fit on mobile */
+        @media (max-width: 640px) {
+            .rekap-table th, .rekap-table td {
+                padding: 5px 2px;
+                font-size: 10px;
+            }
+            .rekap-table th:first-child,
+            .rekap-table td:first-child {
+                min-width: 28px;
+                max-width: 28px;
+                width: 28px;
+            }
+            .rekap-table th:nth-child(2),
+            .rekap-table td:nth-child(2) {
+                left: 28px;
+                min-width: 105px;
+                max-width: 105px;
+                width: 105px;
+                padding-left: 4px !important;
+            }
         }
         /* headers should have higher z-index to stay above vertical scrolling */
         .rekap-table thead th:first-child,
@@ -500,6 +521,13 @@
                     </div>
                 </div>
             @endif
+
+            <!-- Mobile Scroll Hint -->
+            <div class="flex items-center justify-between text-[11px] font-cartoon font-bold text-on-surface-variant mb-2 md:hidden">
+                <span class="flex items-center gap-1 bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-md border border-black/20 dark:border-white/20">
+                    👈👉 Geser tabel ke kanan untuk melihat tanggal lengkap
+                </span>
+            </div>
 
             <!-- Table Container -->
             <div class="table-scroll overflow-auto rounded-xl border-3 border-black dark:border-white max-h-[65vh]">

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html class="light" lang="id">
 <head>
     <meta charset="utf-8"/>
@@ -171,13 +171,20 @@
             100% { background-position: 468px 0; }
         }
 
-        /* Filter bar sticky */
+        /* Filter bar: relative on mobile (so search doesn't cover santri cards), sticky on desktop */
         .filter-bar {
-            position: sticky;
-            top: 76px;
-            z-index: 30;
-            backdrop-filter: blur(12px);
-            background: rgba(var(--surface-container-lowest), 0.92);
+            position: relative;
+            top: 0;
+            z-index: 10;
+        }
+        @media (min-width: 768px) {
+            .filter-bar {
+                position: sticky;
+                top: 76px;
+                z-index: 30;
+                backdrop-filter: blur(12px);
+                background: rgba(var(--surface-container-lowest), 0.92);
+            }
         }
 
         /* Empty state animation */
