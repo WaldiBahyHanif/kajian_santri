@@ -27,9 +27,11 @@ class AuthenticatedSessionController extends Controller
         $isAdminLogin = $request->boolean('admin');
         $guard = $isAdminLogin ? 'admin' : 'web';
 
-        // Block alumni from logging in
+        // Block alumni from logging in — single DB query, sebelum auth attempt
         if (!$isAdminLogin) {
-            $student = \App\Models\Student::where('username', $request->username)->first();
+            $student = \App\Models\Student::select('id', 'username', 'status_aktif')
+                ->where('username', $request->username)
+                ->first();
             if ($student && $student->status_aktif === 'Lulus') {
                 return redirect()->route('login')
                     ->withInput($request->only('username'))

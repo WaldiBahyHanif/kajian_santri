@@ -6,6 +6,7 @@ use App\Models\AttendanceLog;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
 {
@@ -17,51 +18,76 @@ class DashboardController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        $recentLogs = $user->attendanceLogs()->latest()->take(7)->get()->reverse()->values();
+        // Recent logs: user-specific, short cache TTL
+        $recentLogs = Cache::remember(
+            'user_recent_logs_' . $user->id,
+            now()->addMinutes(2),
+            fn() => $user->attendanceLogs()->latest()->take(7)->get()->reverse()->values()
+        );
         
-        $topStreaks = Student::where('status_aktif', 'Aktif')
-            ->orderBy('current_streak', 'desc')
-            ->orderBy('name', 'asc')
-            ->take(3)
-            ->get();
+        // Top 3 streaks: cached 5 menit karena jarang berubah
+        $topStreaks = Cache::remember('top_streaks', now()->addMinutes(5), function () {
+            return Student::where('status_aktif', 'Aktif')
+                ->orderBy('current_streak', 'desc')
+                ->orderBy('name', 'asc')
+                ->take(3)
+                ->get();
+        });
 
-        $allStreaks = Student::select(['id', 'name', 'current_streak', 'avatar', 'title', 'room'])
-            ->where('status_aktif', 'Aktif')
-            ->orderBy('current_streak', 'desc')
-            ->orderBy('name', 'asc')
-            ->get();
+        // All streaks dengan LIMIT 50 — tidak perlu load semua santri
+        $allStreaks = Cache::remember('all_streaks_50', now()->addMinutes(5), function () {
+            return Student::select(['id', 'name', 'current_streak', 'avatar', 'title', 'room'])
+                ->where('status_aktif', 'Aktif')
+                ->orderBy('current_streak', 'desc')
+                ->orderBy('name', 'asc')
+                ->limit(50)
+                ->get();
+        });
 
-        $reflections = \App\Models\Reflection::with('user')
-            ->orderBy('created_at', 'desc')
-            ->take(6)
-            ->get();
+        // Refleksi terbaru: cached 3 menit
+        $reflections = Cache::remember('recent_reflections', now()->addMinutes(3), function () {
+            return \App\Models\Reflection::with('user')
+                ->orderBy('created_at', 'desc')
+                ->take(6)
+                ->get();
+        });
 
-        // Mood Tracker Integration
+        // Mood Tracker: user-specific, tidak perlu cache lama
         $todayMood = \App\Models\DailyMood::where('student_id', $user->id)
             ->whereDate('created_at', now()->toDateString())
             ->first();
 
-        // Get past 7 days of moods (for SVG chart)
-        $pastMoods = \App\Models\DailyMood::where('student_id', $user->id)
-            ->where('created_at', '>=', now()->subDays(6)->startOfDay())
-            ->orderBy('created_at', 'asc')
-            ->get();
+        // Get past 7 days of moods (for SVG chart): user-specific, cache 10 menit
+        $pastMoods = Cache::remember(
+            'user_past_moods_' . $user->id . '_' . now()->toDateString(),
+            now()->addMinutes(10),
+            fn() => \App\Models\DailyMood::where('student_id', $user->id)
+                ->where('created_at', '>=', now()->subDays(6)->startOfDay())
+                ->orderBy('created_at', 'asc')
+                ->get()
+        );
 
-        // Musyrif Alert Integration
+        // Musyrif Alert: cached 5 menit, hanya load jika Musyrif
         $flaggedSantri = [];
         if ($user->title === 'Musyrif') {
-            $flaggedSantri = \App\Models\DailyMood::with('student')
-                ->whereDate('created_at', now()->toDateString())
-                ->whereIn('mood_type', ['Futur', 'Butuh Cerita'])
-                ->get();
+            $flaggedSantri = Cache::remember(
+                'flagged_santri_' . now()->toDateString(),
+                now()->addMinutes(5),
+                fn() => \App\Models\DailyMood::with('student')
+                    ->whereDate('created_at', now()->toDateString())
+                    ->whereIn('mood_type', ['Futur', 'Butuh Cerita'])
+                    ->get()
+            );
         }
 
-        // Load upcoming kajian (event)
-        $upcomingKajianRaw = \App\Models\Kajian::with(['asatiz', 'program'])
-            ->where('date', '>=', now()->toDateString())
-            ->orderBy('date', 'asc')
-            ->orderBy('time', 'asc')
-            ->get();
+        // Upcoming kajian: cached 5 menit
+        $upcomingKajianRaw = Cache::remember('upcoming_kajian', now()->addMinutes(5), function () {
+            return \App\Models\Kajian::with(['asatiz', 'program'])
+                ->where('date', '>=', now()->toDateString())
+                ->orderBy('date', 'asc')
+                ->orderBy('time', 'asc')
+                ->get();
+        });
 
         $upcomingKajian = collect();
         foreach ($upcomingKajianRaw as $k) {
@@ -88,8 +114,11 @@ class DashboardController extends Controller
             $upcomingKajian->push($item);
         }
 
-        // Load kajian tetap (rutin)
-        $topics = \App\Models\Topic::with('asatiz')->get();
+        // Topics rutin: cached 10 menit (jarang berubah)
+        $topics = Cache::remember('all_topics_with_asatiz', now()->addMinutes(10), function () {
+            return \App\Models\Topic::with('asatiz')->get();
+        });
+
         $routineKajian = collect();
 
         for ($i = 0; $i < 7; $i++) {
@@ -135,36 +164,43 @@ class DashboardController extends Controller
             ->take(3)
             ->values();
         
-        $setting = \App\Models\Setting::first();
-        if (!$setting) {
-            $setting = \App\Models\Setting::create([
-                'id' => 1,
-                'announcement_text' => '',
-                'is_popup_active' => false,
-                'garden_status' => 'subur',
-                'garden_message' => 'Selamat beraktivitas! Mari hiasi hari kita dengan zikir dan kajian berilmu di pondok Daaru Hiraa.',
-            ]);
-        }
+        // Setting: cached 10 menit (sangat jarang berubah)
+        $setting = Cache::remember('app_setting', now()->addMinutes(10), function () {
+            $s = \App\Models\Setting::first();
+            if (!$s) {
+                $s = \App\Models\Setting::create([
+                    'id' => 1,
+                    'announcement_text' => '',
+                    'is_popup_active' => false,
+                    'garden_status' => 'subur',
+                    'garden_message' => 'Selamat beraktivitas! Mari hiasi hari kita dengan zikir dan kajian berilmu di pondok Daaru Hiraa.',
+                ]);
+            }
+            return $s;
+        });
 
-        // Hitung status kebun otomatis atau gunakan manual berdasarkan setting
+        // Hitung status kebun otomatis — hanya jika mode auto, cached per hari
         if (($setting->garden_mode ?? 'auto') === 'auto') {
             $todayStr = now()->toDateString();
-            $totalStudents = Student::where('status_aktif', 'Aktif')->whereIn('title', ['Santri', 'Musyrif'])->count();
-            $presentToday = AttendanceLog::where('attendance_date', $todayStr)->where('status', 'H')->count();
-            $attendanceRate = $totalStudents > 0 ? ($presentToday / $totalStudents) * 100 : 0;
-            $reflectionsCount = \App\Models\Reflection::whereDate('created_at', '>=', now()->startOfDay())->count();
+            $autoStatus = Cache::remember('garden_status_' . $todayStr, now()->addMinutes(5), function () use ($todayStr) {
+                $totalStudents = Student::where('status_aktif', 'Aktif')
+                    ->whereIn('title', ['Santri', 'Musyrif'])
+                    ->count();
+                $presentToday = AttendanceLog::where('attendance_date', $todayStr)
+                    ->where('status', 'H')
+                    ->count();
+                $attendanceRate = $totalStudents > 0 ? ($presentToday / $totalStudents) * 100 : 0;
+                $reflectionsCount = \App\Models\Reflection::whereDate('created_at', '>=', now()->startOfDay())->count();
 
-            // Tentukan status dinamis
-            $autoStatus = 'subur';
-            if ($attendanceRate >= 75 && $reflectionsCount >= 3) {
-                $autoStatus = 'subur_sekali';
-            } elseif ($attendanceRate >= 45 || $reflectionsCount >= 1) {
-                $autoStatus = 'subur';
-            } elseif ($attendanceRate > 0 && $reflectionsCount == 0) {
-                $autoStatus = 'biasa';
-            } else {
-                $autoStatus = 'kering';
-            }
+                if ($attendanceRate >= 75 && $reflectionsCount >= 3) {
+                    return 'subur_sekali';
+                } elseif ($attendanceRate >= 45 || $reflectionsCount >= 1) {
+                    return 'subur';
+                } elseif ($attendanceRate > 0 && $reflectionsCount == 0) {
+                    return 'biasa';
+                }
+                return 'kering';
+            });
 
             // Terapkan ke setting runtime agar dibaca oleh view
             $setting->garden_status = $autoStatus;
