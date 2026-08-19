@@ -37,7 +37,8 @@ class Student extends Authenticatable
 
     public function attendanceLogs()
     {
-        return $this->hasMany(AttendanceLog::class, 'user_id');
+        $fk = \Illuminate\Support\Facades\Schema::hasColumn('attendance_logs', 'user_id') ? 'user_id' : 'student_id';
+        return $this->hasMany(AttendanceLog::class, $fk);
     }
 
     public function warnings()

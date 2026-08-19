@@ -24,6 +24,7 @@ class AttendanceLog extends Model
 
     public function student()
     {
-        return $this->belongsTo(Student::class, 'user_id');
+        $fk = \Illuminate\Support\Facades\Schema::hasColumn('attendance_logs', 'user_id') ? 'user_id' : 'student_id';
+        return $this->belongsTo(Student::class, $fk);
     }
 }
