@@ -18,76 +18,112 @@ class DashboardController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        // Recent logs: user-specific, short cache TTL
-        $recentLogs = Cache::remember(
-            'user_recent_logs_' . $user->id,
-            now()->addMinutes(2),
-            fn() => $user->attendanceLogs()->latest()->take(7)->get()->reverse()->values()
-        );
+        // Recent logs: user-specific
+        $recentLogs = $user->attendanceLogs()->latest()->take(7)->get()->reverse()->values();
         
-        // Top 3 streaks: cached 5 menit karena jarang berubah
-        $topStreaks = Cache::remember('top_streaks', now()->addMinutes(5), function () {
-            return Student::where('status_aktif', 'Aktif')
-                ->orderBy('current_streak', 'desc')
-                ->orderBy('name', 'asc')
-                ->take(3)
-                ->get();
-        });
+        // Top 3 streaks santri (direct query)
+        $topStreaks = Student::where('status_aktif', 'Aktif')
+            ->orderBy('current_streak', 'desc')
+            ->orderBy('name', 'asc')
+            ->take(3)
+            ->get();
 
-        // All streaks dengan LIMIT 50 — tidak perlu load semua santri
-        $allStreaks = Cache::remember('all_streaks_50', now()->addMinutes(5), function () {
-            return Student::select(['id', 'name', 'current_streak', 'avatar', 'title', 'room'])
-                ->where('status_aktif', 'Aktif')
-                ->orderBy('current_streak', 'desc')
-                ->orderBy('name', 'asc')
-                ->limit(50)
-                ->get();
-        });
+        // All streaks dengan LIMIT 50
+        $allStreaks = Student::select(['id', 'name', 'current_streak', 'avatar', 'title'])
+            ->where('status_aktif', 'Aktif')
+            ->orderBy('current_streak', 'desc')
+            ->orderBy('name', 'asc')
+            ->limit(50)
+            ->get();
 
-        // Refleksi terbaru: cached 3 menit
-        $reflections = Cache::remember('recent_reflections', now()->addMinutes(3), function () {
-            return \App\Models\Reflection::with('user')
-                ->orderBy('created_at', 'desc')
-                ->take(6)
-                ->get();
-        });
+        // Refleksi terbaru
+        $reflections = \App\Models\Reflection::with('user')
+            ->orderBy('created_at', 'desc')
+            ->take(6)
+            ->get();
 
-        // Mood Tracker: user-specific, tidak perlu cache lama
-        $todayMood = \App\Models\DailyMood::where('student_id', $user->id)
-            ->whereDate('created_at', now()->toDateString())
-            ->first();
+        // Persentase Kehadiran Kajian Hari Ini
+        $todayDate = now()->toDateString();
+        $totalSantri = Student::where('status_aktif', 'Aktif')
+            ->whereIn('title', ['Santri', 'Musyrif'])
+            ->count();
+        
+        $logsToday = AttendanceLog::where('attendance_date', $todayDate)
+            ->where('session_type', 'Kajian')
+            ->get();
 
-        // Get past 7 days of moods (for SVG chart): user-specific, cache 10 menit
-        $pastMoods = Cache::remember(
-            'user_past_moods_' . $user->id . '_' . now()->toDateString(),
-            now()->addMinutes(10),
-            fn() => \App\Models\DailyMood::where('student_id', $user->id)
-                ->where('created_at', '>=', now()->subDays(6)->startOfDay())
-                ->orderBy('created_at', 'asc')
-                ->get()
-        );
+        $hadirCount = $logsToday->where('status', 'H')->count();
+        $izinCount  = $logsToday->where('status', 'I')->count();
+        $sakitCount = $logsToday->where('status', 'S')->count();
+        $alphaCount = max(0, $totalSantri - ($hadirCount + $izinCount + $sakitCount));
+        $percentage = $totalSantri > 0 ? round(($hadirCount / $totalSantri) * 100) : 0;
 
-        // Musyrif Alert: cached 5 menit, hanya load jika Musyrif
-        $flaggedSantri = [];
-        if ($user->title === 'Musyrif') {
-            $flaggedSantri = Cache::remember(
-                'flagged_santri_' . now()->toDateString(),
-                now()->addMinutes(5),
-                fn() => \App\Models\DailyMood::with('student')
-                    ->whereDate('created_at', now()->toDateString())
-                    ->whereIn('mood_type', ['Futur', 'Butuh Cerita'])
-                    ->get()
-            );
+        $attendanceStats = (object) [
+            'total_santri' => $totalSantri,
+            'hadir'        => $hadirCount,
+            'izin'         => $izinCount,
+            'sakit'        => $sakitCount,
+            'alpha'        => $alphaCount,
+            'percentage'   => $percentage,
+        ];
+
+        // Hitung Stage Kebun Kebaikan Kartun (1=Benih, 2=Tunas, 3=Pohon Rimbun, 4=Pohon Berbuah)
+        if ($percentage >= 85) {
+            $gardenStage = 4;
+        } elseif ($percentage >= 60) {
+            $gardenStage = 3;
+        } elseif ($percentage >= 30) {
+            $gardenStage = 2;
+        } else {
+            $gardenStage = 1;
         }
 
-        // Upcoming kajian: cached 5 menit
-        $upcomingKajianRaw = Cache::remember('upcoming_kajian', now()->addMinutes(5), function () {
-            return \App\Models\Kajian::with(['asatiz', 'program'])
-                ->where('date', '>=', now()->toDateString())
-                ->orderBy('date', 'asc')
-                ->orderBy('time', 'asc')
-                ->get();
+        // Jadwal Sholat Otomatis Maguwoharjo, Sleman, DIY: cached 24 jam (simpan sebagai array di cache)
+        $prayerTimesArray = Cache::remember('prayer_times_sleman_' . $todayDate, now()->endOfDay(), function () {
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(2)
+                    ->get('https://api.aladhan.com/v1/timings', [
+                        'latitude'  => -7.7656,
+                        'longitude' => 110.4308,
+                        'method'    => 20, // Kemenag / MWL standard for ID
+                    ]);
+
+                if ($response->successful()) {
+                    $timings = $response->json('data.timings');
+                    if ($timings) {
+                        return [
+                            'Fajr'     => substr($timings['Fajr'] ?? '04:35', 0, 5),
+                            'Sunrise'  => substr($timings['Sunrise'] ?? '05:48', 0, 5),
+                            'Dhuhr'    => substr($timings['Dhuhr'] ?? '11:52', 0, 5),
+                            'Asr'      => substr($timings['Asr'] ?? '15:12', 0, 5),
+                            'Maghrib'  => substr($timings['Maghrib'] ?? '17:50', 0, 5),
+                            'Isha'     => substr($timings['Isha'] ?? '19:00', 0, 5),
+                            'location' => 'Maguwoharjo, Sleman, DIY',
+                        ];
+                    }
+                }
+            } catch (\Exception $e) {
+                // Fallback jika offline/timeout
+            }
+
+            return [
+                'Fajr'     => '04:35',
+                'Sunrise'  => '05:48',
+                'Dhuhr'    => '11:52',
+                'Asr'      => '15:12',
+                'Maghrib'  => '17:50',
+                'Isha'     => '19:00',
+                'location' => 'Maguwoharjo, Sleman, DIY',
+            ];
         });
+        $prayerTimes = (object) $prayerTimesArray;
+
+        // Upcoming kajian
+        $upcomingKajianRaw = \App\Models\Kajian::with(['asatiz', 'program'])
+            ->where('date', '>=', now()->toDateString())
+            ->orderBy('date', 'asc')
+            ->orderBy('time', 'asc')
+            ->get();
 
         $upcomingKajian = collect();
         foreach ($upcomingKajianRaw as $k) {
@@ -118,10 +154,8 @@ class DashboardController extends Controller
             $upcomingKajian->push($item);
         }
 
-        // Topics rutin: cached 10 menit (jarang berubah)
-        $topics = Cache::remember('all_topics_with_asatiz', now()->addMinutes(10), function () {
-            return \App\Models\Topic::with('asatiz')->get();
-        });
+        // Topics rutin
+        $topics = \App\Models\Topic::with('asatiz')->get();
 
         $routineKajian = collect();
 
@@ -171,46 +205,16 @@ class DashboardController extends Controller
             ->take(3)
             ->values();
         
-        // Setting: cached 10 menit (sangat jarang berubah)
-        $setting = Cache::remember('app_setting', now()->addMinutes(10), function () {
-            $s = \App\Models\Setting::first();
-            if (!$s) {
-                $s = \App\Models\Setting::create([
-                    'id' => 1,
-                    'announcement_text' => '',
-                    'is_popup_active' => false,
-                    'garden_status' => 'subur',
-                    'garden_message' => 'Selamat beraktivitas! Mari hiasi hari kita dengan zikir dan kajian berilmu di pondok Daaru Hiraa.',
-                ]);
-            }
-            return $s;
-        });
-
-        // Hitung status kebun otomatis — hanya jika mode auto, cached per hari
-        if (($setting->garden_mode ?? 'auto') === 'auto') {
-            $todayStr = now()->toDateString();
-            $autoStatus = Cache::remember('garden_status_' . $todayStr, now()->addMinutes(5), function () use ($todayStr) {
-                $totalStudents = Student::where('status_aktif', 'Aktif')
-                    ->whereIn('title', ['Santri', 'Musyrif'])
-                    ->count();
-                $presentToday = AttendanceLog::where('attendance_date', $todayStr)
-                    ->where('status', 'H')
-                    ->count();
-                $attendanceRate = $totalStudents > 0 ? ($presentToday / $totalStudents) * 100 : 0;
-                $reflectionsCount = \App\Models\Reflection::whereDate('created_at', '>=', now()->startOfDay())->count();
-
-                if ($attendanceRate >= 75 && $reflectionsCount >= 3) {
-                    return 'subur_sekali';
-                } elseif ($attendanceRate >= 45 || $reflectionsCount >= 1) {
-                    return 'subur';
-                } elseif ($attendanceRate > 0 && $reflectionsCount == 0) {
-                    return 'biasa';
-                }
-                return 'kering';
-            });
-
-            // Terapkan ke setting runtime agar dibaca oleh view
-            $setting->garden_status = $autoStatus;
+        // Setting: query langsung 1 row
+        $setting = \App\Models\Setting::first();
+        if (!$setting) {
+            $setting = \App\Models\Setting::create([
+                'id' => 1,
+                'announcement_text' => '',
+                'is_popup_active' => false,
+                'garden_status' => 'subur',
+                'garden_message' => 'Selamat beraktivitas! Mari hiasi hari kita dengan zikir dan kajian berilmu di pondok Daaru Hiraa.',
+            ]);
         }
         
         return view('dashboard', compact(
@@ -219,9 +223,9 @@ class DashboardController extends Controller
             'topStreaks', 
             'allStreaks', 
             'reflections', 
-            'todayMood', 
-            'pastMoods',
-            'flaggedSantri',
+            'attendanceStats',
+            'prayerTimes',
+            'gardenStage',
             'nextKajians',
             'setting'
         ));

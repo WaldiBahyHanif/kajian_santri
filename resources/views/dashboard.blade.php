@@ -398,106 +398,143 @@
                     </svg>
                 </div>
 
-                <!-- Gambar Kebun SVG (Pohon, Bunga, Rumput) - menggunakan inline styles absolute positioning -->
+                <!-- Gambar Kebun SVG (Pohon Organik Detil Neobrutalisme) -->
                 <svg viewBox="0 0 500 200" preserveAspectRatio="none" style="width: 100%; height: 100%; position: absolute; bottom: 0; left: 0;">
                     <!-- Bukit Belakang (Shadow) -->
-                    <path d="M-20,160 Q150,110 320,150 T520,130 L520,220 L-20,220 Z" fill="#047857" opacity="0.4" class="stroke-black" stroke-width="4" />
+                    <path d="M-20,155 Q150,105 320,145 T520,125 L520,220 L-20,220 Z" fill="#047857" opacity="0.35" class="stroke-black" stroke-width="4" />
 
                     <!-- Bukit Depan (Tanah/Gundukan rumput utama) -->
-                    <path d="M-20,170 Q120,145 250,165 T520,150 L520,220 L-20,220 Z" fill="{{ $soilColorHex }}" class="stroke-black" stroke-width="4" />
+                    <path d="M-20,165 Q120,140 250,160 T520,145 L520,220 L-20,220 Z" fill="{{ $soilColorHex }}" class="stroke-black" stroke-width="4" />
 
-                    <!-- Pagar Kayu Neobrutalist di Kiri -->
-                    <g transform="translate(15, 140)">
-                        <rect x="0" y="5" width="5" height="25" fill="#fef08a" stroke="black" stroke-width="2"/>
-                        <rect x="12" y="2" width="5" height="28" fill="#fef08a" stroke="black" stroke-width="2"/>
-                        <rect x="24" y="5" width="5" height="25" fill="#fef08a" stroke="black" stroke-width="2"/>
-                        <line x1="-5" y1="12" x2="32" y2="12" stroke="black" stroke-width="2.5"/>
-                        <line x1="-5" y1="20" x2="32" y2="20" stroke="black" stroke-width="2.5"/>
+                    <!-- Pagar Kayu Neobrutalist Kiri -->
+                    <g transform="translate(20, 135)">
+                        <rect x="0" y="5" width="6" height="28" fill="#fef08a" stroke="black" stroke-width="2.5"/>
+                        <rect x="15" y="2" width="6" height="31" fill="#fef08a" stroke="black" stroke-width="2.5"/>
+                        <rect x="30" y="5" width="6" height="28" fill="#fef08a" stroke="black" stroke-width="2.5"/>
+                        <line x1="-5" y1="12" x2="40" y2="12" stroke="black" stroke-width="3"/>
+                        <line x1="-5" y1="22" x2="40" y2="22" stroke="black" stroke-width="3"/>
                     </g>
 
-                    <!-- Pagar Kayu Neobrutalist di Kanan -->
-                    <g transform="translate(435, 130)">
-                        <rect x="0" y="5" width="5" height="25" fill="#fef08a" stroke="black" stroke-width="2"/>
-                        <rect x="12" y="2" width="5" height="28" fill="#fef08a" stroke="black" stroke-width="2"/>
-                        <rect x="24" y="5" width="5" height="25" fill="#fef08a" stroke="black" stroke-width="2"/>
-                        <line x1="-5" y1="12" x2="32" y2="12" stroke="black" stroke-width="2.5"/>
-                        <line x1="-5" y1="20" x2="32" y2="20" stroke="black" stroke-width="2.5"/>
+                    <!-- Pagar Kayu Neobrutalist Kanan -->
+                    <g transform="translate(430, 125)">
+                        <rect x="0" y="5" width="6" height="28" fill="#fef08a" stroke="black" stroke-width="2.5"/>
+                        <rect x="15" y="2" width="6" height="31" fill="#fef08a" stroke="black" stroke-width="2.5"/>
+                        <rect x="30" y="5" width="6" height="28" fill="#fef08a" stroke="black" stroke-width="2.5"/>
+                        <line x1="-5" y1="12" x2="40" y2="12" stroke="black" stroke-width="3"/>
+                        <line x1="-5" y1="22" x2="40" y2="22" stroke="black" stroke-width="3"/>
                     </g>
 
-                    <!-- Bunga & Tanaman Hias -->
+                    <!-- Tanaman Hias & Bunga Neobrutalist -->
                     @if($status === 'subur_sekali' || $status === 'subur')
-                        <!-- Bunga 1 (Mekar Kiri) -->
-                        <g transform="translate(70, 145)">
-                            <line x1="0" y1="20" x2="0" y2="0" stroke="black" stroke-width="3" />
-                            <circle cx="0" cy="0" r="8" fill="#FFDE00" stroke="black" stroke-width="2" />
-                            <circle cx="-8" cy="-4" r="5" fill="#FF007F" stroke="black" stroke-width="1.5" />
-                            <circle cx="8" cy="-4" r="5" fill="#FF007F" stroke="black" stroke-width="1.5" />
-                            <circle cx="0" cy="-10" r="5" fill="#FF007F" stroke="black" stroke-width="1.5" />
+                        <!-- Bunga Merah Mekar Kiri -->
+                        <g transform="translate(85, 142)">
+                            <path d="M0,25 Q-3,10 0,0" stroke="black" stroke-width="3.5" fill="none" />
+                            <path d="M0,15 Q-10,12 -8,5 Z" fill="#22c55e" stroke="black" stroke-width="2" />
+                            <circle cx="0" cy="0" r="8" fill="#fde047" stroke="black" stroke-width="2.5" />
+                            <circle cx="-9" cy="-4" r="6" fill="#f43f5e" stroke="black" stroke-width="2" />
+                            <circle cx="9" cy="-4" r="6" fill="#f43f5e" stroke="black" stroke-width="2" />
+                            <circle cx="0" cy="-10" r="6" fill="#f43f5e" stroke="black" stroke-width="2" />
+                            <circle cx="-6" cy="7" r="6" fill="#f43f5e" stroke="black" stroke-width="2" />
+                            <circle cx="6" cy="7" r="6" fill="#f43f5e" stroke="black" stroke-width="2" />
                         </g>
-                        <!-- Bunga 2 (Mekar Kanan) -->
-                        <g transform="translate(390, 142)">
-                            <line x1="0" y1="25" x2="0" y2="0" stroke="black" stroke-width="3" />
-                            <circle cx="0" cy="0" r="7" fill="#FFDE00" stroke="black" stroke-width="2" />
-                            <circle cx="-6" cy="6" r="4.5" fill="#39FF14" stroke="black" stroke-width="1.5" />
-                            <circle cx="6" cy="-6" r="4.5" fill="#39FF14" stroke="black" stroke-width="1.5" />
-                            <circle cx="-6" cy="-6" r="4.5" fill="#39FF14" stroke="black" stroke-width="1.5" />
-                            <circle cx="6" cy="6" r="4.5" fill="#39FF14" stroke="black" stroke-width="1.5" />
+
+                        <!-- Bunga Ungu Mekar Kanan -->
+                        <g transform="translate(385, 138)">
+                            <path d="M0,28 Q4,12 0,0" stroke="black" stroke-width="3.5" fill="none" />
+                            <path d="M0,18 Q10,14 8,7 Z" fill="#22c55e" stroke="black" stroke-width="2" />
+                            <circle cx="0" cy="0" r="7" fill="#fde047" stroke="black" stroke-width="2.5" />
+                            <circle cx="-8" cy="-5" r="5.5" fill="#a855f7" stroke="black" stroke-width="2" />
+                            <circle cx="8" cy="-5" r="5.5" fill="#a855f7" stroke="black" stroke-width="2" />
+                            <circle cx="0" cy="-9" r="5.5" fill="#a855f7" stroke="black" stroke-width="2" />
+                            <circle cx="-5" cy="6" r="5.5" fill="#a855f7" stroke="black" stroke-width="2" />
+                            <circle cx="5" cy="6" r="5.5" fill="#a855f7" stroke="black" stroke-width="2" />
                         </g>
                     @endif
 
                     @if($status === 'subur_sekali')
-                        <!-- Bunga Tambahan untuk status Sangat Subur -->
-                        <g transform="translate(130, 150)">
-                            <line x1="0" y1="15" x2="0" y2="0" stroke="black" stroke-width="2" />
-                            <circle cx="0" cy="0" r="5" fill="#FF8000" stroke="black" stroke-width="1.5" />
+                        <!-- Bunga Oranye Kiri Tambahan -->
+                        <g transform="translate(145, 148)">
+                            <path d="M0,18 L0,0" stroke="black" stroke-width="2.5" />
+                            <circle cx="0" cy="0" r="6" fill="#fb923c" stroke="black" stroke-width="2" />
                         </g>
-                        <g transform="translate(330, 148)">
-                            <line x1="0" y1="20" x2="0" y2="0" stroke="black" stroke-width="2" />
-                            <circle cx="0" cy="0" r="6" fill="#00FFFF" stroke="black" stroke-width="1.5" />
+                        <!-- Bunga Kuning Kanan Tambahan -->
+                        <g transform="translate(335, 145)">
+                            <path d="M0,20 L0,0" stroke="black" stroke-width="2.5" />
+                            <circle cx="0" cy="0" r="7" fill="#facc15" stroke="black" stroke-width="2" />
                         </g>
                     @endif
 
-                    <!-- POHON UTAMA (Translate & Sway dipisah agar tidak saling menimpa koordinat pohon) -->
-                    <g transform="translate(240, 175)">
+                    <!-- POHON UTAMA ORGANIK DETIL NEOBRUTALISME -->
+                    <g transform="translate(250, 175)">
                         <g class="animate-sway">
-                            <!-- Batang Pohon -->
-                            <path d="M-10,0 L-6,-80 Q-5,-95 0,-110 Q5,-95 6,-80 L10,0 Z" fill="#8B5A2B" stroke="black" stroke-width="4" />
-                            
-                            <!-- Cabang Kecil -->
-                            <path d="M-6,-60 L-18,-80" stroke="black" stroke-width="4" stroke-linecap="round" />
-                            <path d="M6,-70 L22,-85" stroke="black" stroke-width="4" stroke-linecap="round" />
+                            <!-- Batang Utama Berakar & Bertekstur -->
+                            <!-- Akar & Dasar Batang -->
+                            <path d="M-18,0 C-22,-20 -14,-40 -12,-70 Q-10,-95 -4,-115 Q4,-95 10,-70 C12,-40 20,-20 18,0 Z" fill="#8B4513" stroke="black" stroke-width="4" />
+                            <!-- Serat Kayu Batang -->
+                            <path d="M-5,-20 Q-8,-45 -4,-70 M3,-15 Q6,-40 2,-65" stroke="#5c2c06" stroke-width="2.5" stroke-linecap="round" fill="none" />
 
-                            <!-- Dedaunan (Berdasarkan status kelebatan) -->
+                            <!-- Dahan/Cabang Organik Kiri & Kanan -->
+                            <path d="M-8,-65 Q-25,-80 -38,-95 M-25,-80 Q-35,-65 -45,-75" stroke="#8B4513" stroke-width="5" stroke-linecap="round" fill="none" />
+                            <path d="M-8,-65 Q-25,-80 -38,-95 M-25,-80 Q-35,-65 -45,-75" stroke="black" stroke-width="5.5" stroke-linecap="round" fill="none" class="opacity-30" />
+                            <path d="M6,-75 Q28,-90 42,-105 M22,-88 Q32,-75 45,-82" stroke="#8B4513" stroke-width="5" stroke-linecap="round" fill="none" />
+
+                            <!-- CANOPY DEDAUNAN ORGANIK BERLAYAR (Bukan sekadar lingkaran kaku) -->
                             @if($status === 'subur_sekali')
-                                <!-- Sangat Lebat -->
-                                <circle cx="0" cy="-125" r="42" fill="#059669" stroke="black" stroke-width="4" />
-                                <circle cx="-32" cy="-95" r="30" fill="#059669" stroke="black" stroke-width="4" />
-                                <circle cx="32" cy="-100" r="32" fill="#059669" stroke="black" stroke-width="4" />
-                                <circle cx="-15" cy="-70" r="22" fill="#10B981" stroke="black" stroke-width="3" />
-                                <circle cx="15" cy="-75" r="22" fill="#10B981" stroke="black" stroke-width="3" />
-                                <!-- Apel/Buah Kebaikan merah segar -->
-                                <circle cx="-15" cy="-115" r="6" fill="#EF4444" stroke="black" stroke-width="1.5" />
-                                <circle cx="18" cy="-110" r="6" fill="#EF4444" stroke="black" stroke-width="1.5" />
-                                <circle cx="-25" cy="-90" r="6" fill="#EF4444" stroke="black" stroke-width="1.5" />
-                                <circle cx="20" cy="-80" r="6" fill="#EF4444" stroke="black" stroke-width="1.5" />
+                                <!-- Layer 1: Daun Belakang (Gelap) -->
+                                <path d="M-60,-130 C-85,-155 -60,-195 -25,-195 C0,-215 45,-205 60,-180 C80,-180 90,-145 70,-130 C85,-105 55,-85 30,-95 C10,-80 -35,-90 -45,-110 Z" fill="#047857" stroke="black" stroke-width="4.5" />
+                                
+                                <!-- Layer 2: Daun Tengah (Hijau Segar) -->
+                                <path d="M-50,-135 C-70,-155 -45,-185 -15,-185 C5,-200 40,-195 50,-170 C68,-170 75,-140 58,-125 C70,-105 45,-90 22,-98 C5,-85 -30,-95 -40,-115 Z" fill="#10B981" stroke="black" stroke-width="4" />
+                                
+                                <!-- Layer 3: Daun Depan (Terang Highlight) -->
+                                <path d="M-35,-140 C-50,-155 -30,-175 -5,-175 C10,-188 32,-182 40,-162 C55,-162 60,-138 46,-125 C55,-110 35,-98 18,-105 C5,-92 -20,-102 -28,-118 Z" fill="#34D399" stroke="black" stroke-width="3.5" />
+
+                                <!-- Buah Apel Merah & Buah Emas Kartun -->
+                                <g transform="translate(-32, -150)">
+                                    <circle cx="0" cy="0" r="7.5" fill="#EF4444" stroke="black" stroke-width="2" />
+                                    <path d="M0,-7 Q2,-10 4,-11" stroke="black" stroke-width="1.5" />
+                                </g>
+                                <g transform="translate(25, -165)">
+                                    <circle cx="0" cy="0" r="7.5" fill="#EF4444" stroke="black" stroke-width="2" />
+                                    <path d="M0,-7 Q2,-10 4,-11" stroke="black" stroke-width="1.5" />
+                                </g>
+                                <g transform="translate(45, -128)">
+                                    <circle cx="0" cy="0" r="7" fill="#FACC15" stroke="black" stroke-width="2" />
+                                    <path d="M0,-6 Q2,-9 4,-10" stroke="black" stroke-width="1.5" />
+                                </g>
+                                <g transform="translate(-40, -118)">
+                                    <circle cx="0" cy="0" r="7" fill="#FACC15" stroke="black" stroke-width="2" />
+                                    <path d="M0,-6 Q2,-9 4,-10" stroke="black" stroke-width="1.5" />
+                                </g>
+                                <g transform="translate(0, -125)">
+                                    <circle cx="0" cy="0" r="8" fill="#EF4444" stroke="black" stroke-width="2" />
+                                    <path d="M0,-7 Q2,-10 4,-11" stroke="black" stroke-width="1.5" />
+                                </g>
+
                             @elseif($status === 'subur')
-                                <!-- Lebat Normal -->
-                                <circle cx="0" cy="-120" r="38" fill="#10B981" stroke="black" stroke-width="4" />
-                                <circle cx="-28" cy="-90" r="26" fill="#10B981" stroke="black" stroke-width="4" />
-                                <circle cx="28" cy="-95" r="28" fill="#10B981" stroke="black" stroke-width="4" />
-                                <!-- Sedikit Buah -->
-                                <circle cx="-10" cy="-110" r="5.5" fill="#EF4444" stroke="black" stroke-width="1.5" />
-                                <circle cx="15" cy="-100" r="5.5" fill="#EF4444" stroke="black" stroke-width="1.5" />
+                                <!-- Layer 1: Daun Belakang -->
+                                <path d="M-52,-120 C-72,-142 -50,-175 -20,-175 C0,-192 38,-185 50,-162 C68,-162 76,-132 58,-118 C70,-98 42,-80 20,-88 C2,-75 -32,-85 -40,-102 Z" fill="#059669" stroke="black" stroke-width="4.5" />
+                                
+                                <!-- Layer 2: Daun Depan -->
+                                <path d="M-40,-125 C-58,-142 -35,-168 -10,-168 C8,-182 32,-175 42,-155 C56,-155 62,-130 48,-118 C58,-102 34,-88 15,-95 C0,-82 -25,-92 -32,-108 Z" fill="#10B981" stroke="black" stroke-width="3.5" />
+
+                                <!-- Buah Apel Merah -->
+                                <g transform="translate(-20, -140)">
+                                    <circle cx="0" cy="0" r="7" fill="#EF4444" stroke="black" stroke-width="2" />
+                                    <path d="M0,-6 Q2,-9 4,-10" stroke="black" stroke-width="1.5" />
+                                </g>
+                                <g transform="translate(22, -125)">
+                                    <circle cx="0" cy="0" r="7" fill="#EF4444" stroke="black" stroke-width="2" />
+                                    <path d="M0,-6 Q2,-9 4,-10" stroke="black" stroke-width="1.5" />
+                                </g>
+
                             @elseif($status === 'biasa')
-                                <!-- Sedang / Agak Tipis -->
-                                <circle cx="0" cy="-115" r="32" fill="#84CC16" stroke="black" stroke-width="4" />
-                                <circle cx="-22" cy="-85" r="22" fill="#84CC16" stroke="black" stroke-width="4" />
-                                <circle cx="22" cy="-90" r="22" fill="#84CC16" stroke="black" stroke-width="4" />
+                                <!-- Daun Sedang -->
+                                <path d="M-40,-110 C-55,-128 -35,-150 -8,-150 C8,-162 28,-156 38,-138 C50,-138 55,-115 42,-105 C50,-90 30,-78 12,-84 C0,-72 -22,-80 -28,-95 Z" fill="#84CC16" stroke="black" stroke-width="4" />
+
                             @else
-                                <!-- Kering / Layu -->
-                                <circle cx="0" cy="-115" r="18" fill="#D97706" stroke="black" stroke-width="3" />
-                                <circle cx="-20" cy="-85" r="12" fill="#D97706" stroke="black" stroke-width="3" />
-                                <circle cx="20" cy="-90" r="14" fill="#D97706" stroke="black" stroke-width="3" />
+                                <!-- Kering / Layu (Pohon Ranting Tanpa Daun / Daun Kecokelatan) -->
+                                <path d="M-25,-95 C-35,-110 -20,-125 -5,-125 C5,-135 20,-130 28,-115 C38,-115 40,-98 30,-90 Z" fill="#D97706" stroke="black" stroke-width="3.5" />
                             @endif
                         </g>
                     </g>
@@ -528,202 +565,10 @@
             </div>
         </section>
 
-        <!-- Daily Mood & Spiritual Tracker Section -->
-        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <!-- Mood Logger Widget (5 cols) -->
-            <div class="lg:col-span-5 bg-white border-3 border-on-background neobrutal-shadow p-6 rounded-xl flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center gap-3 mb-4">
-                        <span class="material-symbols-outlined text-primary text-3xl p-1 bg-secondary-container border-2 border-on-background rounded-lg">spa</span>
-                        <h3 class="font-headline-md text-headline-md text-primary font-black">Evaluasi Ruhani</h3>
-                    </div>
-                    @if(!$todayMood)
-                        <p class="text-xs text-on-surface-variant font-semibold mb-6">Bagaimana kondisi ruhanimu hari ini? Catat untuk menjaga konsistensi ibadahmu.</p>
-                        <form method="POST" action="{{ route('mood.store') }}" class="grid grid-cols-2 gap-3">
-                            @csrf
-                            <button type="submit" name="mood_type" value="Bersemangat" class="flex flex-col items-center justify-center p-3 bg-amber-50 hover:bg-amber-100 border-3 border-on-background rounded-lg shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all cursor-pointer">
-                                <span class="text-3xl mb-1">🌟</span>
-                                <span class="text-xs font-black text-amber-900">Bersemangat</span>
-                            </button>
-                            <button type="submit" name="mood_type" value="Biasa" class="flex flex-col items-center justify-center p-3 bg-blue-50 hover:bg-blue-100 border-3 border-on-background rounded-lg shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all cursor-pointer">
-                                <span class="text-3xl mb-1">😊</span>
-                                <span class="text-xs font-black text-blue-900">Biasa Saja</span>
-                            </button>
-                            <button type="submit" name="mood_type" value="Futur" class="flex flex-col items-center justify-center p-3 bg-orange-50 hover:bg-orange-100 border-3 border-on-background rounded-lg shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all cursor-pointer">
-                                <span class="text-3xl mb-1">🍂</span>
-                                <span class="text-xs font-black text-orange-950">Futur / Lelah</span>
-                            </button>
-                            <button type="submit" name="mood_type" value="Butuh Cerita" class="flex flex-col items-center justify-center p-3 bg-rose-50 hover:bg-rose-100 border-3 border-on-background rounded-lg shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all cursor-pointer">
-                                <span class="text-3xl mb-1">💬</span>
-                                <span class="text-xs font-black text-rose-950">Butuh Cerita</span>
-                            </button>
-                        </form>
-                    @else
-                        @php
-                            $moodEmojis = [
-                                'Bersemangat' => ['emoji' => '🌟', 'label' => 'Sangat Bersemangat', 'desc' => 'MasyaAllah, pertahankan semangat ibadah dan menuntut ilmumu!', 'color' => 'bg-amber-100 text-amber-900 border-amber-400'],
-                                'Biasa' => ['emoji' => '😊', 'label' => 'Biasa Saja', 'desc' => 'Alhamdulillah, tetap istiqomah dan teruskan rutinitas baikmu.', 'color' => 'bg-blue-100 text-blue-900 border-blue-400'],
-                                'Futur' => ['emoji' => '🍂', 'label' => 'Sedang Futur/Lelah', 'desc' => 'Jenuh itu wajar. Istirahat sejenak, perbarui niat, dan mintalah dukungan partner mitsur-mu.', 'color' => 'bg-orange-100 text-orange-900 border-orange-400'],
-                                'Butuh Cerita' => ['emoji' => '💬', 'label' => 'Butuh Teman Cerita', 'desc' => 'Kamu tidak sendirian. Jangan sungkan menghubungi mitsur atau musyrif untuk mengobrol.', 'color' => 'bg-rose-100 text-rose-900 border-rose-400']
-                            ];
-                            $currentMoodInfo = $moodEmojis[$todayMood->mood_type] ?? ['emoji' => '😊', 'label' => 'Biasa Saja', 'desc' => '', 'color' => 'bg-blue-100 border-blue-400'];
-                        @endphp
-                        <div class="border-3 border-on-background p-4 rounded-xl {{ $currentMoodInfo['color'] }} shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                            <div class="flex items-center gap-3 mb-2">
-                                <span class="text-4xl">{{ $currentMoodInfo['emoji'] }}</span>
-                                <div>
-                                    <h4 class="font-black text-sm">{{ $currentMoodInfo['label'] }}</h4>
-                                    <p class="text-[10px] opacity-85">Dicatat pada {{ \Carbon\Carbon::parse($todayMood->created_at)->format('H:i') }} WIB</p>
-                                </div>
-                            </div>
-                            <p class="text-xs font-bold leading-relaxed mt-2">{{ $currentMoodInfo['desc'] }}</p>
-                        </div>
-                        
-                        <!-- Change mood option -->
-                        <div class="mt-4 text-right">
-                            <button onclick="document.getElementById('change-mood-form').classList.toggle('hidden')" class="text-xs font-bold text-primary hover:underline cursor-pointer">
-                                Ubah Kondisi Hari Ini
-                            </button>
-                            <form id="change-mood-form" method="POST" action="{{ route('mood.store') }}" class="hidden grid grid-cols-4 gap-2 mt-3 p-2 border-2 border-dashed border-on-background rounded-lg bg-surface">
-                                @csrf
-                                <button type="submit" name="mood_type" value="Bersemangat" title="Bersemangat" class="p-1.5 hover:bg-amber-100 rounded border-2 border-on-background">🌟</button>
-                                <button type="submit" name="mood_type" value="Biasa" title="Biasa Saja" class="p-1.5 hover:bg-blue-100 rounded border-2 border-on-background">😊</button>
-                                <button type="submit" name="mood_type" value="Futur" title="Futur/Lelah" class="p-1.5 hover:bg-orange-100 rounded border-2 border-on-background">🍂</button>
-                                <button type="submit" name="mood_type" value="Butuh Cerita" title="Butuh Cerita" class="p-1.5 hover:bg-rose-100 rounded border-2 border-on-background">💬</button>
-                            </form>
-                        </div>
-                    @endif
-                </div>
-                
-                <div class="bg-secondary-fixed text-on-secondary-fixed-variant p-3.5 rounded-lg border-2 border-on-background mt-4 text-xs font-bold flex items-center gap-2">
-                    <span class="material-symbols-outlined text-lg">lightbulb</span>
-                    <span>Muhasabah membantu kita melacak tingkat keimanan & kebugaran mental.</span>
-                </div>
-            </div>
-
-            <!-- Spiritual History Chart (7 cols) -->
-            <div class="lg:col-span-7 bg-white border-3 border-on-background neobrutal-shadow p-6 rounded-xl flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-outlined text-primary text-3xl p-1 bg-tertiary-fixed border-2 border-on-background rounded-lg">trending_up</span>
-                            <h3 class="font-headline-md text-headline-md text-primary font-black">Riwayat Kondisi Ruhani</h3>
-                        </div>
-                        <span class="text-[10px] font-black bg-surface border-2 border-on-background px-2.5 py-1 rounded">7 Hari Terakhir</span>
-                    </div>
-                    
-                    @php
-                        $chartDates = [];
-                        $scores = [
-                            'Bersemangat' => 4,
-                            'Biasa' => 3,
-                            'Futur' => 2,
-                            'Butuh Cerita' => 1
-                        ];
-                        
-                        $mappedMoods = $pastMoods->keyBy(function($item) {
-                            return \Carbon\Carbon::parse($item->created_at)->toDateString();
-                        });
-
-                        $chartData = [];
-                        for ($i = 6; $i >= 0; $i--) {
-                            $dateStr = now()->subDays($i)->toDateString();
-                            $dateLabel = now()->subDays($i)->isoFormat('DD MMM');
-                            
-                            $mood = $mappedMoods->get($dateStr);
-                            $score = $mood ? ($scores[$mood->mood_type] ?? 0) : 0;
-                            
-                            $chartData[] = [
-                                'label' => $dateLabel,
-                                'score' => $score,
-                                'mood' => $mood ? $mood->mood_type : null
-                            ];
-                        }
-
-                        $points = [];
-                        foreach ($chartData as $idx => $data) {
-                            $x = 35 + ($idx * 60);
-                            $y = 120; // Default bottom
-                            if ($data['score'] > 0) {
-                                $y = 110 - (($data['score'] - 1) * 28);
-                            }
-                            $points[] = "$x,$y";
-                        }
-                        $pointsStr = implode(' ', $points);
-                    @endphp
-
-                    <div class="relative w-full overflow-x-auto mt-4">
-                        <div class="min-w-[460px] h-[160px] relative">
-                            <!-- Y-axis labels -->
-                            <div class="absolute left-0 top-0 bottom-0 w-12 flex flex-col justify-between text-[9px] font-bold text-on-surface-variant border-r-2 border-dashed border-outline-variant pr-2">
-                                <div class="flex items-center gap-1"><span>🌟</span> <span>Smt</span></div>
-                                <div class="flex items-center gap-1"><span>😊</span> <span>Bsa</span></div>
-                                <div class="flex items-center gap-1"><span>🍂</span> <span>Ftr</span></div>
-                                <div class="flex items-center gap-1"><span>💬</span> <span>Crt</span></div>
-                            </div>
-                            
-                            <!-- Grid lines & Chart Area -->
-                            <div class="absolute left-14 right-2 top-0 bottom-0">
-                                <svg class="w-full h-full" viewBox="0 0 440 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <!-- Horizontal grid lines -->
-                                    <line x1="0" y1="12" x2="440" y2="12" stroke="#e2e2e2" stroke-width="1.5" stroke-dasharray="4" />
-                                    <line x1="0" y1="40" x2="440" y2="40" stroke="#e2e2e2" stroke-width="1.5" stroke-dasharray="4" />
-                                    <line x1="0" y1="68" x2="440" y2="68" stroke="#e2e2e2" stroke-width="1.5" stroke-dasharray="4" />
-                                    <line x1="0" y1="96" x2="440" y2="96" stroke="#e2e2e2" stroke-width="1.5" stroke-dasharray="4" />
-                                    <line x1="0" y1="124" x2="440" y2="124" stroke="#d2d2d2" stroke-width="2" />
-                                    
-                                    <!-- Connection Line -->
-                                    @if(count($pastMoods) > 0)
-                                        <!-- Gradient area under curve -->
-                                        @php
-                                            $pathPoints = $points;
-                                            $firstPoint = explode(',', $points[0]);
-                                            $lastPoint = explode(',', end($points));
-                                            $areaPath = "M " . $firstPoint[0] . ",124 L " . implode(' L ', $pathPoints) . " L " . $lastPoint[0] . ",124 Z";
-                                        @endphp
-                                        <path d="{{ $areaPath }}" fill="url(#chartGrad)" opacity="0.15" />
-                                        <defs>
-                                            <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="0%" stop-color="var(--primary)" />
-                                                <stop offset="100%" stop-color="var(--primary)" stop-opacity="0" />
-                                            </linearGradient>
-                                        </defs>
-
-                                        <polyline points="{{ $pointsStr }}" stroke="var(--primary)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
-                                    @endif
-
-                                    <!-- Dots & Tooltips -->
-                                    @foreach($chartData as $idx => $data)
-                                        @php
-                                            $x = 35 + ($idx * 60);
-                                            $y = 120;
-                                            if ($data['score'] > 0) {
-                                                $y = 110 - (($data['score'] - 1) * 28);
-                                            }
-                                        @endphp
-                                        @if($data['score'] > 0)
-                                            <!-- Glow shadow behind dot -->
-                                            <circle cx="{{ $x }}" cy="{{ $y }}" r="8" fill="var(--primary-container)" opacity="0.5" />
-                                            <!-- Core dot -->
-                                            <circle cx="{{ $x }}" cy="{{ $y }}" r="5.5" fill="var(--primary)" stroke="#ffffff" stroke-width="2" />
-                                        @else
-                                            <!-- Empty data dot (light grey) -->
-                                            <circle cx="{{ $x }}" cy="{{ $y }}" r="4" fill="#d2d2d2" />
-                                        @endif
-                                    @endforeach
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- X-Axis Labels -->
-                    <div class="flex justify-between pl-16 pr-4 border-t-2 border-on-background pt-2 text-[10px] font-black text-on-surface-variant font-bold">
-                        @foreach($chartData as $data)
-                            <span class="w-[50px] text-center">{{ $data['label'] }}</span>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
+        <!-- Card Persentase Kehadiran Kajian & Card Jadwal Sholat Maguwoharjo Sleman -->
+        <section class="space-y-6">
+            @include('dashboard.partials.attendance_gauge_card')
+            @include('dashboard.partials.kajian_prayer_card')
         </section>
 
         <!-- Bento Grid Stats -->

@@ -37,7 +37,7 @@ class Student extends Authenticatable
 
     public function attendanceLogs()
     {
-        return $this->hasMany(AttendanceLog::class);
+        return $this->hasMany(AttendanceLog::class, 'user_id');
     }
 
     public function warnings()

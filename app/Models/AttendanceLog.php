@@ -12,16 +12,18 @@ class AttendanceLog extends Model
     const UPDATED_AT = null;
 
     protected $fillable = [
+        'user_id',
         'student_id',
         'kajian_topic',
         'attendance_date',
         'attendance_time',
         'status',
         'session_type',
+        'notes',
     ];
 
     public function student()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Student::class, 'user_id');
     }
 }
