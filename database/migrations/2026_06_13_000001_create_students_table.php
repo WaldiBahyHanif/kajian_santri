@@ -11,18 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('students', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('username')->unique();
-            $table->string('password');
-            $table->string('title')->default('Santri');
-            $table->string('status_aktif')->default('Aktif');
-            $table->integer('current_streak')->default(0);
-            $table->integer('max_streak')->default(0);
-            $table->integer('total_attendance')->default(0);
-            $table->date('last_attendance_date')->nullable();
-        });
+        if (!Schema::hasTable('students')) {
+            Schema::create('students', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->string('username')->unique();
+                $table->string('password');
+                $table->string('title')->default('Santri');
+                $table->string('status_aktif')->default('Aktif');
+                $table->integer('current_streak')->default(0);
+                $table->integer('max_streak')->default(0);
+                $table->integer('total_attendance')->default(0);
+                $table->date('last_attendance_date')->nullable();
+            });
+        }
     }
 
     /**

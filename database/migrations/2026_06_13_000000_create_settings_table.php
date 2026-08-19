@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('settings', function (Blueprint $table) {
-            $table->id();
-            $table->text('announcement_text')->nullable();
-            $table->boolean('is_popup_active')->default(false);
-        });
+        if (!Schema::hasTable('settings')) {
+            Schema::create('settings', function (Blueprint $table) {
+                $table->id();
+                $table->text('announcement_text')->nullable();
+                $table->boolean('is_popup_active')->default(false);
+            });
+        }
     }
 
     /**

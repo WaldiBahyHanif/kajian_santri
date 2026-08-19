@@ -8,13 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('qr_sessions', function (Blueprint $table) {
-            $table->id();
-            $table->enum('session_type', ['Kajian', 'Subuh', 'Tahsin']);
-            $table->string('token')->unique();
-            $table->dateTime('expires_at');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('qr_sessions')) {
+            Schema::create('qr_sessions', function (Blueprint $table) {
+                $table->id();
+                $table->enum('session_type', ['Kajian', 'Subuh', 'Tahsin']);
+                $table->string('token')->unique();
+                $table->dateTime('expires_at');
+                $table->timestamps();
+            });
+        }
     }
 
     public function down(): void
