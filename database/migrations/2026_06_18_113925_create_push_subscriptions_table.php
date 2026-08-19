@@ -13,16 +13,18 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('push_subscriptions', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            // We support both Student and Admin subscribing
-            $table->morphs('subscribable', 'push_subscriptions_subscribable_morph_idx');
-            $table->string('endpoint', 500)->unique();
-            $table->string('public_key')->nullable();
-            $table->string('auth_token')->nullable();
-            $table->string('content_encoding')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('push_subscriptions')) {
+            Schema::create('push_subscriptions', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                // We support both Student and Admin subscribing
+                $table->morphs('subscribable', 'push_subscriptions_subscribable_morph_idx');
+                $table->string('endpoint', 500)->unique();
+                $table->string('public_key')->nullable();
+                $table->string('auth_token')->nullable();
+                $table->string('content_encoding')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

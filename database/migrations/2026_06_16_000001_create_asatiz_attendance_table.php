@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('asatiz_attendance', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('asatiz_id');
-            $table->date('attendance_date');
-            $table->enum('status', ['H', 'I', 'A'])->nullable()->default('H');
-            $table->string('kajian_topic')->nullable();
+        if (!Schema::hasTable('asatiz_attendance')) {
+            Schema::create('asatiz_attendance', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('asatiz_id');
+                $table->date('attendance_date');
+                $table->enum('status', ['H', 'I', 'A'])->nullable()->default('H');
+                $table->string('kajian_topic')->nullable();
 
-            $table->foreign('asatiz_id')->references('id')->on('asatiz')->onDelete('cascade');
-        });
+                $table->foreign('asatiz_id')->references('id')->on('asatiz')->onDelete('cascade');
+            });
+        }
     }
 
     /**

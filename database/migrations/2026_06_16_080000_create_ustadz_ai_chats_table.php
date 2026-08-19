@@ -8,16 +8,18 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('ustadz_ai_chats', function (Blueprint $table) {
-            $table->id();
-            $table->integer('student_id');
-            $table->string('topic');
-            $table->string('role'); // 'user' or 'assistant'
-            $table->text('message');
-            $table->timestamp('created_at')->useCurrent();
+        if (!Schema::hasTable('ustadz_ai_chats')) {
+            Schema::create('ustadz_ai_chats', function (Blueprint $table) {
+                $table->id();
+                $table->integer('student_id');
+                $table->string('topic');
+                $table->string('role'); // 'user' or 'assistant'
+                $table->text('message');
+                $table->timestamp('created_at')->useCurrent();
 
-            $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
-        });
+                $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
+            });
+        }
     }
 
     public function down(): void

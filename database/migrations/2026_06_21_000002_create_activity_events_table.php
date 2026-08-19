@@ -8,20 +8,22 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('activity_events', function (Blueprint $table) {
-            $table->id();
-            $table->string('title');
-            $table->text('description')->nullable();
-            $table->date('start_date');
-            $table->date('end_date')->nullable();
-            $table->time('start_time')->nullable();
-            $table->time('end_time')->nullable();
-            $table->string('location')->nullable();
-            $table->enum('type', ['kajian', 'acara', 'libur', 'tahsin', 'subuh', 'other'])->default('other');
-            $table->string('color', 20)->nullable()->default('#FF007F');
-            $table->boolean('is_active')->default(true);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('activity_events')) {
+            Schema::create('activity_events', function (Blueprint $table) {
+                $table->id();
+                $table->string('title');
+                $table->text('description')->nullable();
+                $table->date('start_date');
+                $table->date('end_date')->nullable();
+                $table->time('start_time')->nullable();
+                $table->time('end_time')->nullable();
+                $table->string('location')->nullable();
+                $table->enum('type', ['kajian', 'acara', 'libur', 'tahsin', 'subuh', 'other'])->default('other');
+                $table->string('color', 20)->nullable()->default('#FF007F');
+                $table->boolean('is_active')->default(true);
+                $table->timestamps();
+            });
+        }
     }
 
     public function down(): void

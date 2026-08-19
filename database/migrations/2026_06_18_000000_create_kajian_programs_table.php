@@ -9,28 +9,32 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('kajian_programs', function (Blueprint $table) {
-            $table->id();
-            $table->string('name', 100);
-            $table->text('description')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('kajian_programs')) {
+            Schema::create('kajian_programs', function (Blueprint $table) {
+                $table->id();
+                $table->string('name', 100);
+                $table->text('description')->nullable();
+                $table->timestamps();
+            });
 
-        // Insert a default Kajian Program
-        $defaultProgramId = DB::table('kajian_programs')->insertGetId([
-            'name' => 'Kajian Umum',
-            'description' => 'Program kajian umum santri',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+            // Insert a default Kajian Program
+            $defaultProgramId = DB::table('kajian_programs')->insertGetId([
+                'name' => 'Kajian Umum',
+                'description' => 'Program kajian umum santri',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-        Schema::table('kajian', function (Blueprint $table) use ($defaultProgramId) {
-            $table->unsignedBigInteger('kajian_program_id')->nullable()->after('asatiz_id');
-            $table->foreign('kajian_program_id')->references('id')->on('kajian_programs')->onDelete('set null');
-        });
+            if (Schema::hasTable('kajian') && !Schema::hasColumn('kajian', 'kajian_program_id')) {
+                Schema::table('kajian', function (Blueprint $table) use ($defaultProgramId) {
+                    $table->unsignedBigInteger('kajian_program_id')->nullable()->after('asatiz_id');
+                    $table->foreign('kajian_program_id')->references('id')->on('kajian_programs')->onDelete('set null');
+                });
 
-        // Set existing kajian records to the default program
-        DB::table('kajian')->update(['kajian_program_id' => $defaultProgramId]);
+                // Set existing kajian records to the default program
+                DB::table('kajian')->update(['kajian_program_id' => $defaultProgramId]);
+            }
+        }
     }
 
     public function down(): void

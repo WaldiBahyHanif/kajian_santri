@@ -11,22 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('student_warnings', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('student_id')->index();
-            $table->integer('sp_number');
-            $table->string('period_label');
-            $table->date('start_date');
-            $table->date('end_date');
-            $table->integer('attendance_percentage');
-            $table->integer('threshold');
-            $table->string('yogyakarta_date');
-            $table->string('pengasuh_name');
-            $table->string('musyrif_name');
-            $table->timestamp('created_at')->useCurrent();
+        if (!Schema::hasTable('student_warnings')) {
+            Schema::create('student_warnings', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('student_id')->index();
+                $table->integer('sp_number');
+                $table->string('period_label');
+                $table->date('start_date');
+                $table->date('end_date');
+                $table->integer('attendance_percentage');
+                $table->integer('threshold');
+                $table->string('yogyakarta_date');
+                $table->string('pengasuh_name');
+                $table->string('musyrif_name');
+                $table->timestamp('created_at')->useCurrent();
 
-            $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
-        });
+                $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
+            });
+        }
     }
 
     /**

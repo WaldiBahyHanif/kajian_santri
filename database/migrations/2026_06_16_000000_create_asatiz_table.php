@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('asatiz', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->timestamp('created_at')->nullable();
-        });
+        if (!Schema::hasTable('asatiz')) {
+            Schema::create('asatiz', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->timestamp('created_at')->nullable();
+            });
+        }
     }
 
     /**
