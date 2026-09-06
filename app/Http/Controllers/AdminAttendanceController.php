@@ -53,15 +53,22 @@ class AdminAttendanceController extends Controller
                 })
                 ->first();
 
+            $hasUpdatedAtCol = \Illuminate\Support\Facades\Schema::hasColumn('attendance_logs', 'updated_at');
+            $hasCreatedAtCol = \Illuminate\Support\Facades\Schema::hasColumn('attendance_logs', 'created_at');
+
             if ($existing) {
-                // Direct DB UPDATE bypassing Eloquent dirty check
+                $updateData = [
+                    'status'          => $status,
+                    'attendance_time' => \Carbon\Carbon::now()->toTimeString(),
+                ];
+                if ($hasUpdatedAtCol) {
+                    $updateData['updated_at'] = \Carbon\Carbon::now();
+                }
+
+                // Direct DB UPDATE
                 \Illuminate\Support\Facades\DB::table('attendance_logs')
                     ->where('id', $existing->id)
-                    ->update([
-                        'status'          => $status,
-                        'attendance_time' => \Carbon\Carbon::now()->toTimeString(),
-                        'updated_at'      => \Carbon\Carbon::now(),
-                    ]);
+                    ->update($updateData);
             } else {
                 $dataToInsert = [
                     'student_id'      => $santri->id,
@@ -69,12 +76,16 @@ class AdminAttendanceController extends Controller
                     'session_type'    => 'Kajian',
                     'status'          => $status,
                     'attendance_time' => \Carbon\Carbon::now()->toTimeString(),
-                    'created_at'      => \Carbon\Carbon::now(),
-                    'updated_at'      => \Carbon\Carbon::now(),
                 ];
 
                 if ($hasUserIdCol) {
                     $dataToInsert['user_id'] = $santri->id;
+                }
+                if ($hasCreatedAtCol) {
+                    $dataToInsert['created_at'] = \Carbon\Carbon::now();
+                }
+                if ($hasUpdatedAtCol) {
+                    $dataToInsert['updated_at'] = \Carbon\Carbon::now();
                 }
 
                 \Illuminate\Support\Facades\DB::table('attendance_logs')->insert($dataToInsert);
