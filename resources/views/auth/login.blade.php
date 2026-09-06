@@ -480,13 +480,10 @@
                     @enderror
                 </div>
 
-                {{-- Remember Me --}}
-                <div class="fade-up delay-4" style="display:flex;align-items:center;gap:10px;">
-                    <input type="checkbox" id="remember_me" name="remember"
-                           style="width:18px;height:18px;border-radius:6px;border:2px solid #d1d5db;cursor:pointer;accent-color:#764ba2;"/>
-                    <label for="remember_me" style="font-size:13px;color:#6b7280;cursor:pointer;user-select:none;" class="dark:text-gray-400">
-                        Ingat saya untuk 30 hari
-                    </label>
+                {{-- Auto Remember Info --}}
+                <div class="fade-up delay-4" style="display:flex;align-items:center;gap:8px;">
+                    <span class="material-symbols-outlined" style="font-size:16px;color:#764ba2;">verified_user</span>
+                    <span style="font-size:12px;color:#9ca3af;">Sesi Anda akan tersimpan otomatis selama 30 hari</span>
                 </div>
 
                 {{-- Submit --}}

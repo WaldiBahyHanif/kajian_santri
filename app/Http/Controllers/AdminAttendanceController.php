@@ -39,18 +39,29 @@ class AdminAttendanceController extends Controller
         foreach ($santris as $santri) {
             $status = $statuses[$santri->id] ?? 'A';
 
-            $log = AttendanceLog::firstOrNew([
+            // Cek apakah sudah ada log untuk santri ini
+            $existing = AttendanceLog::where([
                 'student_id' => $santri->id,
                 'attendance_date' => $selectedDate,
                 'session_type' => 'Kajian',
-            ]);
+            ])->first();
 
-            $log->status = $status;
-            $log->kajian_topic = 'Kajian Rutin';
-            if (!$log->exists) {
-                $log->attendance_time = now();
+            if ($existing) {
+                // Update data yang sudah ada (termasuk jika status tidak berubah)
+                $existing->status = $status;
+                $existing->kajian_topic = 'Kajian Rutin';
+                $existing->saveQuietly(); // pakai saveQuietly agar tetap tersimpan meski dirty check
+            } else {
+                // Buat data baru
+                AttendanceLog::create([
+                    'student_id' => $santri->id,
+                    'attendance_date' => $selectedDate,
+                    'session_type' => 'Kajian',
+                    'status' => $status,
+                    'kajian_topic' => 'Kajian Rutin',
+                    'attendance_time' => now(),
+                ]);
             }
-            $log->save();
 
             $santri->recalculateStats();
         }

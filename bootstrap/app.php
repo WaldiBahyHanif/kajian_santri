@@ -15,6 +15,15 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
         $middleware->appendToGroup('web', \App\Http\Middleware\CheckStatusAktif::class);
+
+        // Jika admin sudah login dan mengakses halaman guest (login),
+        // redirect ke admin.dashboard bukan /dashboard santri.
+        $middleware->redirectGuestsTo(function ($request) {
+            if (\Illuminate\Support\Facades\Auth::guard('admin')->check()) {
+                return route('admin.dashboard');
+            }
+            return route('dashboard');
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

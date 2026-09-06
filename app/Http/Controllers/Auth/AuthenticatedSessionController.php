@@ -25,7 +25,15 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $isAdminLogin = $request->boolean('admin');
-        $guard = $isAdminLogin ? 'admin' : 'web';
+        $guard        = $isAdminLogin ? 'admin' : 'web';
+        $otherGuard   = $isAdminLogin ? 'web' : 'admin';
+
+        // Logout guard yang berlawanan agar tidak ada konflik session.
+        // Contoh: jika admin login padahal masih ada session santri aktif,
+        // tanpa ini middleware 'guest' akan memblokir atau redirect salah.
+        if (Auth::guard($otherGuard)->check()) {
+            Auth::guard($otherGuard)->logout();
+        }
 
         // Block alumni from logging in — single DB query, sebelum auth attempt
         if (!$isAdminLogin) {
@@ -39,7 +47,9 @@ class AuthenticatedSessionController extends Controller
             }
         }
 
-        if (! Auth::guard($guard)->attempt($request->only('username', 'password'), $request->boolean('remember'))) {
+        // Selalu aktifkan "remember me" agar session bertahan 30 hari
+        // tanpa perlu user mencentang checkbox secara manual.
+        if (! Auth::guard($guard)->attempt($request->only('username', 'password'), remember: true)) {
             return redirect()->route('login', ['admin' => $isAdminLogin ? 1 : null])
                 ->withInput($request->only('username'))
                 ->withErrors(['username' => trans('auth.failed')]);
