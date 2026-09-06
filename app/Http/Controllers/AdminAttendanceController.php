@@ -28,7 +28,6 @@ class AdminAttendanceController extends Controller
 
         // Get attendance for selected date (key by student ID)
         $attendanceLogs = AttendanceLog::whereDate('attendance_date', $selectedDate)
-            ->whereIn('session_type', ['Kajian', 'kajian'])
             ->get()
             ->keyBy(function ($item) {
                 return (int) ($item->student_id ?? $item->user_id);
@@ -56,58 +55,45 @@ class AdminAttendanceController extends Controller
                 continue;
             }
 
-            // Direct DB search
-            $existing = DB::table('attendance_logs')
+            // 1. Hapus log absensi lama pada tanggal ini untuk santri ini
+            DB::table('attendance_logs')
                 ->whereDate('attendance_date', $selectedDate)
-                ->whereIn('session_type', ['Kajian', 'kajian'])
                 ->where(function ($q) use ($studentId) {
                     $q->where('student_id', $studentId)
                       ->orWhere('user_id', $studentId);
                 })
-                ->first();
+                ->delete();
 
-            if ($existing) {
-                $updateData = [
-                    'status'          => $status,
-                    'attendance_time' => Carbon::now()->toTimeString(),
-                ];
-                if ($hasUpdatedAtCol) {
-                    $updateData['updated_at'] = Carbon::now();
-                }
+            // 2. Insert data absensi baru dengan status terbaru
+            $dataToInsert = [
+                'attendance_date' => $selectedDate,
+                'session_type'    => 'Kajian',
+                'status'          => $status,
+                'attendance_time' => Carbon::now()->toTimeString(),
+            ];
 
-                DB::table('attendance_logs')
-                    ->where('id', $existing->id)
-                    ->update($updateData);
-            } else {
-                $dataToInsert = [
-                    'attendance_date' => $selectedDate,
-                    'session_type'    => 'Kajian',
-                    'status'          => $status,
-                    'attendance_time' => Carbon::now()->toTimeString(),
-                ];
-
-                if ($hasStudentIdCol) {
-                    $dataToInsert['student_id'] = $studentId;
-                }
-                if ($hasUserIdCol) {
-                    $dataToInsert['user_id'] = $studentId;
-                }
-                if ($hasCreatedAtCol) {
-                    $dataToInsert['created_at'] = Carbon::now();
-                }
-                if ($hasUpdatedAtCol) {
-                    $dataToInsert['updated_at'] = Carbon::now();
-                }
-
-                DB::table('attendance_logs')->insert($dataToInsert);
+            if ($hasStudentIdCol) {
+                $dataToInsert['student_id'] = $studentId;
+            }
+            if ($hasUserIdCol) {
+                $dataToInsert['user_id'] = $studentId;
+            }
+            if ($hasCreatedAtCol) {
+                $dataToInsert['created_at'] = Carbon::now();
+            }
+            if ($hasUpdatedAtCol) {
+                $dataToInsert['updated_at'] = Carbon::now();
             }
 
+            DB::table('attendance_logs')->insert($dataToInsert);
+
+            // 3. Update statistik santri
             $santri = Student::find($studentId);
             if ($santri) {
                 try {
                     $santri->recalculateStats();
                 } catch (\Throwable $e) {
-                    // Prevent error in stats recalculation from blocking attendance save
+                    // Ignore stats recalculation error if any
                 }
             }
         }
