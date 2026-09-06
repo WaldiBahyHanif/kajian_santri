@@ -355,6 +355,59 @@
             </div>
         </div>
 
+        <!-- Navigation Cards: Rekap Detail (PLACED AT THE TOP AS REQUESTED BY USER) -->
+        <h2 class="font-cartoon text-2xl font-bold text-slate-900 dark:text-white mb-4 animate-fade-up animate-fade-up-d1 flex items-center gap-2">
+            <span>📂</span>
+            Pilih Tampilan Rekap Detail
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <!-- Rekap Bulanan Nav Card -->
+            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'bulanan']) }}" class="neo-nav-card bg-emerald-100 dark:bg-zinc-900 p-6 flex flex-col items-center gap-4 text-center animate-fade-up animate-fade-up-d1 no-underline group">
+                <div class="w-16 h-16 bg-emerald-400 dark:bg-emerald-600 rounded-2xl flex items-center justify-center text-3xl border-3 border-black dark:border-white shadow-[3px_3px_0_0_#000] dark:shadow-[3px_3px_0_0_#fff] group-hover:scale-110 transition-transform">
+                    📅
+                </div>
+                <div>
+                    <h3 class="font-cartoon text-lg font-bold text-slate-900 dark:text-white mb-1">Rekap Bulanan</h3>
+                    <p class="text-xs font-body text-slate-600 dark:text-slate-400">Tabel matriks kehadiran santri per tanggal (1-31) dalam sebulan.</p>
+                </div>
+                <span class="mt-auto neo-btn bg-white dark:bg-zinc-800 text-slate-900 dark:text-white font-cartoon font-bold px-4 py-1.5 text-xs flex items-center gap-1">
+                    Buka Tabel Bulanan
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </span>
+            </a>
+
+            <!-- Rekap Mingguan Nav Card -->
+            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'mingguan']) }}" class="neo-nav-card bg-amber-100 dark:bg-zinc-900 p-6 flex flex-col items-center gap-4 text-center animate-fade-up animate-fade-up-d2 no-underline group">
+                <div class="w-16 h-16 bg-amber-400 dark:bg-amber-600 rounded-2xl flex items-center justify-center text-3xl border-3 border-black dark:border-white shadow-[3px_3px_0_0_#000] dark:shadow-[3px_3px_0_0_#fff] group-hover:scale-110 transition-transform">
+                    📋
+                </div>
+                <div>
+                    <h3 class="font-cartoon text-lg font-bold text-slate-900 dark:text-white mb-1">Rekap Mingguan</h3>
+                    <p class="text-xs font-body text-slate-600 dark:text-slate-400">Detail status absensi (H/I/A/S) per hari dalam 1 minggu.</p>
+                </div>
+                <span class="mt-auto neo-btn bg-white dark:bg-zinc-800 text-slate-900 dark:text-white font-cartoon font-bold px-4 py-1.5 text-xs flex items-center gap-1">
+                    Buka Tabel Mingguan
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </span>
+            </a>
+
+            <!-- Rekap Tahunan Nav Card -->
+            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'tahunan']) }}" class="neo-nav-card bg-indigo-100 dark:bg-zinc-900 p-6 flex flex-col items-center gap-4 text-center animate-fade-up animate-fade-up-d3 no-underline group">
+                <div class="w-16 h-16 bg-indigo-400 dark:bg-indigo-600 rounded-2xl flex items-center justify-center text-3xl border-3 border-black dark:border-white shadow-[3px_3px_0_0_#000] dark:shadow-[3px_3px_0_0_#fff] group-hover:scale-110 transition-transform">
+                    🌐
+                </div>
+                <div>
+                    <h3 class="font-cartoon text-lg font-bold text-slate-900 dark:text-white mb-1">Rekap Tahunan</h3>
+                    <p class="text-xs font-body text-slate-600 dark:text-slate-400">Ringkasan akumulasi kehadiran santri selama 12 bulan.</p>
+                </div>
+                <span class="mt-auto neo-btn bg-white dark:bg-zinc-800 text-slate-900 dark:text-white font-cartoon font-bold px-4 py-1.5 text-xs flex items-center gap-1">
+                    Buka Tabel Tahunan
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </span>
+            </a>
+        </div>
+
         <!-- Leaderboard Podium Card (Top 3 Santri Ter-Istiqomah) -->
         @if($topPerformers->count() > 0 && $avgAttendance > 0)
             <div class="neo-card bg-amber-100 dark:bg-zinc-900 p-6 mb-8 animate-fade-up animate-fade-up-d2">
@@ -546,58 +599,6 @@
             @endforeach
         </div>
 
-        <!-- Navigation Cards: Rekap Detail -->
-        <h2 class="font-cartoon text-2xl font-bold text-slate-900 dark:text-white mb-4 animate-fade-up animate-fade-up-d3 flex items-center gap-2">
-            <span>📂</span>
-            Pilih Tampilan Rekap Detail
-        </h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <!-- Rekap Bulanan Nav Card -->
-            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'bulanan']) }}" class="neo-nav-card bg-emerald-100 dark:bg-zinc-900 p-6 flex flex-col items-center gap-4 text-center animate-fade-up animate-fade-up-d3 no-underline group">
-                <div class="w-16 h-16 bg-emerald-400 dark:bg-emerald-600 rounded-2xl flex items-center justify-center text-3xl border-3 border-black dark:border-white shadow-[3px_3px_0_0_#000] dark:shadow-[3px_3px_0_0_#fff] group-hover:scale-110 transition-transform">
-                    📅
-                </div>
-                <div>
-                    <h3 class="font-cartoon text-lg font-bold text-slate-900 dark:text-white mb-1">Rekap Bulanan</h3>
-                    <p class="text-xs font-body text-slate-600 dark:text-slate-400">Tabel matriks kehadiran santri per tanggal (1-31) dalam sebulan.</p>
-                </div>
-                <span class="mt-auto neo-btn bg-white dark:bg-zinc-800 text-slate-900 dark:text-white font-cartoon font-bold px-4 py-1.5 text-xs flex items-center gap-1">
-                    Buka Tabel Bulanan
-                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
-                </span>
-            </a>
-
-            <!-- Rekap Mingguan Nav Card -->
-            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'mingguan']) }}" class="neo-nav-card bg-amber-100 dark:bg-zinc-900 p-6 flex flex-col items-center gap-4 text-center animate-fade-up animate-fade-up-d3 no-underline group">
-                <div class="w-16 h-16 bg-amber-400 dark:bg-amber-600 rounded-2xl flex items-center justify-center text-3xl border-3 border-black dark:border-white shadow-[3px_3px_0_0_#000] dark:shadow-[3px_3px_0_0_#fff] group-hover:scale-110 transition-transform">
-                    📋
-                </div>
-                <div>
-                    <h3 class="font-cartoon text-lg font-bold text-slate-900 dark:text-white mb-1">Rekap Mingguan</h3>
-                    <p class="text-xs font-body text-slate-600 dark:text-slate-400">Detail status absensi (H/I/A/S) per hari dalam 1 minggu.</p>
-                </div>
-                <span class="mt-auto neo-btn bg-white dark:bg-zinc-800 text-slate-900 dark:text-white font-cartoon font-bold px-4 py-1.5 text-xs flex items-center gap-1">
-                    Buka Tabel Mingguan
-                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
-                </span>
-            </a>
-
-            <!-- Rekap Tahunan Nav Card -->
-            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'tahunan']) }}" class="neo-nav-card bg-indigo-100 dark:bg-zinc-900 p-6 flex flex-col items-center gap-4 text-center animate-fade-up animate-fade-up-d4 no-underline group">
-                <div class="w-16 h-16 bg-indigo-400 dark:bg-indigo-600 rounded-2xl flex items-center justify-center text-3xl border-3 border-black dark:border-white shadow-[3px_3px_0_0_#000] dark:shadow-[3px_3px_0_0_#fff] group-hover:scale-110 transition-transform">
-                    🌐
-                </div>
-                <div>
-                    <h3 class="font-cartoon text-lg font-bold text-slate-900 dark:text-white mb-1">Rekap Tahunan</h3>
-                    <p class="text-xs font-body text-slate-600 dark:text-slate-400">Ringkasan akumulasi kehadiran santri selama 12 bulan.</p>
-                </div>
-                <span class="mt-auto neo-btn bg-white dark:bg-zinc-800 text-slate-900 dark:text-white font-cartoon font-bold px-4 py-1.5 text-xs flex items-center gap-1">
-                    Buka Tabel Tahunan
-                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
-                </span>
-            </a>
-        </div>
     </div>
 
     <script>
@@ -617,4 +618,3 @@
     </script>
 </body>
 </html>
-
