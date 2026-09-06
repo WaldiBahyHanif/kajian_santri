@@ -36,17 +36,25 @@
                     </div>
                 </div>
 
-                <div class="flex gap-2 w-full md:w-auto justify-center md:justify-end" x-data="{ status: '{{ $logStatus ?? 'A' }}' }">
-                    <input type="hidden" name="status[{{ $s->id }}]" :value="status">
-                    <button type="button" @click="status = 'H'"
-                            :class="status === 'H' ? 'bg-black text-white shadow-[4px_4px_0_0_#000]' : 'bg-white text-black shadow-none'"
-                            class="border-2 border-black px-3 py-2 rounded-lg font-black text-sm transition text-center w-20">HADIR</button>
-                    <button type="button" @click="status = 'I'"
-                            :class="status === 'I' ? 'bg-black text-white shadow-[4px_4px_0_0_#000]' : 'bg-white text-black shadow-none'"
-                            class="border-2 border-black px-3 py-2 rounded-lg font-black text-sm transition text-center w-20">IZIN</button>
-                    <button type="button" @click="status = 'A'"
-                            :class="status === 'A' ? 'bg-black text-white shadow-[4px_4px_0_0_#000]' : 'bg-white text-black shadow-none'"
-                            class="border-2 border-black px-3 py-2 rounded-lg font-black text-sm transition text-center w-20">ALPA</button>
+                <div class="flex gap-2 w-full md:w-auto justify-center md:justify-end">
+                    <label class="relative cursor-pointer">
+                        <input type="radio" name="status[{{ $s->id }}]" value="H" {{ ($logStatus === 'H') ? 'checked' : '' }} class="peer sr-only">
+                        <div class="border-2 border-black px-3 py-2 rounded-lg font-black text-sm transition text-center w-20 bg-white text-black peer-checked:bg-black peer-checked:text-white peer-checked:shadow-[4px_4px_0_0_#000]">
+                            HADIR
+                        </div>
+                    </label>
+                    <label class="relative cursor-pointer">
+                        <input type="radio" name="status[{{ $s->id }}]" value="I" {{ ($logStatus === 'I') ? 'checked' : '' }} class="peer sr-only">
+                        <div class="border-2 border-black px-3 py-2 rounded-lg font-black text-sm transition text-center w-20 bg-white text-black peer-checked:bg-black peer-checked:text-white peer-checked:shadow-[4px_4px_0_0_#000]">
+                            IZIN
+                        </div>
+                    </label>
+                    <label class="relative cursor-pointer">
+                        <input type="radio" name="status[{{ $s->id }}]" value="A" {{ (!$logStatus || $logStatus === 'A') ? 'checked' : '' }} class="peer sr-only">
+                        <div class="border-2 border-black px-3 py-2 rounded-lg font-black text-sm transition text-center w-20 bg-white text-black peer-checked:bg-black peer-checked:text-white peer-checked:shadow-[4px_4px_0_0_#000]">
+                            ALPA
+                        </div>
+                    </label>
                 </div>
             </div>
             @endforeach
