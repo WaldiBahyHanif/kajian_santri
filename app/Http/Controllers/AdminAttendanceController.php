@@ -51,10 +51,10 @@ class AdminAttendanceController extends Controller
                 [
                     // nilai yang di-set (INSERT atau UPDATE)
                     'student_id'      => $santri->id,
+                    'user_id'         => $santri->id,  // diperlukan agar tidak error NOT NULL di beberapa db
                     'attendance_date' => $selectedDate,
                     'session_type'    => 'Kajian',
                     'status'          => $status,
-                    'kajian_topic'    => 'Kajian Rutin',
                     'attendance_time' => \Carbon\Carbon::now()->toTimeString(),
                     'created_at'      => \Carbon\Carbon::now(),
                 ]
