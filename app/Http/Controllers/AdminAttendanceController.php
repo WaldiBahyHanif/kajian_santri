@@ -40,18 +40,18 @@ class AdminAttendanceController extends Controller
             $status = $statuses[$santri->id] ?? 'A';
 
             // Gunakan DB::table langsung agar SELALU update ke database
-            // tanpa melewati Eloquent dirty tracking yang bisa skip UPDATE
+            // tanpa melewati Eloquent dirty tracking yang bisa skip UPDATE.
+            // CATATAN: user_id sengaja di-null karena app sudah pakai student_id.
+            // FK user_id -> users sudah di-drop via migration terbaru.
             \Illuminate\Support\Facades\DB::table('attendance_logs')->updateOrInsert(
                 [
-                    // kondisi pencarian (WHERE)
                     'student_id'      => $santri->id,
                     'attendance_date' => $selectedDate,
                     'session_type'    => 'Kajian',
                 ],
                 [
-                    // nilai yang di-set (INSERT atau UPDATE)
                     'student_id'      => $santri->id,
-                    'user_id'         => $santri->id,  // diperlukan agar tidak error NOT NULL di beberapa db
+                    'user_id'         => null,
                     'attendance_date' => $selectedDate,
                     'session_type'    => 'Kajian',
                     'status'          => $status,
