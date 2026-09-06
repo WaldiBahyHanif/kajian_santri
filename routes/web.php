@@ -164,6 +164,15 @@ Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(functi
     Route::get('/ai-assistant', [\App\Http\Controllers\AdminAIChatController::class, 'index'])->name('ai.assistant');
     Route::post('/ai-assistant/chat', [\App\Http\Controllers\AdminAIChatController::class, 'chat'])->name('ai.assistant.chat');
     Route::post('/ai-assistant/clear', [\App\Http\Controllers\AdminAIChatController::class, 'clearHistory'])->name('ai.assistant.clear');
+
+    // Clear Cache Route
+    Route::get('/clear-cache', function () {
+        \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+        if (function_exists('opcache_reset')) {
+            @opcache_reset();
+        }
+        return redirect()->back()->with('success', '⚡ Cache sistem & views berhasil dibersihkan!');
+    })->name('clear-cache');
 });
 
 require __DIR__.'/auth.php';

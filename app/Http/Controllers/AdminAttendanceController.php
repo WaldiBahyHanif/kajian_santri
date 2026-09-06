@@ -31,11 +31,11 @@ class AdminAttendanceController extends Controller
 
     public function store(Request $request)
     {
-        $selectedDate = $request->date;
-        $statuses = $request->status ?? [];
+        $selectedDate = \Carbon\Carbon::parse($request->input('date', Carbon::today()->toDateString()))->toDateString();
+        $statuses     = $request->input('status', []);
 
-        $santris = Student::where('status_aktif', 'Aktif')
-            ->whereIn('title', ['Santri', 'Musyrif'])
+        $santris = Student::whereIn('status_aktif', ['Aktif', 'aktif'])
+            ->whereIn('title', ['Santri', 'Musyrif', 'santri', 'musyrif'])
             ->get();
 
         $hasUserIdCol = \Illuminate\Support\Facades\Schema::hasColumn('attendance_logs', 'user_id');
@@ -43,36 +43,41 @@ class AdminAttendanceController extends Controller
         foreach ($santris as $santri) {
             $status = $statuses[$santri->id] ?? 'A';
 
-            $dataToSave = [
-                'student_id'      => $santri->id,
-                'attendance_date' => $selectedDate,
-                'session_type'    => 'Kajian',
-                'status'          => $status,
-                'attendance_time' => \Carbon\Carbon::now()->toTimeString(),
-                'created_at'      => \Carbon\Carbon::now(),
-                'updated_at'      => \Carbon\Carbon::now(),
-            ];
-
-            if ($hasUserIdCol) {
-                $dataToSave['user_id'] = $santri->id;
-            }
-
-            // Update jika ada (by student_id atau user_id), atau buat baru
-            $existing = AttendanceLog::where('attendance_date', $selectedDate)
+            // Direct DB check
+            $existing = \Illuminate\Support\Facades\DB::table('attendance_logs')
+                ->where('attendance_date', $selectedDate)
                 ->where('session_type', 'Kajian')
                 ->where(function ($q) use ($santri) {
                     $q->where('student_id', $santri->id)
                       ->orWhere('user_id', $santri->id);
-                })->first();
+                })
+                ->first();
 
             if ($existing) {
-                $existing->update([
+                // Direct DB UPDATE bypassing Eloquent dirty check
+                \Illuminate\Support\Facades\DB::table('attendance_logs')
+                    ->where('id', $existing->id)
+                    ->update([
+                        'status'          => $status,
+                        'attendance_time' => \Carbon\Carbon::now()->toTimeString(),
+                        'updated_at'      => \Carbon\Carbon::now(),
+                    ]);
+            } else {
+                $dataToInsert = [
+                    'student_id'      => $santri->id,
+                    'attendance_date' => $selectedDate,
+                    'session_type'    => 'Kajian',
                     'status'          => $status,
                     'attendance_time' => \Carbon\Carbon::now()->toTimeString(),
+                    'created_at'      => \Carbon\Carbon::now(),
                     'updated_at'      => \Carbon\Carbon::now(),
-                ]);
-            } else {
-                \Illuminate\Support\Facades\DB::table('attendance_logs')->insert($dataToSave);
+                ];
+
+                if ($hasUserIdCol) {
+                    $dataToInsert['user_id'] = $santri->id;
+                }
+
+                \Illuminate\Support\Facades\DB::table('attendance_logs')->insert($dataToInsert);
             }
 
             $santri->recalculateStats();
