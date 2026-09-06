@@ -485,9 +485,9 @@
                         </div>
 
                         <!-- Chart Container with Y-Axis and Scrollable Column Bars -->
-                        <div class="relative flex items-end gap-2 pt-6 pb-2" style="height: 230px;">
+                        <div class="relative flex items-end gap-2 pt-6 pb-2" style="height: 240px;">
                             <!-- Y-Axis Grid Lines & Numbers (Fixed 0% - 100%) -->
-                            <div class="flex flex-col justify-between text-[11px] font-cartoon font-bold text-slate-500 dark:text-slate-400 pr-2.5 border-r-2 border-slate-300 dark:border-zinc-700 select-none shrink-0 z-10 py-1" style="height: 200px;">
+                            <div class="flex flex-col justify-between text-[11px] font-cartoon font-bold text-slate-500 dark:text-slate-400 pr-2.5 border-r-2 border-slate-300 dark:border-zinc-700 select-none shrink-0 z-10 py-1" style="height: 180px;">
                                 <span>100%</span>
                                 <span>75%</span>
                                 <span>50%</span>
@@ -496,9 +496,9 @@
                             </div>
 
                             <!-- Scrollable Bars Container -->
-                            <div class="flex-1 overflow-x-auto custom-scrollbar relative py-1" style="height: 230px;">
+                            <div class="flex-1 overflow-x-auto custom-scrollbar relative py-1" style="height: 240px;">
                                 <!-- Background Horizontal Gridlines -->
-                                <div class="absolute top-1 left-0 right-0 flex flex-col justify-between pointer-events-none opacity-25 dark:opacity-15" style="height: 200px;">
+                                <div class="absolute top-1 left-0 right-0 flex flex-col justify-between pointer-events-none opacity-25 dark:opacity-15" style="height: 180px;">
                                     <div class="border-b border-slate-900 dark:border-white w-full"></div>
                                     <div class="border-b border-slate-900 dark:border-white w-full"></div>
                                     <div class="border-b border-slate-900 dark:border-white w-full"></div>
@@ -507,7 +507,7 @@
                                 </div>
 
                                 <!-- Bars Track -->
-                                <div class="flex items-end gap-5 px-3 min-w-max" style="height: 200px;">
+                                <div class="flex items-end gap-6 px-3 min-w-max" style="height: 180px;">
                                     @php
                                         $barPalette = [
                                             ['bg' => '#f87171', 'border' => '#dc2626'], // Salmon Red
@@ -520,25 +520,25 @@
                                             $rawPct = (int)$stat['percentage'];
                                             $pct = min($rawPct, 100);
                                             $palette = $barPalette[$i % 3];
-                                            // Explicit pixel height for the inner column bar (Max 160px for 100%)
-                                            $barPixelHeight = max(round(($pct / 100) * 160), 10);
+                                            // Explicit pixel height for the inner column bar (Max 140px for 100%)
+                                            $barPixelHeight = max(round(($pct / 100) * 140), 10);
                                         @endphp
-                                        <div class="flex flex-col items-center justify-end gap-1.5 group w-14 shrink-0" style="height: 200px;">
+                                        <div class="flex flex-col items-center justify-end gap-1.5 group shrink-0" style="width: 44px; min-width: 44px; height: 180px;">
                                             <!-- Top % badge -->
                                             <span class="text-[11px] font-cartoon font-black text-slate-800 dark:text-slate-100 group-hover:scale-110 transition-transform">
                                                 {{ $rawPct }}%
                                             </span>
 
-                                            <!-- Outer Bar Column Base (Fixed 160px height) -->
-                                            <div class="w-9 bg-slate-200/90 dark:bg-zinc-700/80 rounded-t-xl relative overflow-hidden border-2 border-black dark:border-white flex items-end p-0.5 shadow-sm" style="height: 160px;">
-                                                <!-- Inner Column Bar with explicit pixel height -->
+                                            <!-- Outer Bar Column Base (34px width, 140px height) -->
+                                            <div class="rounded-t-xl relative overflow-hidden border-2 border-black dark:border-white flex items-end p-0.5 shadow-sm" style="width: 34px; min-width: 34px; height: 140px; background-color: #e2e8f0;">
+                                                <!-- Inner Column Bar with explicit pixel height & background color -->
                                                 <div class="w-full rounded-t-lg transition-all duration-500 shadow-sm"
                                                      style="height: {{ $barPixelHeight }}px; background-color: {{ $palette['bg'] }}; border-top: 2.5px solid {{ $palette['border'] }};">
                                                 </div>
                                             </div>
 
                                             <!-- X-Axis Santri Name -->
-                                            <span class="text-[11px] font-body font-bold text-slate-800 dark:text-slate-200 truncate w-16 text-center mt-0.5" title="{{ $stat['name'] }}">
+                                            <span class="text-[11px] font-body font-bold text-slate-800 dark:text-slate-200 truncate text-center mt-0.5" style="width: 44px;" title="{{ $stat['name'] }}">
                                                 {{ Str::limit($stat['name'], 8) }}
                                             </span>
                                         </div>
