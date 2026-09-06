@@ -176,7 +176,8 @@
             to { opacity: 1; transform: translateY(0); }
         }
         @keyframes barGrowVertical {
-            from { height: 0%; }
+            from { transform: scaleY(0); }
+            to { transform: scaleY(1); }
         }
         @keyframes sparkle {
             0%, 100% { transform: scale(0.6) rotate(0deg); opacity: 0.3; }
@@ -197,7 +198,8 @@
         .animate-fade-up-d4 { animation-delay: 0.32s; }
         
         .bar-vertical-animated {
-            animation: barGrowVertical 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            transform-origin: bottom;
+            animation: barGrowVertical 0.8s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
         }
         .ring-chart {
             transition: stroke-dasharray 1s ease-out;
@@ -480,8 +482,8 @@
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
                     
                     <!-- Left Side: Vertical Bar Column Chart with Horizontal Scroll ("digeser kanan-kiri") -->
-                    <div class="lg:col-span-7 bg-slate-50 dark:bg-zinc-800/60 p-5 rounded-2xl border-3 border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] flex flex-col justify-between min-h-[350px]">
-                        <div class="flex items-center justify-between mb-2">
+                    <div class="lg:col-span-7 bg-slate-50 dark:bg-zinc-800/60 p-5 rounded-2xl border-3 border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] flex flex-col justify-between min-h-[360px]">
+                        <div class="flex items-center justify-between mb-3">
                             <span class="font-cartoon font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                                 📊 Grafik Kolom Santri
                             </span>
@@ -491,9 +493,9 @@
                         </div>
 
                         <!-- Chart container with Y-Axis and Scrollable Column Bars -->
-                        <div class="relative flex items-end gap-2 pt-6 pb-1 my-auto">
+                        <div class="relative flex items-end gap-2 pt-6 pb-2 my-auto">
                             <!-- Y-Axis (Fixed 0% - 100%) -->
-                            <div class="flex flex-col justify-between h-56 text-[10px] font-cartoon font-bold text-slate-400 dark:text-slate-500 pr-2 border-r-2 border-slate-300 dark:border-zinc-700 select-none shrink-0 z-10">
+                            <div class="flex flex-col justify-between h-60 text-[10px] font-cartoon font-bold text-slate-500 dark:text-slate-400 pr-2.5 border-r-2 border-slate-300 dark:border-zinc-700 select-none shrink-0 z-10 py-1">
                                 <span>100%</span>
                                 <span>75%</span>
                                 <span>50%</span>
@@ -504,7 +506,7 @@
                             <!-- Scrollable Area -->
                             <div class="flex-1 overflow-x-auto custom-scrollbar relative py-1">
                                 <!-- Background Gridlines -->
-                                <div class="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-25 dark:opacity-15">
+                                <div class="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-25 dark:opacity-15 py-1">
                                     <div class="border-b border-slate-900 dark:border-white w-full"></div>
                                     <div class="border-b border-slate-900 dark:border-white w-full"></div>
                                     <div class="border-b border-slate-900 dark:border-white w-full"></div>
@@ -513,7 +515,7 @@
                                 </div>
 
                                 <!-- Bars Track -->
-                                <div class="flex items-end gap-4 h-56 px-3 min-w-max">
+                                <div class="flex items-end gap-4 h-60 px-3 min-w-max">
                                     @php
                                         $barPalette = [
                                             'bg-rose-400 dark:bg-rose-500 border-rose-600',
@@ -527,21 +529,22 @@
                                             $colorClass = $barPalette[$i % 3];
                                             $delay = min($i * 0.04, 1.2);
                                         @endphp
-                                        <div class="flex flex-col items-center gap-1.5 group w-14 shrink-0 h-full justify-end">
+                                        <div class="flex flex-col items-center gap-1 group w-14 shrink-0 h-full justify-end">
                                             <!-- Top % badge -->
-                                            <span class="text-[10px] font-cartoon font-bold text-slate-800 dark:text-slate-200 group-hover:scale-110 transition-transform">
+                                            <span class="text-[11px] font-cartoon font-extrabold text-slate-800 dark:text-slate-100 group-hover:scale-110 transition-transform">
                                                 {{ $pct }}%
                                             </span>
 
-                                            <!-- Vertical Bar Column -->
-                                            <div class="w-9 bg-slate-200 dark:bg-zinc-700/60 rounded-t-xl relative overflow-hidden border-2 border-black dark:border-white h-44 flex items-end p-0.5">
-                                                <div class="bar-vertical-animated w-full {{ $colorClass }} rounded-t-lg border-t-2 border-black/30 transition-all duration-700 shadow-sm" style="height: {{ max($pct, 6) }}%; animation-delay: {{ $delay }}s;">
+                                            <!-- Vertical Bar Column Outer Container -->
+                                            <div class="w-9 h-44 bg-slate-200/80 dark:bg-zinc-700/60 rounded-t-xl relative overflow-hidden border-2 border-black dark:border-white flex items-end p-0.5 shadow-inner">
+                                                <!-- Inner Animated Column -->
+                                                <div class="bar-vertical-animated w-full {{ $colorClass }} rounded-t-lg border-t-2 border-black/30 shadow-sm" style="height: {{ max($pct, 5) }}%; animation-delay: {{ $delay }}s;">
                                                 </div>
                                             </div>
 
                                             <!-- X-Axis Santri Name -->
-                                            <span class="text-[10px] sm:text-[11px] font-body font-bold text-slate-700 dark:text-slate-300 truncate w-14 text-center" title="{{ $stat['name'] }}">
-                                                {{ Str::limit($stat['name'], 7) }}
+                                            <span class="text-[11px] font-body font-bold text-slate-800 dark:text-slate-200 truncate w-16 text-center mt-1" title="{{ $stat['name'] }}">
+                                                {{ Str::limit($stat['name'], 8) }}
                                             </span>
                                         </div>
                                     @endforeach
