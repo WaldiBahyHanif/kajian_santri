@@ -22,7 +22,8 @@
         <div class="grid gap-3">
             @foreach($santris as $s)
             @php
-                $logStatus = isset($attendanceLogs[$s->id]) ? $attendanceLogs[$s->id]->status : null;
+                $log = $attendanceLogs->get($s->id);
+                $logStatus = $log ? $log->status : null;
             @endphp
             <div class="bg-white p-4 border-4 border-black shadow-[4px_4px_0_0_#000] rounded-lg flex flex-col md:flex-row justify-between items-center gap-4 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
                 <div class="flex items-center gap-3 w-full md:w-auto">

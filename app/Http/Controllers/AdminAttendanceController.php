@@ -6,24 +6,32 @@ use App\Models\Student;
 use App\Models\AttendanceLog;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AdminAttendanceController extends Controller
 {
     public function index(Request $request)
     {
-        $selectedDate = $request->get('date', Carbon::today()->toDateString());
+        $selectedDate = $request->get('date') 
+            ? Carbon::parse($request->get('date'))->format('Y-m-d') 
+            : Carbon::today()->toDateString();
 
-        $santris = Student::where('status_aktif', 'Aktif')
-            ->whereIn('title', ['Santri', 'Musyrif'])
+        $santris = Student::whereIn('status_aktif', ['Aktif', 'aktif'])
+            ->where(function ($q) {
+                $q->whereIn('title', ['Santri', 'Musyrif', 'santri', 'musyrif', 'Mahasantri', 'mahasantri'])
+                  ->orWhereNull('title')
+                  ->orWhere('title', '!=', 'Admin');
+            })
             ->orderBy('name', 'asc')
             ->get();
 
-        // Get attendance for selected date (fallback key student_id / user_id)
-        $attendanceLogs = AttendanceLog::where('attendance_date', $selectedDate)
-            ->where('session_type', 'Kajian')
+        // Get attendance for selected date (key by student ID)
+        $attendanceLogs = AttendanceLog::whereDate('attendance_date', $selectedDate)
+            ->whereIn('session_type', ['Kajian', 'kajian'])
             ->get()
             ->keyBy(function ($item) {
-                return $item->student_id ?? $item->user_id;
+                return (int) ($item->student_id ?? $item->user_id);
             });
 
         return view('admin.attendance.index', compact('santris', 'selectedDate', 'attendanceLogs'));
@@ -31,67 +39,77 @@ class AdminAttendanceController extends Controller
 
     public function store(Request $request)
     {
-        $selectedDate = \Carbon\Carbon::parse($request->input('date', Carbon::today()->toDateString()))->toDateString();
-        $statuses     = $request->input('status', []);
+        $selectedDate = $request->input('date') 
+            ? Carbon::parse($request->input('date'))->format('Y-m-d') 
+            : Carbon::today()->toDateString();
 
-        $santris = Student::whereIn('status_aktif', ['Aktif', 'aktif'])
-            ->whereIn('title', ['Santri', 'Musyrif', 'santri', 'musyrif'])
-            ->get();
+        $statuses = $request->input('status', []);
 
-        $hasUserIdCol = \Illuminate\Support\Facades\Schema::hasColumn('attendance_logs', 'user_id');
+        $hasUserIdCol    = Schema::hasColumn('attendance_logs', 'user_id');
+        $hasStudentIdCol = Schema::hasColumn('attendance_logs', 'student_id');
+        $hasUpdatedAtCol = Schema::hasColumn('attendance_logs', 'updated_at');
+        $hasCreatedAtCol = Schema::hasColumn('attendance_logs', 'created_at');
 
-        foreach ($santris as $santri) {
-            $status = $statuses[$santri->id] ?? 'A';
+        foreach ($statuses as $studentId => $status) {
+            $studentId = (int) $studentId;
+            if ($studentId <= 0) {
+                continue;
+            }
 
-            // Direct DB check
-            $existing = \Illuminate\Support\Facades\DB::table('attendance_logs')
-                ->where('attendance_date', $selectedDate)
-                ->where('session_type', 'Kajian')
-                ->where(function ($q) use ($santri) {
-                    $q->where('student_id', $santri->id)
-                      ->orWhere('user_id', $santri->id);
+            // Direct DB search
+            $existing = DB::table('attendance_logs')
+                ->whereDate('attendance_date', $selectedDate)
+                ->whereIn('session_type', ['Kajian', 'kajian'])
+                ->where(function ($q) use ($studentId) {
+                    $q->where('student_id', $studentId)
+                      ->orWhere('user_id', $studentId);
                 })
                 ->first();
-
-            $hasUpdatedAtCol = \Illuminate\Support\Facades\Schema::hasColumn('attendance_logs', 'updated_at');
-            $hasCreatedAtCol = \Illuminate\Support\Facades\Schema::hasColumn('attendance_logs', 'created_at');
 
             if ($existing) {
                 $updateData = [
                     'status'          => $status,
-                    'attendance_time' => \Carbon\Carbon::now()->toTimeString(),
+                    'attendance_time' => Carbon::now()->toTimeString(),
                 ];
                 if ($hasUpdatedAtCol) {
-                    $updateData['updated_at'] = \Carbon\Carbon::now();
+                    $updateData['updated_at'] = Carbon::now();
                 }
 
-                // Direct DB UPDATE
-                \Illuminate\Support\Facades\DB::table('attendance_logs')
+                DB::table('attendance_logs')
                     ->where('id', $existing->id)
                     ->update($updateData);
             } else {
                 $dataToInsert = [
-                    'student_id'      => $santri->id,
                     'attendance_date' => $selectedDate,
                     'session_type'    => 'Kajian',
                     'status'          => $status,
-                    'attendance_time' => \Carbon\Carbon::now()->toTimeString(),
+                    'attendance_time' => Carbon::now()->toTimeString(),
                 ];
 
+                if ($hasStudentIdCol) {
+                    $dataToInsert['student_id'] = $studentId;
+                }
                 if ($hasUserIdCol) {
-                    $dataToInsert['user_id'] = $santri->id;
+                    $dataToInsert['user_id'] = $studentId;
                 }
                 if ($hasCreatedAtCol) {
-                    $dataToInsert['created_at'] = \Carbon\Carbon::now();
+                    $dataToInsert['created_at'] = Carbon::now();
                 }
                 if ($hasUpdatedAtCol) {
-                    $dataToInsert['updated_at'] = \Carbon\Carbon::now();
+                    $dataToInsert['updated_at'] = Carbon::now();
                 }
 
-                \Illuminate\Support\Facades\DB::table('attendance_logs')->insert($dataToInsert);
+                DB::table('attendance_logs')->insert($dataToInsert);
             }
 
-            $santri->recalculateStats();
+            $santri = Student::find($studentId);
+            if ($santri) {
+                try {
+                    $santri->recalculateStats();
+                } catch (\Throwable $e) {
+                    // Prevent error in stats recalculation from blocking attendance save
+                }
+            }
         }
 
         return redirect()->route('admin.attendance.index', ['date' => $selectedDate])
