@@ -175,8 +175,8 @@
             from { opacity: 0; transform: translateY(18px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes barGrow {
-            from { width: 0%; }
+        @keyframes barGrowVertical {
+            from { height: 0%; }
         }
         @keyframes sparkle {
             0%, 100% { transform: scale(0.6) rotate(0deg); opacity: 0.3; }
@@ -196,8 +196,8 @@
         .animate-fade-up-d3 { animation-delay: 0.24s; }
         .animate-fade-up-d4 { animation-delay: 0.32s; }
         
-        .bar-animated {
-            animation: barGrow 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        .bar-vertical-animated {
+            animation: barGrowVertical 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
         .ring-chart {
             transition: stroke-dasharray 1s ease-out;
@@ -205,6 +205,13 @@
         .animate-sparkle-1 { animation: sparkle 4s ease-in-out infinite; }
         .animate-sparkle-2 { animation: sparkle 5s ease-in-out infinite 1.5s; }
         .animate-float-slow { animation: floatSlow 5s ease-in-out infinite; }
+
+        /* Custom Scrollbar for horizontal chart scroll */
+        .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 8px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-track { background: #27272a; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #10b981; border-radius: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #059669; }
 
         /* Dark mode selects */
         .dark select, .dark input {
@@ -355,7 +362,7 @@
             </div>
         </div>
 
-        <!-- Navigation Cards: Rekap Detail (PLACED AT THE TOP AS REQUESTED BY USER) -->
+        <!-- Navigation Cards: Rekap Detail (AT THE TOP) -->
         <h2 class="font-cartoon text-2xl font-bold text-slate-900 dark:text-white mb-4 animate-fade-up animate-fade-up-d1 flex items-center gap-2">
             <span>📂</span>
             Pilih Tampilan Rekap Detail
@@ -451,21 +458,16 @@
             </div>
         @endif
 
-        <!-- Main Bar Chart Card: Kehadiran Seluruh Santri -->
-        <div class="neo-card bg-white dark:bg-zinc-900 p-6 mb-8 animate-fade-up animate-fade-up-d2">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-                <div>
-                    <h2 class="font-cartoon text-xl md:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <span>📊</span>
-                        Grafik Kehadiran Santri — {{ $monthNames[$month] }} {{ $year }}
-                    </h2>
-                    <p class="text-xs font-body text-slate-500 dark:text-slate-400 mt-0.5">Persentase dihitung dari total KBM aktif ({{ $totalKBMDays }} hari).</p>
-                </div>
-                <div class="flex items-center gap-2 shrink-0">
-                    <span class="neo-btn bg-emerald-200 dark:bg-emerald-900/60 text-emerald-900 dark:text-emerald-200 px-3 py-1 text-xs font-cartoon font-bold cursor-default">
-                        Total: {{ count($studentStats) }} Santri
-                    </span>
-                </div>
+        <!-- MAIN POPULAR STATS GRAPHIC CARD (MATCHING USER REFERENCE IMAGE) -->
+        <div class="neo-card bg-white dark:bg-zinc-900 p-6 md:p-8 mb-8 animate-fade-up animate-fade-up-d2">
+            <div class="text-center mb-8">
+                <h2 class="font-cartoon text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-wider uppercase">
+                    STATISTIK KEHADIRAN SANTRI
+                </h2>
+                <p class="text-xs font-body text-slate-500 dark:text-slate-400 mt-1">
+                    Grafik kolom persentase santri dan ringkasan sesi kegiatan — Periode {{ $monthNames[$month] }} {{ $year }}
+                </p>
+                <div class="w-20 h-1.5 bg-emerald-400 dark:bg-emerald-500 mx-auto mt-2 rounded-full border border-black dark:border-white"></div>
             </div>
 
             @if(count($studentStats) === 0)
@@ -475,128 +477,141 @@
                     <p class="text-xs font-body mt-1">Silakan pilih bulan atau tahun lain di panel filter.</p>
                 </div>
             @else
-                <div class="space-y-3.5 max-h-[550px] overflow-y-auto pr-2 custom-scrollbar">
-                    @foreach($studentStats as $i => $stat)
-                        @php
-                            $pct = $stat['percentage'];
-                            $barColor = $pct >= 75 ? 'bg-emerald-400 dark:bg-emerald-500' : ($pct >= 50 ? 'bg-amber-400 dark:bg-amber-500' : 'bg-rose-400 dark:bg-rose-500');
-                            $textColor = $pct >= 75 ? 'text-emerald-700 dark:text-emerald-400' : ($pct >= 50 ? 'text-amber-700 dark:text-amber-400' : 'text-rose-700 dark:text-rose-400');
-                            $delay = min($i * 0.04, 1.2);
-                        @endphp
-                        <div class="flex items-center gap-3 group" style="animation: fadeInUp 0.4s ease forwards; animation-delay: {{ $delay }}s; opacity: 0;">
-                            <!-- Rank badge -->
-                            <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-zinc-800 border-2 border-black dark:border-white font-cartoon font-bold text-xs flex items-center justify-center shrink-0">
-                                {{ $i + 1 }}
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                    
+                    <!-- Left Side: Vertical Bar Column Chart with Horizontal Scroll ("digeser kanan-kiri") -->
+                    <div class="lg:col-span-7 bg-slate-50 dark:bg-zinc-800/60 p-5 rounded-2xl border-3 border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] flex flex-col justify-between min-h-[350px]">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-cartoon font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                                📊 Grafik Kolom Santri
+                            </span>
+                            <span class="neo-btn bg-emerald-200 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-200 text-[11px] font-cartoon font-bold px-2.5 py-1 flex items-center gap-1">
+                                <span>👈👉</span> Geser Kanan-Kiri
+                            </span>
+                        </div>
+
+                        <!-- Chart container with Y-Axis and Scrollable Column Bars -->
+                        <div class="relative flex items-end gap-2 pt-6 pb-1 my-auto">
+                            <!-- Y-Axis (Fixed 0% - 100%) -->
+                            <div class="flex flex-col justify-between h-56 text-[10px] font-cartoon font-bold text-slate-400 dark:text-slate-500 pr-2 border-r-2 border-slate-300 dark:border-zinc-700 select-none shrink-0 z-10">
+                                <span>100%</span>
+                                <span>75%</span>
+                                <span>50%</span>
+                                <span>25%</span>
+                                <span>0%</span>
                             </div>
 
-                            <!-- Name -->
-                            <div class="w-32 sm:w-44 md:w-56 text-xs sm:text-sm font-body font-bold text-slate-800 dark:text-slate-100 truncate shrink-0" title="{{ $stat['name'] }}">
-                                {{ $stat['name'] }}
-                            </div>
+                            <!-- Scrollable Area -->
+                            <div class="flex-1 overflow-x-auto custom-scrollbar relative py-1">
+                                <!-- Background Gridlines -->
+                                <div class="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-25 dark:opacity-15">
+                                    <div class="border-b border-slate-900 dark:border-white w-full"></div>
+                                    <div class="border-b border-slate-900 dark:border-white w-full"></div>
+                                    <div class="border-b border-slate-900 dark:border-white w-full"></div>
+                                    <div class="border-b border-slate-900 dark:border-white w-full"></div>
+                                    <div class="border-b border-slate-900 dark:border-white w-full"></div>
+                                </div>
 
-                            <!-- Progress Bar Container -->
-                            <div class="flex-1 bg-slate-100 dark:bg-zinc-800 rounded-xl h-8 relative overflow-hidden border-2 border-black dark:border-white p-0.5">
-                                <div class="bar-animated {{ $barColor }} h-full rounded-lg flex items-center justify-end pr-2.5 transition-all shadow-sm" style="width: {{ max($pct, 4) }}%; animation-delay: {{ $delay + 0.15 }}s;">
-                                    @if($pct >= 20)
-                                        <span class="text-[11px] font-cartoon font-bold text-slate-900 dark:text-white drop-shadow-sm">
-                                            {{ $stat['hadir'] }}/{{ $stat['kbm'] }} Hari
-                                        </span>
-                                    @endif
+                                <!-- Bars Track -->
+                                <div class="flex items-end gap-4 h-56 px-3 min-w-max">
+                                    @php
+                                        $barPalette = [
+                                            'bg-rose-400 dark:bg-rose-500 border-rose-600',
+                                            'bg-amber-400 dark:bg-amber-500 border-amber-600',
+                                            'bg-emerald-400 dark:bg-emerald-500 border-emerald-600'
+                                        ];
+                                    @endphp
+                                    @foreach($studentStats as $i => $stat)
+                                        @php
+                                            $pct = $stat['percentage'];
+                                            $colorClass = $barPalette[$i % 3];
+                                            $delay = min($i * 0.04, 1.2);
+                                        @endphp
+                                        <div class="flex flex-col items-center gap-1.5 group w-14 shrink-0 h-full justify-end">
+                                            <!-- Top % badge -->
+                                            <span class="text-[10px] font-cartoon font-bold text-slate-800 dark:text-slate-200 group-hover:scale-110 transition-transform">
+                                                {{ $pct }}%
+                                            </span>
+
+                                            <!-- Vertical Bar Column -->
+                                            <div class="w-9 bg-slate-200 dark:bg-zinc-700/60 rounded-t-xl relative overflow-hidden border-2 border-black dark:border-white h-44 flex items-end p-0.5">
+                                                <div class="bar-vertical-animated w-full {{ $colorClass }} rounded-t-lg border-t-2 border-black/30 transition-all duration-700 shadow-sm" style="height: {{ max($pct, 6) }}%; animation-delay: {{ $delay }}s;">
+                                                </div>
+                                            </div>
+
+                                            <!-- X-Axis Santri Name -->
+                                            <span class="text-[10px] sm:text-[11px] font-body font-bold text-slate-700 dark:text-slate-300 truncate w-14 text-center" title="{{ $stat['name'] }}">
+                                                {{ Str::limit($stat['name'], 7) }}
+                                            </span>
+                                        </div>
+                                    @endforeach
                                 </div>
                             </div>
-
-                            <!-- Percentage -->
-                            <div class="w-14 text-right font-cartoon font-extrabold text-sm sm:text-base {{ $textColor }} shrink-0">
-                                {{ $pct }}%
-                            </div>
                         </div>
-                    @endforeach
+
+                        <div class="mt-3 text-center">
+                            <span class="text-[11px] font-cartoon font-bold text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1">
+                                👈 Usap / Geser grafik ke kanan & kiri untuk melihat seluruh {{ count($studentStats) }} santri 👉
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Right Side: Ring Charts with Titles & Descriptions (Matching Reference Image) -->
+                    <div class="lg:col-span-5 bg-slate-50 dark:bg-zinc-800/60 p-5 rounded-2xl border-3 border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] flex flex-col justify-center space-y-4">
+                        @php
+                            $sessionMeta = [
+                                'Kajian' => [
+                                    'stroke' => '#f87171',
+                                    'desc' => 'Tingkat kehadiran santri pada jadwal pengajian rutin.'
+                                ],
+                                'Subuh' => [
+                                    'stroke' => '#fbbf24',
+                                    'desc' => 'Kedisiplinan jamaah Subuh dan dzikir pagi.'
+                                ],
+                                'Tahsin' => [
+                                    'stroke' => '#34d399',
+                                    'desc' => 'Kehadiran bimbingan membaca & setoran Quran.'
+                                ],
+                            ];
+                        @endphp
+                        @foreach($sessionStats as $type => $stat)
+                            @php
+                                $meta = $sessionMeta[$type] ?? ['stroke' => '#60a5fa', 'desc' => 'Statistik kegiatan santri.'];
+                                $circumference = 2 * 3.14159 * 40;
+                                $dashArray = ($stat['percentage'] / 100) * $circumference;
+                                $dashOffset = $circumference - $dashArray;
+                            @endphp
+                            <div class="flex items-center justify-between gap-3 p-3.5 bg-white dark:bg-zinc-900 rounded-xl border-2 border-black/10 dark:border-white/10 shadow-sm">
+                                <div class="flex-1 min-w-0 pr-2">
+                                    <h4 class="font-cartoon text-base md:text-lg font-bold text-slate-900 dark:text-white mb-0.5">
+                                        {{ $type }}
+                                    </h4>
+                                    <p class="text-xs font-body text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                                        {{ $meta['desc'] }}
+                                    </p>
+                                    <div class="mt-1.5 text-[11px] font-cartoon font-bold text-slate-700 dark:text-slate-300">
+                                        ✅ {{ $stat['hadir'] }} dari {{ $stat['total'] }} Sesi
+                                    </div>
+                                </div>
+
+                                <!-- Ring Donut Chart -->
+                                <div class="relative shrink-0 w-20 h-20 flex items-center justify-center">
+                                    <svg width="80" height="80" viewBox="0 0 100 100" class="transform -rotate-90">
+                                        <circle cx="50" cy="50" r="40" fill="none" stroke-width="12" class="stroke-slate-200 dark:stroke-zinc-800" />
+                                        <circle cx="50" cy="50" r="40" fill="none" stroke-width="12" stroke="{{ $meta['stroke'] }}"
+                                                stroke-linecap="round"
+                                                stroke-dasharray="{{ $dashArray }} {{ $dashOffset }}"
+                                                class="ring-chart" />
+                                    </svg>
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span class="font-cartoon text-lg font-black text-slate-900 dark:text-white">{{ $stat['percentage'] }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             @endif
-        </div>
-
-        <!-- Session Ring Charts Section -->
-        <h2 class="font-cartoon text-2xl font-bold text-slate-900 dark:text-white mb-4 animate-fade-up animate-fade-up-d3 flex items-center gap-2">
-            <span>📚</span>
-            Kehadiran Per Sesi Kegiatan
-        </h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            @php
-                $sessionColors = [
-                    'Kajian' => [
-                        'stroke' => '#10b981',
-                        'bg' => 'bg-emerald-50 dark:bg-zinc-900',
-                        'badgeBg' => 'bg-emerald-300 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-200',
-                        'text' => 'text-emerald-700 dark:text-emerald-400',
-                        'icon' => '📖',
-                        'desc' => 'Kajian Rutin Santri'
-                    ],
-                    'Subuh' => [
-                        'stroke' => '#f59e0b',
-                        'bg' => 'bg-amber-50 dark:bg-zinc-900',
-                        'badgeBg' => 'bg-amber-300 dark:bg-amber-950 text-amber-950 dark:text-amber-200',
-                        'text' => 'text-amber-700 dark:text-amber-400',
-                        'icon' => '🌅',
-                        'desc' => 'Shalat & Dzikir Subuh'
-                    ],
-                    'Tahsin' => [
-                        'stroke' => '#6366f1',
-                        'bg' => 'bg-indigo-50 dark:bg-zinc-900',
-                        'badgeBg' => 'bg-indigo-300 dark:bg-indigo-950 text-indigo-950 dark:text-indigo-200',
-                        'text' => 'text-indigo-700 dark:text-indigo-400',
-                        'icon' => '📿',
-                        'desc' => 'Tahsin & Setoran Quran'
-                    ],
-                ];
-            @endphp
-
-            @foreach($sessionStats as $type => $stat)
-                @php
-                    $color = $sessionColors[$type] ?? [
-                        'stroke' => '#64748b',
-                        'bg' => 'bg-slate-50 dark:bg-zinc-900',
-                        'badgeBg' => 'bg-slate-200 dark:bg-zinc-800 text-slate-800 dark:text-slate-200',
-                        'text' => 'text-slate-700 dark:text-slate-300',
-                        'icon' => '📋',
-                        'desc' => 'Kegiatan Santri'
-                    ];
-                    $circumference = 2 * 3.14159 * 42;
-                    $dashArray = ($stat['percentage'] / 100) * $circumference;
-                    $dashOffset = $circumference - $dashArray;
-                @endphp
-                <div class="neo-card {{ $color['bg'] }} p-6 text-center animate-fade-up animate-fade-up-d3 flex flex-col justify-between items-center group">
-                    <div class="w-full">
-                        <div class="inline-flex items-center gap-1.5 px-3 py-1 font-cartoon font-bold text-xs rounded-full border-2 border-black dark:border-white {{ $color['badgeBg'] }} mb-3">
-                            <span>{{ $color['icon'] }}</span>
-                            <span>{{ strtoupper($type) }}</span>
-                        </div>
-                        <h3 class="font-cartoon text-lg font-bold text-slate-900 dark:text-white">{{ $type }}</h3>
-                        <p class="text-xs font-body text-slate-500 dark:text-slate-400 mb-4">{{ $color['desc'] }}</p>
-                    </div>
-
-                    <!-- SVG Ring Chart -->
-                    <div class="relative inline-block my-2 transform group-hover:scale-105 transition-transform">
-                        <svg width="130" height="130" viewBox="0 0 100 100" class="transform -rotate-90">
-                            <circle cx="50" cy="50" r="42" fill="none" stroke-width="10" class="stroke-slate-200 dark:stroke-zinc-800" />
-                            <circle cx="50" cy="50" r="42" fill="none" stroke-width="10" stroke="{{ $color['stroke'] }}"
-                                    stroke-linecap="round"
-                                    stroke-dasharray="{{ $dashArray }} {{ $dashOffset }}"
-                                    class="ring-chart" />
-                        </svg>
-                        <div class="absolute inset-0 flex flex-col items-center justify-center">
-                            <span class="font-cartoon text-2xl font-black {{ $color['text'] }}">{{ $stat['percentage'] }}%</span>
-                            <span class="text-[10px] font-cartoon font-bold text-slate-400 uppercase">Hadir</span>
-                        </div>
-                    </div>
-
-                    <div class="w-full mt-4 pt-3 border-t border-black/10 dark:border-white/10 flex justify-around text-xs font-body font-bold text-slate-700 dark:text-slate-300">
-                        <span class="flex items-center gap-1">✅ {{ $stat['hadir'] }} Hadir</span>
-                        <span>•</span>
-                        <span class="flex items-center gap-1">📊 {{ $stat['total'] }} Absensi</span>
-                    </div>
-                </div>
-            @endforeach
         </div>
 
     </div>
