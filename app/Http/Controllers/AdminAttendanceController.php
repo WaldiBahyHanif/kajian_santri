@@ -18,11 +18,13 @@ class AdminAttendanceController extends Controller
             ->orderBy('name', 'asc')
             ->get();
 
-        // Get attendance for selected date
+        // Get attendance for selected date (fallback key student_id / user_id)
         $attendanceLogs = AttendanceLog::where('attendance_date', $selectedDate)
             ->where('session_type', 'Kajian')
             ->get()
-            ->keyBy('student_id');
+            ->keyBy(function ($item) {
+                return $item->student_id ?? $item->user_id;
+            });
 
         return view('admin.attendance.index', compact('santris', 'selectedDate', 'attendanceLogs'));
     }
@@ -36,29 +38,42 @@ class AdminAttendanceController extends Controller
             ->whereIn('title', ['Santri', 'Musyrif'])
             ->get();
 
+        $hasUserIdCol = \Illuminate\Support\Facades\Schema::hasColumn('attendance_logs', 'user_id');
+
         foreach ($santris as $santri) {
             $status = $statuses[$santri->id] ?? 'A';
 
-            // Gunakan DB::table langsung agar SELALU update ke database
-            // tanpa melewati Eloquent dirty tracking yang bisa skip UPDATE.
-            // CATATAN: user_id sengaja di-null karena app sudah pakai student_id.
-            // FK user_id -> users sudah di-drop via migration terbaru.
-            \Illuminate\Support\Facades\DB::table('attendance_logs')->updateOrInsert(
-                [
-                    'student_id'      => $santri->id,
-                    'attendance_date' => $selectedDate,
-                    'session_type'    => 'Kajian',
-                ],
-                [
-                    'student_id'      => $santri->id,
-                    'user_id'         => null,
-                    'attendance_date' => $selectedDate,
-                    'session_type'    => 'Kajian',
+            $dataToSave = [
+                'student_id'      => $santri->id,
+                'attendance_date' => $selectedDate,
+                'session_type'    => 'Kajian',
+                'status'          => $status,
+                'attendance_time' => \Carbon\Carbon::now()->toTimeString(),
+                'created_at'      => \Carbon\Carbon::now(),
+                'updated_at'      => \Carbon\Carbon::now(),
+            ];
+
+            if ($hasUserIdCol) {
+                $dataToSave['user_id'] = $santri->id;
+            }
+
+            // Update jika ada (by student_id atau user_id), atau buat baru
+            $existing = AttendanceLog::where('attendance_date', $selectedDate)
+                ->where('session_type', 'Kajian')
+                ->where(function ($q) use ($santri) {
+                    $q->where('student_id', $santri->id)
+                      ->orWhere('user_id', $santri->id);
+                })->first();
+
+            if ($existing) {
+                $existing->update([
                     'status'          => $status,
                     'attendance_time' => \Carbon\Carbon::now()->toTimeString(),
-                    'created_at'      => \Carbon\Carbon::now(),
-                ]
-            );
+                    'updated_at'      => \Carbon\Carbon::now(),
+                ]);
+            } else {
+                \Illuminate\Support\Facades\DB::table('attendance_logs')->insert($dataToSave);
+            }
 
             $santri->recalculateStats();
         }
