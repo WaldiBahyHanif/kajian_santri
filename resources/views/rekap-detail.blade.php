@@ -10,8 +10,8 @@
         }
     </script>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Rekap Detail - Daaru Hiraa</title>
-                <style>
+    <title>Rekap Detail Kehadiran - Daaru Hiraa</title>
+    <style>
         :root {
             --primary-container: #064e3b;
             --surface-container-lowest: #ffffff;
@@ -20,20 +20,20 @@
             --on-tertiary: #ffffff;
             --surface-tint: #2b6954;
             --tertiary-fixed: #ffdf9f;
-            --surface-container: #eeeeee;
-            --surface-container-highest: #e2e2e2;
+            --surface-container: #f3f4f6;
+            --surface-container-highest: #e5e7eb;
             --tertiary-container: #584000;
             --on-tertiary-container: #e0a800;
             --outline: #707974;
             --on-error: #ffffff;
             --secondary-fixed: #a6f2cf;
             --outline-variant: #bfc9c3;
-            --on-surface-variant: #404944;
-            --surface: #f9f9f9;
-            --surface-container-high: #e8e8e8;
+            --on-surface-variant: #4b5563;
+            --surface: #f9fafb;
+            --surface-container-high: #e5e7eb;
             --inverse-surface: #303030;
-            --on-secondary-container: #247155;
-            --background: #f9f9f9;
+            --on-secondary-container: #064e3b;
+            --background: #f9fafb;
             --primary: #003527;
             --on-primary-container: #80bea6;
             --secondary: #1b6b4f;
@@ -43,8 +43,8 @@
             --error: #ba1a1a;
             --surface-container-low: #f3f3f3;
             --surface-bright: #f9f9f9;
-            --on-background: #1b1b1b;
-            --on-surface: #1b1b1b;
+            --on-background: #111827;
+            --on-surface: #111827;
             --secondary-container: #a6f2cf;
             --primary-fixed: #b0f0d6;
             --error-container: #ffdad6;
@@ -53,27 +53,27 @@
         }
 
         .dark {
-            --primary-container: #004d38;
-            --surface-container-lowest: #1a1a1a;
+            --primary-container: #065f46;
+            --surface-container-lowest: #18181b;
             --on-secondary: #002115;
-            --on-primary: #002117;
+            --on-primary: #ffffff;
             --on-tertiary: #261a00;
             --surface-tint: #4ade80;
             --tertiary-fixed: #584000;
-            --surface-container: #242424;
-            --surface-container-highest: #3e3e3e;
+            --surface-container: #27272a;
+            --surface-container-highest: #3f3f46;
             --tertiary-container: #ffdf9f;
             --on-tertiary-container: #ffdf9f;
             --outline: #94a3b8;
             --on-error: #601410;
             --secondary-fixed: #003527;
             --outline-variant: #4a5568;
-            --on-surface-variant: #cbd5e1;
-            --surface: #1e1e1e;
-            --surface-container-high: #2d2d2d;
+            --on-surface-variant: #9ca3af;
+            --surface: #121212;
+            --surface-container-high: #27272a;
             --inverse-surface: #f1f1f1;
             --on-secondary-container: #a6f2cf;
-            --background: #121212;
+            --background: #09090b;
             --primary: #4ade80;
             --on-primary-container: #a6f2cf;
             --secondary: #22c55e;
@@ -83,9 +83,9 @@
             --error: #f87171;
             --surface-container-low: #222222;
             --surface-bright: #1e1e1e;
-            --on-background: #f1f1f1;
-            --on-surface: #f1f1f1;
-            --secondary-container: #003527;
+            --on-background: #f4f4f5;
+            --on-surface: #f4f4f5;
+            --secondary-container: #064e3b;
             --primary-fixed: #1b6b4f;
             --error-container: #8c1d18;
             --inverse-on-surface: #121212;
@@ -93,18 +93,18 @@
         }
 
         .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
             vertical-align: middle;
         }
 
-        /* Animated Background */
+        /* Animated Soft Neobrutalism Background */
         .bg-detail-animated {
             background: linear-gradient(-45deg, #ecfdf5, #e0f2fe, #fef3c7, #d1fae5);
             background-size: 400% 400%;
             animation: gradient-shift 18s ease infinite;
         }
         .dark .bg-detail-animated {
-            background: linear-gradient(-45deg, #022e23, #0b132b, #0c1a16, #052e16);
+            background: linear-gradient(-45deg, #09090b, #052e16, #0c1a16, #09090b);
             background-size: 400% 400%;
         }
         @keyframes gradient-shift {
@@ -113,59 +113,82 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* Cartoon Card */
-        .cartoon-card {
-            border: 4px solid #000;
+        /* Soft Neobrutalist Elements */
+        .neo-card {
+            border: 3.5px solid #000;
             border-radius: 1.5rem;
-            box-shadow: 8px 8px 0px 0px rgba(0, 53, 39, 0.15);
+            box-shadow: 6px 6px 0px 0px #000;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .dark .cartoon-card {
+        .dark .neo-card {
             border-color: #fff;
-            box-shadow: 8px 8px 0px 0px rgba(255, 255, 255, 0.1);
+            box-shadow: 6px 6px 0px 0px #fff;
         }
 
-        .cartoon-btn {
+        .neo-btn {
             border: 3px solid #000;
             border-radius: 1rem;
             box-shadow: 4px 4px 0px 0px #000;
             transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+            user-select: none;
         }
-        .cartoon-btn:hover {
+        .neo-btn:hover {
             transform: translate(-2px, -2px);
             box-shadow: 6px 6px 0px 0px #000;
         }
-        .cartoon-btn:active {
+        .neo-btn:active {
             transform: translate(0, 0);
-            box-shadow: 4px 4px 0px 0px #000;
+            box-shadow: 2px 2px 0px 0px #000;
         }
-        .dark .cartoon-btn { border-color: #fff; box-shadow: 4px 4px 0px 0px #fff; }
-        .dark .cartoon-btn:hover { box-shadow: 6px 6px 0px 0px #fff; }
-        .dark .cartoon-btn:active { box-shadow: 4px 4px 0px 0px #fff; }
+        .dark .neo-btn { border-color: #fff; box-shadow: 4px 4px 0px 0px #fff; }
+        .dark .neo-btn:hover { box-shadow: 6px 6px 0px 0px #fff; }
+        .dark .neo-btn:active { box-shadow: 2px 2px 0px 0px #fff; }
 
-        .cartoon-tab {
+        /* Neobrutalist Tabs */
+        .neo-tab {
             border: 3px solid #000;
             border-radius: 1rem 1rem 0 0;
             border-bottom: none;
-            padding: 0.6rem 1.5rem;
+            padding: 0.65rem 1.4rem;
+            font-family: 'Space Grotesk', sans-serif;
             font-weight: 700;
+            font-size: 0.85rem;
             transition: all 0.2s ease;
             cursor: pointer;
             text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        .cartoon-tab.active {
-            background-color: var(--primary-container);
-            color: var(--on-primary);
+        .dark .neo-tab {
+            border-color: #fff;
         }
-        .cartoon-tab:not(.active) {
-            background-color: var(--surface-container);
-            color: var(--on-surface);
+        .neo-tab.active {
+            background-color: #34d399;
+            color: #000;
+            box-shadow: 0px -4px 0px 0px #000;
         }
-        .cartoon-tab:not(.active):hover {
-            background-color: var(--surface-container-high);
+        .dark .neo-tab.active {
+            background-color: #059669;
+            color: #fff;
+            box-shadow: 0px -4px 0px 0px #fff;
         }
-        .dark .cartoon-tab { border-color: #fff; }
-        .dark .cartoon-tab.active { background-color: var(--primary-container); color: #fff; }
-        .dark .cartoon-tab:not(.active) { background-color: var(--surface-container); }
+        .neo-tab:not(.active) {
+            background-color: #fff;
+            color: #374151;
+        }
+        .dark .neo-tab:not(.active) {
+            background-color: #27272a;
+            color: #d4d4d8;
+        }
+        .neo-tab:not(.active):hover {
+            background-color: #f3f4f6;
+            transform: translateY(-2px);
+        }
+        .dark .neo-tab:not(.active):hover {
+            background-color: #3f3f46;
+        }
 
         /* Table styles */
         .rekap-table {
@@ -174,69 +197,74 @@
             width: 100%;
         }
         .rekap-table th, .rekap-table td {
-            border: 2px solid #000;
-            padding: 6px 4px;
+            border: 1.5px solid #000;
+            padding: 7px 5px;
             text-align: center;
             font-size: 11px;
             font-weight: 600;
             white-space: nowrap;
         }
         .dark .rekap-table th, .dark .rekap-table td {
-            border-color: #4a5568;
+            border-color: #52525b;
         }
         .rekap-table thead th {
-            background: var(--primary-container);
-            color: var(--on-primary);
+            background: #064e3b;
+            color: #ffffff;
             position: sticky;
             top: 0;
             z-index: 10;
-            font-family: 'Fredoka', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             font-size: 12px;
+            font-weight: 700;
         }
+        .dark .rekap-table thead th {
+            background: #065f46;
+            color: #ffffff;
+        }
+
+        /* Sticky Columns */
         .rekap-table th:first-child,
         .rekap-table td:first-child {
             position: sticky;
             left: 0;
             z-index: 20;
-            min-width: 40px;
-            max-width: 40px;
-            width: 40px;
+            min-width: 42px;
+            max-width: 42px;
+            width: 42px;
         }
         .rekap-table th:nth-child(2),
         .rekap-table td:nth-child(2) {
             position: sticky;
-            left: 40px;
+            left: 42px;
             z-index: 20;
-            min-width: 140px;
-            max-width: 140px;
-            width: 140px;
+            min-width: 150px;
+            max-width: 150px;
+            width: 150px;
             text-align: left;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-        /* Mobile optimization: make sticky columns narrower so more date columns fit on mobile */
         @media (max-width: 640px) {
             .rekap-table th, .rekap-table td {
-                padding: 5px 2px;
+                padding: 5px 3px;
                 font-size: 10px;
             }
             .rekap-table th:first-child,
             .rekap-table td:first-child {
-                min-width: 28px;
-                max-width: 28px;
-                width: 28px;
+                min-width: 30px;
+                max-width: 30px;
+                width: 30px;
             }
             .rekap-table th:nth-child(2),
             .rekap-table td:nth-child(2) {
-                left: 28px;
-                min-width: 105px;
-                max-width: 105px;
-                width: 105px;
-                padding-left: 4px !important;
+                left: 30px;
+                min-width: 110px;
+                max-width: 110px;
+                width: 110px;
+                padding-left: 5px !important;
             }
         }
-        /* headers should have higher z-index to stay above vertical scrolling */
         .rekap-table thead th:first-child,
         .rekap-table thead th:nth-child(2) {
             z-index: 30;
@@ -244,93 +272,80 @@
         .rekap-table tbody td:first-child,
         .rekap-table tbody td:nth-child(2) {
             z-index: 10;
-            background: inherit;
         }
 
-        /* Status cells */
-        .cell-h { background: #6ee7b7; color: #064e3b; }
-        .cell-i { background: #fde68a; color: #78350f; }
-        .cell-a { background: #fca5a5; color: #7f1d1d; }
-        .cell-s { background: #93c5fd; color: #1e3a5f; }
-        .cell-none { background: var(--surface-container-low); color: var(--outline); }
+        /* Status cell backgrounds */
+        .cell-h { background: #6ee7b7; color: #064e3b; font-weight: 800; }
+        .cell-i { background: #fde68a; color: #78350f; font-weight: 800; }
+        .cell-a { background: #fca5a5; color: #7f1d1d; font-weight: 800; }
+        .cell-s { background: #93c5fd; color: #1e3a5f; font-weight: 800; }
+        .cell-none { background: #f3f4f6; color: #9ca3af; }
 
         .dark .cell-h { background: #065f46; color: #6ee7b7; }
         .dark .cell-i { background: #78350f; color: #fde68a; }
         .dark .cell-a { background: #7f1d1d; color: #fca5a5; }
         .dark .cell-s { background: #1e3a5f; color: #93c5fd; }
-        .dark .cell-none { background: var(--surface-container); color: var(--outline-variant); }
+        .dark .cell-none { background: #27272a; color: #71717a; }
 
-        /* Zebra stripes */
-        .rekap-table tbody tr:nth-child(even) td {
-            background-color: rgba(0, 0, 0, 0.02);
-        }
-        .rekap-table tbody tr:nth-child(even) td.cell-h { background: #6ee7b7; }
-        .rekap-table tbody tr:nth-child(even) td.cell-i { background: #fde68a; }
-        .rekap-table tbody tr:nth-child(even) td.cell-a { background: #fca5a5; }
-        .rekap-table tbody tr:nth-child(even) td.cell-s { background: #93c5fd; }
-        .rekap-table tbody tr:nth-child(even) td.cell-none { background: var(--surface-container-low); }
-        .dark .rekap-table tbody tr:nth-child(even) td { background-color: rgba(255,255,255,0.02); }
-        .dark .rekap-table tbody tr:nth-child(even) td.cell-h { background: #065f46; }
-        .dark .rekap-table tbody tr:nth-child(even) td.cell-i { background: #78350f; }
-        .dark .rekap-table tbody tr:nth-child(even) td.cell-a { background: #7f1d1d; }
-        .dark .rekap-table tbody tr:nth-child(even) td.cell-s { background: #1e3a5f; }
-        .dark .rekap-table tbody tr:nth-child(even) td.cell-none { background: var(--surface-container); }
-
-        /* Sticky name cell inherits row bg */
+        /* Zebra striping */
         .rekap-table tbody tr:nth-child(odd) td:first-child,
         .rekap-table tbody tr:nth-child(odd) td:nth-child(2) {
-            background: var(--surface-container-lowest);
+            background: #ffffff;
         }
+        .dark .rekap-table tbody tr:nth-child(odd) td:first-child,
+        .dark .rekap-table tbody tr:nth-child(odd) td:nth-child(2) {
+            background: #18181b;
+        }
+
         .rekap-table tbody tr:nth-child(even) td:first-child,
         .rekap-table tbody tr:nth-child(even) td:nth-child(2) {
-            background: var(--surface-container-low);
+            background: #f9fafb;
+        }
+        .dark .rekap-table tbody tr:nth-child(even) td:first-child,
+        .dark .rekap-table tbody tr:nth-child(even) td:nth-child(2) {
+            background: #27272a;
         }
 
-        /* JML & % columns */
-        .col-total { background: var(--secondary-container) !important; color: var(--on-secondary-container); font-weight: 800; }
-        .col-pct { font-weight: 800; }
-        .pct-high { background: #6ee7b7 !important; color: #064e3b; }
-        .pct-mid { background: #fde68a !important; color: #78350f; }
-        .pct-low { background: #fca5a5 !important; color: #7f1d1d; }
-        .dark .pct-high { background: #065f46 !important; color: #6ee7b7; }
-        .dark .pct-mid { background: #78350f !important; color: #fde68a; }
-        .dark .pct-low { background: #7f1d1d !important; color: #fca5a5; }
-        .dark .col-total { background: var(--secondary-container) !important; }
+        /* Summary / Total Column */
+        .col-total { background: #a6f2cf !important; color: #064e3b !important; font-weight: 800; }
+        .dark .col-total { background: #064e3b !important; color: #a6f2cf !important; }
 
-        /* Hover row */
+        .pct-high { background: #6ee7b7 !important; color: #064e3b !important; font-weight: 800; }
+        .pct-mid { background: #fde68a !important; color: #78350f !important; font-weight: 800; }
+        .pct-low { background: #fca5a5 !important; color: #7f1d1d !important; font-weight: 800; }
+        .dark .pct-high { background: #065f46 !important; color: #6ee7b7 !important; }
+        .dark .pct-mid { background: #78350f !important; color: #fde68a !important; }
+        .dark .pct-low { background: #7f1d1d !important; color: #fca5a5 !important; }
+
+        /* Row Hover Highlight */
         .rekap-table tbody tr {
-            transition: outline 0.15s ease;
+            transition: all 0.15s ease;
         }
-        .rekap-table tbody tr:hover {
-            outline: 3px solid var(--primary);
-            outline-offset: -3px;
-            z-index: 2;
-            position: relative;
+        .rekap-table tbody tr:hover td {
+            filter: brightness(0.96);
+        }
+        .dark .rekap-table tbody tr:hover td {
+            filter: brightness(1.1);
         }
 
         /* Animations */
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(18px); }
             to { opacity: 1; transform: translateY(0); }
         }
         @keyframes sparkle {
             0%, 100% { transform: scale(0.6) rotate(0deg); opacity: 0.3; }
             50% { transform: scale(1.1) rotate(45deg); opacity: 0.9; }
         }
-        @keyframes drift-right {
-            0% { transform: translateX(-15vw); }
-            100% { transform: translateX(115vw); }
-        }
         .animate-fade-up {
             opacity: 0;
-            animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation: fadeInUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
-        .animate-fade-up-d1 { animation-delay: 0.1s; }
-        .animate-fade-up-d2 { animation-delay: 0.2s; }
-        .animate-fade-up-d3 { animation-delay: 0.3s; }
+        .animate-fade-up-d1 { animation-delay: 0.08s; }
+        .animate-fade-up-d2 { animation-delay: 0.16s; }
+        .animate-fade-up-d3 { animation-delay: 0.24s; }
         .animate-sparkle-1 { animation: sparkle 4s ease-in-out infinite; }
         .animate-sparkle-2 { animation: sparkle 5s ease-in-out infinite 1.5s; }
-        .animate-drift-slow { animation: drift-right 55s linear infinite; }
 
         .row-stagger {
             opacity: 0;
@@ -338,99 +353,112 @@
         }
 
         .dark select, .dark input {
-            background-color: var(--surface-container-lowest) !important;
-            color: var(--on-surface) !important;
-            border-color: var(--outline-variant) !important;
+            background-color: #18181b !important;
+            color: #f4f4f5 !important;
+            border-color: #ffffff !important;
         }
 
         /* Scrollbar */
         .table-scroll::-webkit-scrollbar { height: 10px; width: 6px; }
-        .table-scroll::-webkit-scrollbar-track { background: var(--surface-container); border-radius: 10px; }
-        .table-scroll::-webkit-scrollbar-thumb { background: var(--outline); border-radius: 10px; }
-        .table-scroll::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+        .table-scroll::-webkit-scrollbar-track { background: #e5e7eb; border-radius: 8px; }
+        .dark .table-scroll::-webkit-scrollbar-track { background: #27272a; }
+        .table-scroll::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 8px; }
+        .dark .table-scroll::-webkit-scrollbar-thumb { background: #52525b; }
+        .table-scroll::-webkit-scrollbar-thumb:hover { background: #059669; }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,500,0,0&display=swap" rel="stylesheet"/>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-detail-animated text-on-surface font-body min-h-screen relative">
+<body class="bg-detail-animated text-on-surface font-body min-h-screen relative selection:bg-emerald-300 selection:text-black">
 
-    <!-- Animated Background Canvas -->
+    <!-- Sparkles -->
     <div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        <svg class="absolute text-yellow-300/25 dark:text-yellow-200/30 fill-current animate-sparkle-1" style="top: 8%; right: 10%; height: 20px; width: 20px;" viewBox="0 0 24 24">
+        <svg class="absolute text-yellow-400/30 dark:text-yellow-200/25 fill-current animate-sparkle-1" style="top: 8%; right: 10%; height: 20px; width: 20px;" viewBox="0 0 24 24">
             <path d="M12,0 L15,9 L24,12 L15,15 L12,24 L9,15 L0,12 L9,9 Z" />
         </svg>
-        <svg class="absolute text-yellow-300/20 dark:text-yellow-200/25 fill-current animate-sparkle-2" style="top: 70%; left: 5%; height: 16px; width: 16px;" viewBox="0 0 24 24">
+        <svg class="absolute text-emerald-400/30 dark:text-emerald-300/20 fill-current animate-sparkle-2" style="top: 70%; left: 5%; height: 16px; width: 16px;" viewBox="0 0 24 24">
             <path d="M12,0 L15,9 L24,12 L15,15 L12,24 L9,15 L0,12 L9,9 Z" />
-        </svg>
-        <svg class="absolute text-white/35 dark:text-slate-700/15 fill-current animate-drift-slow" style="top: 15%; height: 40px; width: 80px;" viewBox="0 0 120 60">
-            <path d="M20,40 C20,30 30,25 40,25 C45,15 60,10 75,18 C85,10 100,15 100,30 C110,30 115,38 110,48 C105,55 95,55 90,55 L30,55 C15,55 10,48 20,40 Z"/>
         </svg>
     </div>
 
     <!-- Theme Toggle -->
     <div class="fixed top-4 right-4 z-50">
-        <button id="theme-toggle" class="flex items-center justify-center w-12 h-12 bg-white dark:bg-surface-container-lowest text-on-background border-3 border-black dark:border-white rounded-2xl shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_#000] dark:hover:shadow-[6px_6px_0px_0px_#fff] active:translate-x-0 active:translate-y-0 transition-all cursor-pointer" aria-label="Toggle Theme">
+        <button id="theme-toggle" class="flex items-center justify-center w-12 h-12 bg-white dark:bg-zinc-800 text-black dark:text-white border-3 border-black dark:border-white rounded-2xl shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_#000] dark:hover:shadow-[6px_6px_0px_0px_#fff] active:translate-x-0 active:translate-y-0 transition-all cursor-pointer" aria-label="Toggle Theme">
             <span class="material-symbols-outlined text-xl block dark:hidden">dark_mode</span>
             <span class="material-symbols-outlined text-xl hidden dark:block">light_mode</span>
         </button>
     </div>
 
-    <div class="relative z-10 max-w-[98vw] xl:max-w-7xl mx-auto px-3 md:px-6 py-6 pb-16">
+    <div class="relative z-10 max-w-[98vw] xl:max-w-7xl mx-auto px-3 sm:px-6 py-6 pb-16">
 
         @php
             $monthNames = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
         @endphp
 
-        <!-- Header -->
+        <!-- Top Header & Actions -->
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 animate-fade-up">
             <div>
-                <h1 class="font-cartoon text-3xl md:text-4xl font-bold text-primary dark:text-primary tracking-tight">REKAP SANTRI 📊</h1>
-                <p class="font-body text-on-surface-variant mt-1 text-sm">Laporan Kehadiran Bulanan & Mingguan</p>
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-200 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-300 font-cartoon font-bold text-xs rounded-full border-2 border-black dark:border-white shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff] mb-1.5">
+                    <span>📑 TABEL PRESENSI DETAIL</span>
+                </div>
+                <h1 class="font-cartoon text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                    Rekap Detail Santri 📊
+                </h1>
+                <p class="font-body text-slate-600 dark:text-slate-300 text-xs sm:text-sm mt-0.5">
+                    Transkrip kehadiran santri per hari/minggu/bulan dengan fitur ekspor data.
+                </p>
             </div>
-            <div class="flex flex-wrap gap-3">
-                <a href="{{ route('rekap', ['month' => $month, 'year' => $year]) }}" class="cartoon-btn bg-white dark:bg-surface-container-lowest text-on-surface font-cartoon font-bold px-4 py-2 flex items-center gap-2 text-sm no-underline">
-                    <span class="material-symbols-outlined text-lg">arrow_back</span>
-                    KEMBALI
+            <div class="flex flex-wrap gap-2.5 self-stretch sm:self-auto">
+                <a href="{{ route('rekap', ['month' => $month, 'year' => $year]) }}" class="neo-btn bg-white dark:bg-zinc-800 text-slate-900 dark:text-white font-cartoon font-bold px-4 py-2 flex items-center gap-2 text-xs no-underline">
+                    <span class="material-symbols-outlined text-base">arrow_back</span>
+                    Kembali
                 </a>
-                <a href="{{ route('rekap.export.excel', ['month' => $month, 'year' => $year, 'view' => $view, 'date' => $selectedDate ?? '']) }}" class="cartoon-btn bg-emerald-400 dark:bg-emerald-600 text-white font-cartoon font-bold px-4 py-2 flex items-center gap-2 text-sm no-underline">
-                    <span class="material-symbols-outlined text-lg">table_chart</span>
-                    EXCEL
+                <a href="{{ route('rekap.export.excel', ['month' => $month, 'year' => $year, 'view' => $view, 'date' => $selectedDate ?? '']) }}" class="neo-btn bg-emerald-400 dark:bg-emerald-600 text-slate-900 dark:text-white font-cartoon font-bold px-4 py-2 flex items-center gap-2 text-xs no-underline">
+                    <span class="material-symbols-outlined text-base">table_chart</span>
+                    Ekspor Excel
                 </a>
-                <a href="{{ route('rekap.export.pdf', ['month' => $month, 'year' => $year, 'view' => $view, 'date' => $selectedDate ?? '']) }}" class="cartoon-btn bg-red-400 dark:bg-red-600 text-white font-cartoon font-bold px-4 py-2 flex items-center gap-2 text-sm no-underline">
-                    <span class="material-symbols-outlined text-lg">picture_as_pdf</span>
-                    PDF
+                <a href="{{ route('rekap.export.pdf', ['month' => $month, 'year' => $year, 'view' => $view, 'date' => $selectedDate ?? '']) }}" class="neo-btn bg-rose-400 dark:bg-rose-600 text-slate-900 dark:text-white font-cartoon font-bold px-4 py-2 flex items-center gap-2 text-xs no-underline">
+                    <span class="material-symbols-outlined text-base">picture_as_pdf</span>
+                    Ekspor PDF
                 </a>
             </div>
         </div>
 
-        <!-- Tabs -->
-        <div class="flex gap-0 mb-0 animate-fade-up animate-fade-up-d1">
-            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'bulanan']) }}" class="cartoon-tab font-cartoon text-sm {{ $view === 'bulanan' ? 'active' : '' }}">
-                📅 BULANAN
+        <!-- Navigation Tabs -->
+        <div class="flex gap-2 mb-0 animate-fade-up animate-fade-up-d1 overflow-x-auto pb-0.5">
+            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'bulanan']) }}" class="neo-tab {{ $view === 'bulanan' ? 'active' : '' }}">
+                <span>📅</span>
+                <span>BULANAN</span>
             </a>
-            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'mingguan', 'date' => $selectedDate ?? '']) }}" class="cartoon-tab font-cartoon text-sm {{ $view === 'mingguan' ? 'active' : '' }}">
-                📋 MINGGUAN
+            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'mingguan', 'date' => $selectedDate ?? '']) }}" class="neo-tab {{ $view === 'mingguan' ? 'active' : '' }}">
+                <span>📋</span>
+                <span>MINGGUAN</span>
             </a>
-            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'tahunan']) }}" class="cartoon-tab font-cartoon text-sm {{ $view === 'tahunan' ? 'active' : '' }}">
-                🌐 TAHUNAN
+            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'tahunan']) }}" class="neo-tab {{ $view === 'tahunan' ? 'active' : '' }}">
+                <span>🌐</span>
+                <span>TAHUNAN</span>
             </a>
         </div>
 
-        <!-- Main Content Card -->
-        <div class="cartoon-card bg-white dark:bg-surface-container-lowest p-5 animate-fade-up animate-fade-up-d2" style="border-top-left-radius: 0;">
+        <!-- Main Content Card Container -->
+        <div class="neo-card bg-white dark:bg-zinc-900 p-5 animate-fade-up animate-fade-up-d2" style="border-top-left-radius: 0;">
 
-            <!-- Filter -->
-            <div class="flex flex-wrap items-end gap-4 mb-5 p-4 bg-surface-container dark:bg-surface-container rounded-xl border-2 border-black/10 dark:border-white/10">
-                <form method="GET" action="{{ route('rekap.detail') }}" class="flex flex-wrap items-end gap-4">
+            <!-- Filter Panel -->
+            <div class="mb-5 p-4 bg-slate-100 dark:bg-zinc-800 rounded-xl border-2 border-black dark:border-white">
+                <form method="GET" action="{{ route('rekap.detail') }}" class="flex flex-wrap items-end gap-3 sm:gap-4">
                     <input type="hidden" name="view" value="{{ $view }}">
                     <div class="flex items-center gap-2">
-                        <span class="font-cartoon font-bold text-sm text-on-surface">FILTER DATA:</span>
+                        <span class="font-cartoon font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-sm">tune</span>
+                            Filter Data:
+                        </span>
                     </div>
+
                     @if($view === 'mingguan')
                         <div>
-                            <select name="date" class="cartoon-btn bg-white dark:bg-surface-container-lowest text-on-surface font-body font-bold px-3 py-1.5 text-xs min-w-[150px]">
+                            <select name="date" class="neo-btn bg-white dark:bg-zinc-900 text-slate-900 dark:text-white font-body font-bold px-3 py-1.5 text-xs min-w-[160px]">
                                 @php
                                     $today = \Carbon\Carbon::today();
                                     $tempDate = $today->copy()->startOfWeek();
@@ -449,7 +477,7 @@
                         </div>
                     @else
                         <div>
-                            <select name="month" class="cartoon-btn bg-white dark:bg-surface-container-lowest text-on-surface font-body font-bold px-3 py-1.5 text-xs min-w-[120px]">
+                            <select name="month" class="neo-btn bg-white dark:bg-zinc-900 text-slate-900 dark:text-white font-body font-bold px-3 py-1.5 text-xs min-w-[130px]">
                                 @php $months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']; @endphp
                                 @foreach($months as $i => $name)
                                     <option value="{{ $i + 1 }}" {{ $month == $i + 1 ? 'selected' : '' }}>{{ $name }}</option>
@@ -457,24 +485,25 @@
                             </select>
                         </div>
                         <div>
-                            <select name="year" class="cartoon-btn bg-white dark:bg-surface-container-lowest text-on-surface font-body font-bold px-3 py-1.5 text-xs min-w-[80px]">
+                            <select name="year" class="neo-btn bg-white dark:bg-zinc-900 text-slate-900 dark:text-white font-body font-bold px-3 py-1.5 text-xs min-w-[90px]">
                                 @for($y = now()->year; $y >= now()->year - 2; $y--)
                                     <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
                                 @endfor
                             </select>
                         </div>
                     @endif
-                    <button type="submit" class="cartoon-btn bg-primary-container text-on-primary font-cartoon font-bold px-5 py-1.5 text-xs">
-                        LIHAT DATA
+
+                    <button type="submit" class="neo-btn bg-emerald-400 dark:bg-emerald-600 text-slate-900 dark:text-white font-cartoon font-bold px-5 py-1.5 text-xs">
+                        TAMPILKAN
                     </button>
                 </form>
             </div>
 
-            <!-- Month/Year Title -->
+            <!-- Title & KBM Badge -->
             <div class="text-center mb-5">
-                <h2 class="font-cartoon text-xl md:text-2xl font-bold text-on-surface">
+                <h2 class="font-cartoon text-xl md:text-2xl font-bold text-slate-900 dark:text-white">
                     @if($view === 'tahunan')
-                        REKAPITULASI TAHUN {{ $year }}
+                        REKAPITULASI KEHADIRAN TAHUN {{ $year }}
                     @elseif($view === 'mingguan')
                         REKAPITULASI MINGGUAN ({{ \Carbon\Carbon::parse($startOfWeek)->isoFormat('D MMM') }} - {{ \Carbon\Carbon::parse($endOfWeek)->isoFormat('D MMM Y') }})
                     @else
@@ -482,40 +511,46 @@
                     @endif
                 </h2>
                 @if($view !== 'tahunan')
-                    <span class="inline-block mt-2 cartoon-btn bg-secondary-container text-on-secondary-container px-4 py-1 text-xs font-cartoon font-bold cursor-default" style="box-shadow: 2px 2px 0 0 #000;">
-                        KBM: {{ $totalKBMDays }} HARI
+                    <span class="inline-block mt-2 px-3 py-1 bg-emerald-100 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-300 rounded-full border-2 border-black dark:border-white font-cartoon font-bold text-xs shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff]">
+                        KBM Aktif: {{ $totalKBMDays }} Hari
                     </span>
                 @endif
             </div>
 
-            <!-- Legend -->
+            <!-- Status Legend Chips -->
             @if($view !== 'tahunan')
-                <div class="flex flex-wrap justify-center gap-3 mb-4 text-xs font-body font-bold">
-                    <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded cell-h border border-black/20 dark:border-white/20 flex items-center justify-center text-[10px]">✓</span> Hadir</span>
-                    <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded cell-i border border-black/20 dark:border-white/20 flex items-center justify-center text-[10px]">I</span> Izin</span>
-                    <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded cell-a border border-black/20 dark:border-white/20 flex items-center justify-center text-[10px]">✗</span> Alpha</span>
-                    <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded cell-s border border-black/20 dark:border-white/20 flex items-center justify-center text-[10px]">S</span> Sakit</span>
-                    <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded cell-none border border-black/20 dark:border-white/20 flex items-center justify-center text-[10px]">-</span> Belum</span>
-                </div>
-            @else
-                <div class="text-center mb-4 text-xs font-body font-bold text-on-surface-variant">
-                    Menampilkan persentase kehadiran bulanan santri selama satu tahun.
+                <div class="flex flex-wrap justify-center gap-2.5 mb-5 text-xs font-body font-bold">
+                    <span class="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-100 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-200 rounded-lg border border-black/20 dark:border-white/20">
+                        <span class="w-4 h-4 rounded cell-h border border-black/30 flex items-center justify-center text-[10px]">✓</span> Hadir
+                    </span>
+                    <span class="flex items-center gap-1.5 px-2.5 py-1 bg-amber-100 dark:bg-amber-950 text-amber-900 dark:text-amber-200 rounded-lg border border-black/20 dark:border-white/20">
+                        <span class="w-4 h-4 rounded cell-i border border-black/30 flex items-center justify-center text-[10px]">I</span> Izin
+                    </span>
+                    <span class="flex items-center gap-1.5 px-2.5 py-1 bg-rose-100 dark:bg-rose-950 text-rose-900 dark:text-rose-200 rounded-lg border border-black/20 dark:border-white/20">
+                        <span class="w-4 h-4 rounded cell-a border border-black/30 flex items-center justify-center text-[10px]">✗</span> Alpha
+                    </span>
+                    <span class="flex items-center gap-1.5 px-2.5 py-1 bg-sky-100 dark:bg-sky-950 text-sky-900 dark:text-sky-200 rounded-lg border border-black/20 dark:border-white/20">
+                        <span class="w-4 h-4 rounded cell-s border border-black/30 flex items-center justify-center text-[10px]">S</span> Sakit
+                    </span>
+                    <span class="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-400 rounded-lg border border-black/20 dark:border-white/20">
+                        <span class="w-4 h-4 rounded cell-none border border-black/30 flex items-center justify-center text-[10px]">-</span> Belum Input
+                    </span>
                 </div>
             @endif
 
-            <!-- Weekly Navigation -->
+            <!-- Weekly Nav Controls -->
             @if($view === 'mingguan')
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6 max-w-md sm:max-w-xl mx-auto">
                     <div class="flex items-center justify-between w-full sm:w-auto gap-2">
-                        <a href="{{ route('rekap.detail', ['view' => 'mingguan', 'date' => $prevWeekDate]) }}" class="cartoon-btn bg-white dark:bg-surface-container-lowest text-on-surface font-cartoon font-bold px-3 py-2 flex items-center gap-1 text-xs no-underline">
+                        <a href="{{ route('rekap.detail', ['view' => 'mingguan', 'date' => $prevWeekDate]) }}" class="neo-btn bg-white dark:bg-zinc-800 text-slate-900 dark:text-white font-cartoon font-bold px-3 py-1.5 flex items-center gap-1 text-xs no-underline">
                             <span class="material-symbols-outlined text-sm">chevron_left</span>
-                            Prev
+                            Minggu Lalu
                         </a>
-                        <span class="cartoon-btn bg-secondary-container text-on-secondary-container px-3 py-2 text-xs font-cartoon font-bold text-center flex-1 sm:flex-none min-w-[140px] sm:min-w-[200px]">
+                        <span class="neo-btn bg-amber-300 dark:bg-amber-900 text-amber-950 dark:text-amber-100 px-3 py-1.5 text-xs font-cartoon font-bold text-center flex-1 sm:flex-none min-w-[140px] sm:min-w-[190px]">
                             {{ \Carbon\Carbon::parse($startOfWeek)->isoFormat('D MMM') }} - {{ \Carbon\Carbon::parse($endOfWeek)->isoFormat('D MMM Y') }}
                         </span>
-                        <a href="{{ route('rekap.detail', ['view' => 'mingguan', 'date' => $nextWeekDate]) }}" class="cartoon-btn bg-white dark:bg-surface-container-lowest text-on-surface font-cartoon font-bold px-3 py-2 flex items-center gap-1 text-xs no-underline">
-                            Next
+                        <a href="{{ route('rekap.detail', ['view' => 'mingguan', 'date' => $nextWeekDate]) }}" class="neo-btn bg-white dark:bg-zinc-800 text-slate-900 dark:text-white font-cartoon font-bold px-3 py-1.5 flex items-center gap-1 text-xs no-underline">
+                            Minggu Depan
                             <span class="material-symbols-outlined text-sm">chevron_right</span>
                         </a>
                     </div>
@@ -523,13 +558,13 @@
             @endif
 
             <!-- Mobile Scroll Hint -->
-            <div class="flex items-center justify-between text-[11px] font-cartoon font-bold text-on-surface-variant mb-2 md:hidden">
-                <span class="flex items-center gap-1 bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-md border border-black/20 dark:border-white/20">
-                    👈👉 Geser tabel ke kanan untuk melihat tanggal lengkap
+            <div class="flex items-center justify-between text-[11px] font-cartoon font-bold text-slate-500 dark:text-slate-400 mb-2 md:hidden">
+                <span class="flex items-center gap-1 bg-emerald-100 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-300 px-2 py-0.5 rounded-md border border-black/20 dark:border-white/20">
+                    👈👉 Geser tabel ke samping untuk melihat tanggal
                 </span>
             </div>
 
-            <!-- Table Container -->
+            <!-- Table Scroll Container -->
             <div class="table-scroll overflow-auto rounded-xl border-3 border-black dark:border-white max-h-[65vh]">
                 <table class="rekap-table">
                     <thead>
@@ -555,8 +590,8 @@
                                         <div class="text-[9px] font-body opacity-80">{{ $dayInfo['date_formatted'] }}</div>
                                     </th>
                                 @endforeach
-                                <th class="min-w-[40px]">JML</th>
-                                <th class="min-w-[45px]">%</th>
+                                <th class="min-w-[42px]">JML</th>
+                                <th class="min-w-[48px]">%</th>
                             </tr>
                         @else
                             <tr>
@@ -565,8 +600,8 @@
                                 @for($d = 1; $d <= $daysInMonth; $d++)
                                     <th class="min-w-[32px]">{{ $d }}</th>
                                 @endfor
-                                <th class="min-w-[40px]">JML</th>
-                                <th class="min-w-[45px]">%</th>
+                                <th class="min-w-[42px]">JML</th>
+                                <th class="min-w-[48px]">%</th>
                             </tr>
                         @endif
                     </thead>
@@ -574,7 +609,7 @@
                         @forelse($rows as $i => $row)
                             <tr class="row-stagger" style="animation-delay: {{ min($i * 0.03, 1.2) }}s;">
                                 <td class="font-cartoon font-bold">{{ $row['no'] }}</td>
-                                <td class="font-body font-bold text-left pl-3" title="{{ $row['name'] }}">{{ $row['name'] }}</td>
+                                <td class="font-body font-bold text-left pl-3 text-slate-900 dark:text-slate-100" title="{{ $row['name'] }}">{{ $row['name'] }}</td>
                                 @if($view === 'tahunan')
                                     @for($m = 1; $m <= 12; $m++)
                                         @php
@@ -588,7 +623,7 @@
                                         <td class="{{ $cellClass }}">{{ $val }}</td>
                                     @endfor
                                     <td class="col-total font-cartoon">{{ $row['total_hadir'] }}</td>
-                                    <td class="font-cartoon bg-slate-100 dark:bg-zinc-800">{{ $row['total_kbm'] }}</td>
+                                    <td class="font-cartoon bg-slate-100 dark:bg-zinc-800 text-slate-800 dark:text-slate-200">{{ $row['total_kbm'] }}</td>
                                     @php
                                         $pctClass = $row['percentage'] >= 75 ? 'pct-high' : ($row['percentage'] >= 50 ? 'pct-mid' : 'pct-low');
                                     @endphp
@@ -633,7 +668,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="{{ $view === 'tahunan' ? 17 : ($view === 'mingguan' ? 11 : $daysInMonth + 4) }}" class="py-12 text-center text-on-surface-variant">
+                                <td colspan="{{ $view === 'tahunan' ? 17 : ($view === 'mingguan' ? 11 : $daysInMonth + 4) }}" class="py-12 text-center text-slate-500 dark:text-slate-400">
                                     <span class="text-4xl block mb-2">📭</span>
                                     <span class="font-cartoon font-bold">Belum ada data kehadiran.</span>
                                 </td>
@@ -643,26 +678,32 @@
                 </table>
             </div>
 
-            <!-- Summary Footer -->
+            <!-- Footer Summary -->
             @if(count($rows) > 0)
-                <div class="mt-4 flex flex-wrap gap-3 justify-center text-xs font-body font-bold text-on-surface-variant">
-                    <span>📊 Total Santri: {{ count($rows) }}</span>
-                    @if($view !== 'tahunan')
-                        <span>•</span>
-                        <span>📅 Hari KBM: {{ $totalKBMDays }}</span>
-                    @endif
-                    <span>•</span>
+                <div class="mt-4 pt-3 border-t border-slate-200 dark:border-zinc-800 flex flex-wrap gap-4 justify-between items-center text-xs font-body font-bold text-slate-600 dark:text-slate-400">
+                    <div>
+                        <span>📊 Total Santri Terdata: <strong class="text-slate-900 dark:text-white font-cartoon">{{ count($rows) }} Santri</strong></span>
+                        @if($view !== 'tahunan')
+                            <span class="mx-2">•</span>
+                            <span>📅 Hari KBM: <strong class="text-slate-900 dark:text-white font-cartoon">{{ $totalKBMDays }} Hari</strong></span>
+                        @endif
+                    </div>
                     @php
                         $avgPct = count($rows) > 0 ? round(collect($rows)->avg('percentage')) : 0;
                     @endphp
-                    <span>📈 Rata-rata Kehadiran: <span class="{{ $avgPct >= 75 ? 'text-emerald-600 dark:text-emerald-400' : ($avgPct >= 50 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400') }}">{{ $avgPct }}%</span></span>
+                    <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-zinc-800 px-3 py-1 rounded-lg border border-black/10 dark:border-white/10">
+                        <span>📈 Rata-rata Kehadiran:</span>
+                        <span class="font-cartoon font-extrabold text-sm {{ $avgPct >= 75 ? 'text-emerald-600 dark:text-emerald-400' : ($avgPct >= 50 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400') }}">
+                            {{ $avgPct }}%
+                        </span>
+                    </div>
                 </div>
             @endif
         </div>
     </div>
 
     <script>
-        // Theme toggle
+        // Theme toggle logic
         const themeToggleBtn = document.getElementById('theme-toggle');
         if (themeToggleBtn) {
             themeToggleBtn.addEventListener('click', function() {
