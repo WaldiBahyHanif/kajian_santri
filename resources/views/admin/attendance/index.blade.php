@@ -1,4 +1,16 @@
 <x-admin-layout title="Input Absensi" active="attendance">
+    <style>
+        .attendance-radio:checked + .attendance-btn {
+            background-color: #000000 !important;
+            color: #ffffff !important;
+            box-shadow: 4px 4px 0 0 #000000 !important;
+        }
+        .dark .attendance-radio:checked + .attendance-btn {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            box-shadow: 4px 4px 0 0 #ffffff !important;
+        }
+    </style>
 
     <!-- Date Selector -->
     <div class="bg-white border-4 border-black p-4 rounded-lg mb-6 shadow-[4px_4px_0_0_#000] flex flex-col md:flex-row justify-between items-center gap-4">
@@ -37,21 +49,26 @@
                 </div>
 
                 <div class="flex gap-2 w-full md:w-auto justify-center md:justify-end">
+                    <!-- HADIR -->
                     <label class="relative cursor-pointer inline-block">
-                        <input type="radio" name="status[{{ $s->id }}]" value="H" {{ ($logStatus === 'H') ? 'checked' : '' }} class="peer absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                        <div class="border-2 border-black px-3 py-2 rounded-lg font-black text-sm transition text-center w-20 bg-white text-black peer-checked:bg-black peer-checked:text-white peer-checked:shadow-[4px_4px_0_0_#000]">
+                        <input type="radio" name="status[{{ $s->id }}]" value="H" {{ ($logStatus === 'H') ? 'checked' : '' }} class="attendance-radio absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                        <div class="attendance-btn border-2 border-black px-3 py-2 rounded-lg font-black text-sm transition text-center w-20 bg-white text-black">
                             HADIR
                         </div>
                     </label>
+
+                    <!-- IZIN -->
                     <label class="relative cursor-pointer inline-block">
-                        <input type="radio" name="status[{{ $s->id }}]" value="I" {{ ($logStatus === 'I') ? 'checked' : '' }} class="peer absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                        <div class="border-2 border-black px-3 py-2 rounded-lg font-black text-sm transition text-center w-20 bg-white text-black peer-checked:bg-black peer-checked:text-white peer-checked:shadow-[4px_4px_0_0_#000]">
+                        <input type="radio" name="status[{{ $s->id }}]" value="I" {{ ($logStatus === 'I') ? 'checked' : '' }} class="attendance-radio absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                        <div class="attendance-btn border-2 border-black px-3 py-2 rounded-lg font-black text-sm transition text-center w-20 bg-white text-black">
                             IZIN
                         </div>
                     </label>
+
+                    <!-- ALPA -->
                     <label class="relative cursor-pointer inline-block">
-                        <input type="radio" name="status[{{ $s->id }}]" value="A" {{ (!$logStatus || $logStatus === 'A') ? 'checked' : '' }} class="peer absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                        <div class="border-2 border-black px-3 py-2 rounded-lg font-black text-sm transition text-center w-20 bg-white text-black peer-checked:bg-black peer-checked:text-white peer-checked:shadow-[4px_4px_0_0_#000]">
+                        <input type="radio" name="status[{{ $s->id }}]" value="A" {{ (!$logStatus || $logStatus === 'A') ? 'checked' : '' }} class="attendance-radio absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                        <div class="attendance-btn border-2 border-black px-3 py-2 rounded-lg font-black text-sm transition text-center w-20 bg-white text-black">
                             ALPA
                         </div>
                     </label>
