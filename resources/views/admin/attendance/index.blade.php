@@ -37,16 +37,25 @@
 
                 <div class="flex gap-2 w-full md:w-auto justify-center md:justify-end" x-data="{ status: '{{ $logStatus ?? 'A' }}' }">
                     <label class="cursor-pointer">
-                        <input type="radio" name="status[{{ $s->id }}]" value="H" class="hidden" x-model="status">
-                        <div :class="status === 'H' ? 'bg-black text-white shadow-[4px_4px_0_0_#000]' : 'bg-white text-black shadow-none'" class="border-2 border-black px-3 py-2 rounded-lg font-black text-sm transition text-center w-20">HADIR</div>
+                        <input type="radio" name="status[{{ $s->id }}]" value="H"
+                               {{ ($logStatus === 'H') ? 'checked' : '' }}
+                               x-model="status" class="hidden">
+                        <div :class="status === 'H' ? 'bg-black text-white shadow-[4px_4px_0_0_#000]' : 'bg-white text-black shadow-none'"
+                             class="border-2 border-black px-3 py-2 rounded-lg font-black text-sm transition text-center w-20">HADIR</div>
                     </label>
                     <label class="cursor-pointer">
-                        <input type="radio" name="status[{{ $s->id }}]" value="I" class="hidden" x-model="status">
-                        <div :class="status === 'I' ? 'bg-black text-white shadow-[4px_4px_0_0_#000]' : 'bg-white text-black shadow-none'" class="border-2 border-black px-3 py-2 rounded-lg font-black text-sm transition text-center w-20">IZIN</div>
+                        <input type="radio" name="status[{{ $s->id }}]" value="I"
+                               {{ ($logStatus === 'I') ? 'checked' : '' }}
+                               x-model="status" class="hidden">
+                        <div :class="status === 'I' ? 'bg-black text-white shadow-[4px_4px_0_0_#000]' : 'bg-white text-black shadow-none'"
+                             class="border-2 border-black px-3 py-2 rounded-lg font-black text-sm transition text-center w-20">IZIN</div>
                     </label>
                     <label class="cursor-pointer">
-                        <input type="radio" name="status[{{ $s->id }}]" value="A" class="hidden" x-model="status">
-                        <div :class="status === 'A' ? 'bg-black text-white shadow-[4px_4px_0_0_#000]' : 'bg-white text-black shadow-none'" class="border-2 border-black px-3 py-2 rounded-lg font-black text-sm transition text-center w-20">ALPA</div>
+                        <input type="radio" name="status[{{ $s->id }}]" value="A"
+                               {{ (!$logStatus || $logStatus === 'A') ? 'checked' : '' }}
+                               x-model="status" class="hidden">
+                        <div :class="status === 'A' ? 'bg-black text-white shadow-[4px_4px_0_0_#000]' : 'bg-white text-black shadow-none'"
+                             class="border-2 border-black px-3 py-2 rounded-lg font-black text-sm transition text-center w-20">ALPA</div>
                     </label>
                 </div>
             </div>

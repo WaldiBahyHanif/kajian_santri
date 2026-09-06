@@ -39,29 +39,26 @@ class AdminAttendanceController extends Controller
         foreach ($santris as $santri) {
             $status = $statuses[$santri->id] ?? 'A';
 
-            // Cek apakah sudah ada log untuk santri ini
-            $existing = AttendanceLog::where([
-                'student_id' => $santri->id,
-                'attendance_date' => $selectedDate,
-                'session_type' => 'Kajian',
-            ])->first();
-
-            if ($existing) {
-                // Update data yang sudah ada (termasuk jika status tidak berubah)
-                $existing->status = $status;
-                $existing->kajian_topic = 'Kajian Rutin';
-                $existing->saveQuietly(); // pakai saveQuietly agar tetap tersimpan meski dirty check
-            } else {
-                // Buat data baru
-                AttendanceLog::create([
-                    'student_id' => $santri->id,
+            // Gunakan DB::table langsung agar SELALU update ke database
+            // tanpa melewati Eloquent dirty tracking yang bisa skip UPDATE
+            \Illuminate\Support\Facades\DB::table('attendance_logs')->updateOrInsert(
+                [
+                    // kondisi pencarian (WHERE)
+                    'student_id'      => $santri->id,
                     'attendance_date' => $selectedDate,
-                    'session_type' => 'Kajian',
-                    'status' => $status,
-                    'kajian_topic' => 'Kajian Rutin',
-                    'attendance_time' => now(),
-                ]);
-            }
+                    'session_type'    => 'Kajian',
+                ],
+                [
+                    // nilai yang di-set (INSERT atau UPDATE)
+                    'student_id'      => $santri->id,
+                    'attendance_date' => $selectedDate,
+                    'session_type'    => 'Kajian',
+                    'status'          => $status,
+                    'kajian_topic'    => 'Kajian Rutin',
+                    'attendance_time' => \Carbon\Carbon::now()->toTimeString(),
+                    'created_at'      => \Carbon\Carbon::now(),
+                ]
+            );
 
             $santri->recalculateStats();
         }
