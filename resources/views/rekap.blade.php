@@ -175,10 +175,6 @@
             from { opacity: 0; transform: translateY(18px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes barGrowVertical {
-            from { transform: scaleY(0); }
-            to { transform: scaleY(1); }
-        }
         @keyframes sparkle {
             0%, 100% { transform: scale(0.6) rotate(0deg); opacity: 0.3; }
             50% { transform: scale(1.1) rotate(45deg); opacity: 0.9; }
@@ -197,10 +193,6 @@
         .animate-fade-up-d3 { animation-delay: 0.24s; }
         .animate-fade-up-d4 { animation-delay: 0.32s; }
         
-        .bar-vertical-animated {
-            transform-origin: bottom;
-            animation: barGrowVertical 0.8s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
-        }
         .ring-chart {
             transition: stroke-dasharray 1s ease-out;
         }
@@ -209,7 +201,7 @@
         .animate-float-slow { animation: floatSlow 5s ease-in-out infinite; }
 
         /* Custom Scrollbar for horizontal chart scroll */
-        .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar { height: 10px; width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 8px; }
         .dark .custom-scrollbar::-webkit-scrollbar-track { background: #27272a; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #10b981; border-radius: 8px; }
@@ -482,8 +474,8 @@
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
                     
                     <!-- Left Side: Vertical Bar Column Chart with Horizontal Scroll ("digeser kanan-kiri") -->
-                    <div class="lg:col-span-7 bg-slate-50 dark:bg-zinc-800/60 p-5 rounded-2xl border-3 border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] flex flex-col justify-between min-h-[360px]">
-                        <div class="flex items-center justify-between mb-3">
+                    <div class="lg:col-span-7 bg-slate-50 dark:bg-zinc-800/60 p-5 rounded-2xl border-3 border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-4">
                             <span class="font-cartoon font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                                 📊 Grafik Kolom Santri
                             </span>
@@ -492,10 +484,10 @@
                             </span>
                         </div>
 
-                        <!-- Chart container with Y-Axis and Scrollable Column Bars -->
-                        <div class="relative flex items-end gap-2 pt-6 pb-2 my-auto">
-                            <!-- Y-Axis (Fixed 0% - 100%) -->
-                            <div class="flex flex-col justify-between h-60 text-[10px] font-cartoon font-bold text-slate-500 dark:text-slate-400 pr-2.5 border-r-2 border-slate-300 dark:border-zinc-700 select-none shrink-0 z-10 py-1">
+                        <!-- Chart Container with Y-Axis and Scrollable Column Bars -->
+                        <div class="relative flex items-end gap-2 pt-6 pb-2" style="height: 230px;">
+                            <!-- Y-Axis Grid Lines & Numbers (Fixed 0% - 100%) -->
+                            <div class="flex flex-col justify-between text-[11px] font-cartoon font-bold text-slate-500 dark:text-slate-400 pr-2.5 border-r-2 border-slate-300 dark:border-zinc-700 select-none shrink-0 z-10 py-1" style="height: 200px;">
                                 <span>100%</span>
                                 <span>75%</span>
                                 <span>50%</span>
@@ -503,10 +495,10 @@
                                 <span>0%</span>
                             </div>
 
-                            <!-- Scrollable Area -->
-                            <div class="flex-1 overflow-x-auto custom-scrollbar relative py-1">
-                                <!-- Background Gridlines -->
-                                <div class="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-25 dark:opacity-15 py-1">
+                            <!-- Scrollable Bars Container -->
+                            <div class="flex-1 overflow-x-auto custom-scrollbar relative py-1" style="height: 230px;">
+                                <!-- Background Horizontal Gridlines -->
+                                <div class="absolute top-1 left-0 right-0 flex flex-col justify-between pointer-events-none opacity-25 dark:opacity-15" style="height: 200px;">
                                     <div class="border-b border-slate-900 dark:border-white w-full"></div>
                                     <div class="border-b border-slate-900 dark:border-white w-full"></div>
                                     <div class="border-b border-slate-900 dark:border-white w-full"></div>
@@ -515,35 +507,38 @@
                                 </div>
 
                                 <!-- Bars Track -->
-                                <div class="flex items-end gap-4 h-60 px-3 min-w-max">
+                                <div class="flex items-end gap-5 px-3 min-w-max" style="height: 200px;">
                                     @php
                                         $barPalette = [
-                                            'bg-rose-400 dark:bg-rose-500 border-rose-600',
-                                            'bg-amber-400 dark:bg-amber-500 border-amber-600',
-                                            'bg-emerald-400 dark:bg-emerald-500 border-emerald-600'
+                                            ['bg' => '#f87171', 'border' => '#dc2626'], // Salmon Red
+                                            ['bg' => '#fbbf24', 'border' => '#d97706'], // Amber Yellow
+                                            ['bg' => '#34d399', 'border' => '#059669'], // Emerald Green
                                         ];
                                     @endphp
                                     @foreach($studentStats as $i => $stat)
                                         @php
-                                            $pct = $stat['percentage'];
-                                            $colorClass = $barPalette[$i % 3];
-                                            $delay = min($i * 0.04, 1.2);
+                                            $rawPct = (int)$stat['percentage'];
+                                            $pct = min($rawPct, 100);
+                                            $palette = $barPalette[$i % 3];
+                                            // Explicit pixel height for the inner column bar (Max 160px for 100%)
+                                            $barPixelHeight = max(round(($pct / 100) * 160), 10);
                                         @endphp
-                                        <div class="flex flex-col items-center gap-1 group w-14 shrink-0 h-full justify-end">
+                                        <div class="flex flex-col items-center justify-end gap-1.5 group w-14 shrink-0" style="height: 200px;">
                                             <!-- Top % badge -->
-                                            <span class="text-[11px] font-cartoon font-extrabold text-slate-800 dark:text-slate-100 group-hover:scale-110 transition-transform">
-                                                {{ $pct }}%
+                                            <span class="text-[11px] font-cartoon font-black text-slate-800 dark:text-slate-100 group-hover:scale-110 transition-transform">
+                                                {{ $rawPct }}%
                                             </span>
 
-                                            <!-- Vertical Bar Column Outer Container -->
-                                            <div class="w-9 h-44 bg-slate-200/80 dark:bg-zinc-700/60 rounded-t-xl relative overflow-hidden border-2 border-black dark:border-white flex items-end p-0.5 shadow-inner">
-                                                <!-- Inner Animated Column -->
-                                                <div class="bar-vertical-animated w-full {{ $colorClass }} rounded-t-lg border-t-2 border-black/30 shadow-sm" style="height: {{ max($pct, 5) }}%; animation-delay: {{ $delay }}s;">
+                                            <!-- Outer Bar Column Base (Fixed 160px height) -->
+                                            <div class="w-9 bg-slate-200/90 dark:bg-zinc-700/80 rounded-t-xl relative overflow-hidden border-2 border-black dark:border-white flex items-end p-0.5 shadow-sm" style="height: 160px;">
+                                                <!-- Inner Column Bar with explicit pixel height -->
+                                                <div class="w-full rounded-t-lg transition-all duration-500 shadow-sm"
+                                                     style="height: {{ $barPixelHeight }}px; background-color: {{ $palette['bg'] }}; border-top: 2.5px solid {{ $palette['border'] }};">
                                                 </div>
                                             </div>
 
                                             <!-- X-Axis Santri Name -->
-                                            <span class="text-[11px] font-body font-bold text-slate-800 dark:text-slate-200 truncate w-16 text-center mt-1" title="{{ $stat['name'] }}">
+                                            <span class="text-[11px] font-body font-bold text-slate-800 dark:text-slate-200 truncate w-16 text-center mt-0.5" title="{{ $stat['name'] }}">
                                                 {{ Str::limit($stat['name'], 8) }}
                                             </span>
                                         </div>
@@ -552,7 +547,7 @@
                             </div>
                         </div>
 
-                        <div class="mt-3 text-center">
+                        <div class="mt-4 text-center">
                             <span class="text-[11px] font-cartoon font-bold text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1">
                                 👈 Usap / Geser grafik ke kanan & kiri untuk melihat seluruh {{ count($studentStats) }} santri 👉
                             </span>
