@@ -1,11 +1,13 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="utf-8">
     <title>Rekap Kehadiran Santri - Tahunan {{ $year }}</title>
     <style>
+        * {
+            font-family: 'DejaVu Sans', sans-serif;
+        }
         body {
-            font-family: Arial, sans-serif;
             font-size: 11px;
             color: #333;
         }

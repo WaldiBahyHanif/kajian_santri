@@ -1,11 +1,13 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="utf-8">
     <title>Rekap Kehadiran Santri - {{ $monthName }} {{ $year }}</title>
     <style>
+        * {
+            font-family: 'DejaVu Sans', sans-serif;
+        }
         body {
-            font-family: Arial, sans-serif;
             font-size: 11px;
             color: #333;
         }
@@ -19,12 +21,12 @@
             margin-top: 0;
             font-size: 10px;
             color: #666;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         th, td {
             border: 1px solid #333;
@@ -48,10 +50,21 @@
         .pct-high { background-color: #d1fae5; font-weight: bold; }
         .pct-mid { background-color: #fef3c7; font-weight: bold; }
         .pct-low { background-color: #fee2e2; font-weight: bold; }
+        .legend-box {
+            font-size: 9px;
+            margin-bottom: 10px;
+        }
+        .legend-item {
+            display: inline-block;
+            padding: 2px 6px;
+            font-weight: bold;
+            border: 1px solid #ccc;
+            margin-right: 8px;
+        }
         .footer-summary {
             font-size: 10px;
             text-align: right;
-            margin-top: 15px;
+            margin-top: 10px;
             font-weight: bold;
         }
     </style>
@@ -61,6 +74,15 @@
     <h2>REKAP KEHADIRAN BULANAN</h2>
     <h1>PONDOK PESANTREN Daaru Hiraa</h1>
     <p class="subtitle">Bulan: {{ strtoupper($monthName) }} {{ $year }} | KBM: {{ $totalKBMDays }} HARI</p>
+
+    <div class="legend-box">
+        <strong>Keterangan:</strong> 
+        <span class="legend-item cell-h">&#10003; Hadir</span>
+        <span class="legend-item cell-i">I Izin</span>
+        <span class="legend-item cell-a">X Alpha</span>
+        <span class="legend-item cell-s">S Sakit</span>
+        <span class="legend-item cell-none">- Tanpa Keterangan</span>
+    </div>
 
     <table>
         <thead>
@@ -84,12 +106,12 @@
                             $status = $row['statuses'][$d];
                             $class = 'cell-none';
                             $display = '-';
-                            if ($status === 'H') { $class = 'cell-h'; $display = '✓'; }
+                            if ($status === 'H') { $class = 'cell-h'; $display = '&#10003;'; }
                             elseif ($status === 'I') { $class = 'cell-i'; $display = 'I'; }
-                            elseif ($status === 'A') { $class = 'cell-a'; $display = '✗'; }
+                            elseif ($status === 'A') { $class = 'cell-a'; $display = 'X'; }
                             elseif ($status === 'S') { $class = 'cell-s'; $display = 'S'; }
                         @endphp
-                        <td class="{{ $class }}">{{ $display }}</td>
+                        <td class="{{ $class }}">{!! $display !!}</td>
                     @endfor
                     <td style="font-weight: bold;">{{ $row['total_hadir'] }}</td>
                     @php
