@@ -83,5 +83,3 @@
         </form>
     </div>
 </aside>
-
-<x-announcement-reminder-popup />

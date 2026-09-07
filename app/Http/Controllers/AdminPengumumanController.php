@@ -33,7 +33,11 @@ class AdminPengumumanController extends Controller
         $data['repeat_type'] = $request->input('repeat_type', 'once');
         $data['sound_type'] = $request->input('sound_type', 'brimo_ai');
 
-        Announcement::create($data);
+        $announcement = Announcement::create($data);
+
+        if ($announcement->is_active) {
+            $this->sendPushNotification($announcement);
+        }
 
         return redirect()->route('admin.pengumuman.index')->with('success', 'Pengumuman berhasil ditambahkan!');
     }
@@ -58,7 +62,26 @@ class AdminPengumumanController extends Controller
 
         $pengumuman->update($data);
 
+        if ($pengumuman->is_active) {
+            $this->sendPushNotification($pengumuman);
+        }
+
         return redirect()->route('admin.pengumuman.index')->with('success', 'Pengumuman berhasil diperbarui!');
+    }
+
+    private function sendPushNotification(Announcement $announcement)
+    {
+        try {
+            $students = $announcement->target_student_id
+                ? Student::where('id', $announcement->target_student_id)->get()
+                : Student::where('status_aktif', 'Aktif')->get();
+
+            if ($students->count() > 0) {
+                \Illuminate\Support\Facades\Notification::send($students, new \App\Notifications\AnnouncementNotification($announcement));
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('WebPush Announcement Error: ' . $e->getMessage());
+        }
     }
 
     public function destroy(Announcement $pengumuman)

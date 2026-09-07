@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="utf-8">
@@ -522,5 +522,6 @@
             return outputArray;
         }
     </script>
+    <x-announcement-reminder-popup />
 </body>
 </html>

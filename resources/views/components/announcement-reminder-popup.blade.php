@@ -3,7 +3,7 @@
 
 <div x-data="announcementReminder()" x-init="initReminder()" x-cloak>
     <template x-if="currentReminder">
-        <div class="fixed bottom-5 right-5 z-[9999] w-full max-w-md p-4 animate-bounce-short">
+        <div class="fixed bottom-4 inset-x-4 sm:left-auto sm:right-5 sm:bottom-5 sm:w-full sm:max-w-md z-[99999] animate-bounce-short">
             <div class="bg-[#003527] text-white border-4 border-black p-5 rounded-2xl shadow-[8px_8px_0_0_#000] relative overflow-hidden">
                 <!-- Decorative Glow Accent -->
                 <div class="absolute -top-10 -right-10 w-24 h-24 bg-[#FFDE00]/20 rounded-full blur-xl pointer-events-none"></div>

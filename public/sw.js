@@ -1,6 +1,6 @@
-﻿// === Daaru Hiraa Service Worker ===
+// === Daaru Hiraa Service Worker ===
 // Version: bump this whenever you push an update
-const CACHE_VERSION = 'kajian-santri-v1';
+const CACHE_VERSION = 'kajian-santri-v2';
 
 // Assets to cache on install (App Shell)
 const STATIC_ASSETS = [

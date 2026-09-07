@@ -307,5 +307,78 @@
     }
 </script>
 
+<x-announcement-reminder-popup />
+
+<script>
+// =========================================================
+// Service Worker & Web Push Notification Global Registration
+// =========================================================
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js', { scope: '/' })
+            .then(reg => {
+                console.log('[PWA] Service Worker registered:', reg.scope);
+                setupPushNotifications(reg);
+            })
+            .catch(err => console.warn('[PWA] SW registration failed:', err));
+    });
+}
+
+function setupPushNotifications(registration) {
+    if (!('PushManager' in window) || !('Notification' in window)) return;
+
+    if (Notification.permission === 'default') {
+        setTimeout(() => {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    subscribeUser(registration);
+                }
+            });
+        }, 3000);
+    } else if (Notification.permission === 'granted') {
+        subscribeUser(registration);
+    }
+}
+
+function subscribeUser(registration) {
+    const publicKey = '{{ env("VAPID_PUBLIC_KEY") }}';
+    if (!publicKey) return;
+
+    const applicationServerKey = urlBase64ToUint8Array(publicKey);
+    
+    registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: applicationServerKey
+    })
+    .then(subscription => {
+        sendSubscriptionToServer(subscription);
+    })
+    .catch(err => console.error('[PWA Push] Failed to subscribe:', err));
+}
+
+function sendSubscriptionToServer(subscription) {
+    fetch('/push/subscribe', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify(subscription)
+    })
+    .catch(err => console.error('[PWA Push] Failed to save subscription:', err));
+}
+
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
+</script>
+
 </body>
 </html>
