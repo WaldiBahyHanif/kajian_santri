@@ -37,6 +37,8 @@ class AnnouncementNotificationController extends Controller
                     'id' => $a->id,
                     'message' => $a->message,
                     'is_reminder' => (bool) $a->is_reminder,
+                    'repeat_type' => $a->repeat_type ?: 'once',
+                    'reminder_time' => $a->reminder_time ? substr($a->reminder_time, 0, 5) : null,
                     'sound_type' => $a->sound_type ?: 'brimo_ai',
                     'scheduled_at' => $a->scheduled_at ? $a->scheduled_at->toIso8601String() : null,
                     'created_at' => $a->created_at ? $a->created_at->diffForHumans() : '',

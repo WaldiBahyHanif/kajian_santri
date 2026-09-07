@@ -22,12 +22,15 @@ class AdminPengumumanController extends Controller
             'target_student_id' => ['nullable', 'integer', 'exists:students,id'],
             'is_active' => ['required', 'boolean'],
             'is_reminder' => ['nullable', 'boolean'],
+            'repeat_type' => ['nullable', 'string', 'in:once,daily,weekly'],
+            'reminder_time' => ['nullable', 'string'],
             'scheduled_at' => ['nullable', 'date'],
             'sound_type' => ['nullable', 'string', 'in:brimo_ai,futuristic_synth,classic_bell,chime'],
         ]);
 
-        $data = $request->only('message', 'target_student_id', 'is_active', 'is_reminder', 'scheduled_at', 'sound_type');
+        $data = $request->only('message', 'target_student_id', 'is_active', 'is_reminder', 'repeat_type', 'reminder_time', 'scheduled_at', 'sound_type');
         $data['is_reminder'] = $request->boolean('is_reminder');
+        $data['repeat_type'] = $request->input('repeat_type', 'once');
         $data['sound_type'] = $request->input('sound_type', 'brimo_ai');
 
         Announcement::create($data);
@@ -42,12 +45,15 @@ class AdminPengumumanController extends Controller
             'target_student_id' => ['nullable', 'integer', 'exists:students,id'],
             'is_active' => ['required', 'boolean'],
             'is_reminder' => ['nullable', 'boolean'],
+            'repeat_type' => ['nullable', 'string', 'in:once,daily,weekly'],
+            'reminder_time' => ['nullable', 'string'],
             'scheduled_at' => ['nullable', 'date'],
             'sound_type' => ['nullable', 'string', 'in:brimo_ai,futuristic_synth,classic_bell,chime'],
         ]);
 
-        $data = $request->only('message', 'target_student_id', 'is_active', 'is_reminder', 'scheduled_at', 'sound_type');
+        $data = $request->only('message', 'target_student_id', 'is_active', 'is_reminder', 'repeat_type', 'reminder_time', 'scheduled_at', 'sound_type');
         $data['is_reminder'] = $request->boolean('is_reminder');
+        $data['repeat_type'] = $request->input('repeat_type', 'once');
         $data['sound_type'] = $request->input('sound_type', 'brimo_ai');
 
         $pengumuman->update($data);

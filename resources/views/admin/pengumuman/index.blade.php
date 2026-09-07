@@ -50,14 +50,28 @@
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
                         <div>
-                            <label class="block font-black uppercase text-xs mb-1">Tanggal & Waktu Pengingat (Opsional)</label>
-                            <input type="datetime-local" name="scheduled_at" class="w-full border-4 border-black p-2 rounded-lg font-bold text-sm bg-white">
-                            <span class="text-[10px] text-gray-500 font-bold block mt-0.5">* Biarkan kosong jika pengingat ingin langsung aktif saat ini.</span>
+                            <label class="block font-black uppercase text-xs mb-1">Frekuensi Pengingat</label>
+                            <select name="repeat_type" id="create_repeat_type" class="w-full border-4 border-black p-2 rounded-lg font-bold text-sm bg-white">
+                                <option value="once" selected>📌 Hanya Sekali (Spesifik)</option>
+                                <option value="daily">🔄 Setiap Hari (Berulang Harian)</option>
+                                <option value="weekly">📅 Setiap Minggu</option>
+                            </select>
                         </div>
 
                         <div>
+                            <label class="block font-black uppercase text-xs mb-1">Jam Berulang Harian</label>
+                            <input type="time" name="reminder_time" class="w-full border-4 border-black p-2 rounded-lg font-bold text-sm bg-white" placeholder="05:00">
+                            <span class="text-[10px] text-gray-500 font-bold block mt-0.5">* Khusus untuk pengingat Setiap Hari.</span>
+                        </div>
+
+                        <div>
+                            <label class="block font-black uppercase text-xs mb-1">Tanggal & Waktu Mula (Opsional)</label>
+                            <input type="datetime-local" name="scheduled_at" class="w-full border-4 border-black p-2 rounded-lg font-bold text-sm bg-white">
+                        </div>
+
+                        <div class="md:col-span-3">
                             <label class="block font-black uppercase text-xs mb-1">Suara Notifikasi AI</label>
                             <select name="sound_type" id="sound_type_select" class="w-full border-4 border-black p-2 rounded-lg font-bold text-sm bg-white">
                                 <option value="brimo_ai" selected>🔊 BRImo AI Chime (Khas Futuristic)</option>
@@ -100,6 +114,16 @@
                                 </span>
                             @endif
 
+                            @if($a->repeat_type === 'daily')
+                                <span class="text-[10px] px-2 py-0.5 rounded border-2 border-black font-black bg-emerald-200 text-emerald-900">
+                                    🔄 SETIAP HARI {{ $a->reminder_time ? '(' . substr($a->reminder_time, 0, 5) . ')' : '' }}
+                                </span>
+                            @elseif($a->repeat_type === 'weekly')
+                                <span class="text-[10px] px-2 py-0.5 rounded border-2 border-black font-black bg-blue-200 text-blue-900">
+                                    📅 SETIAP MINGGU
+                                </span>
+                            @endif
+
                             <span class="text-[10px] px-2 py-0.5 rounded border-2 border-black font-black bg-amber-200 text-amber-900">
                                 🔊 {{ strtoupper(str_replace('_', ' ', $a->sound_type ?? 'brimo_ai')) }}
                             </span>
@@ -133,6 +157,8 @@
                                 target_student_id: '{{ $a->target_student_id ?? '' }}', 
                                 is_active: {{ $a->is_active ? 'true' : 'false' }},
                                 is_reminder: {{ $a->is_reminder ? 'true' : 'false' }},
+                                repeat_type: '{{ $a->repeat_type ?? 'once' }}',
+                                reminder_time: '{{ $a->reminder_time ? substr($a->reminder_time, 0, 5) : '' }}',
                                 scheduled_at: '{{ $a->scheduled_at ? $a->scheduled_at->format('Y-m-d\TH:i') : '' }}',
                                 sound_type: '{{ $a->sound_type ?? 'brimo_ai' }}'
                             }; editOpen = true"
@@ -187,8 +213,22 @@
                                     🔊 Tes Suara
                                 </button>
                             </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block font-black uppercase text-[10px] mb-0.5">Frekuensi Pengingat</label>
+                                    <select name="repeat_type" x-model="data.repeat_type" class="w-full border-2 border-black p-1.5 rounded font-bold text-xs bg-white">
+                                        <option value="once">📌 Hanya Sekali</option>
+                                        <option value="daily">🔄 Setiap Hari</option>
+                                        <option value="weekly">📅 Setiap Minggu</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block font-black uppercase text-[10px] mb-0.5">Jam Berulang Harian</label>
+                                    <input type="time" name="reminder_time" x-model="data.reminder_time" class="w-full border-2 border-black p-1.5 rounded font-bold text-xs bg-white">
+                                </div>
+                            </div>
                             <div>
-                                <label class="block font-black uppercase text-[10px] mb-0.5">Tanggal & Waktu Pengingat</label>
+                                <label class="block font-black uppercase text-[10px] mb-0.5">Tanggal & Waktu Mula</label>
                                 <input type="datetime-local" name="scheduled_at" x-model="data.scheduled_at" class="w-full border-2 border-black p-1.5 rounded font-bold text-xs bg-white">
                             </div>
                             <div>

@@ -12,7 +12,7 @@
                 <div class="flex items-center justify-between gap-2 border-b-2 border-emerald-700/60 pb-3 mb-3">
                     <div class="flex items-center gap-2">
                         <span class="bg-[#FFDE00] text-black px-2.5 py-1 rounded-lg border-2 border-black font-black text-xs uppercase flex items-center gap-1 shadow-[2px_2px_0_0_#000]">
-                            <span>🔔</span> PENGINGAT
+                            <span x-text="currentReminder.repeat_type === 'daily' ? '🔄 HARIAN' : '🔔 PENGINGAT'"></span>
                         </span>
                         <span class="text-[10px] text-emerald-300 font-bold" x-text="currentReminder.created_at"></span>
                     </div>
@@ -48,6 +48,11 @@ function announcementReminder() {
         reminders: [],
         currentReminder: null,
 
+        getTodayKey() {
+            const d = new Date();
+            return `seen_daily_${d.getFullYear()}_${d.getMonth() + 1}_${d.getDate()}`;
+        },
+
         async initReminder() {
             try {
                 const res = await fetch('{{ route("announcements.active-reminders") }}');
@@ -55,8 +60,17 @@ function announcementReminder() {
                 const data = await res.json();
                 
                 if (data.status === 'success' && data.announcements.length > 0) {
-                    const seenIds = JSON.parse(localStorage.getItem('seen_announcement_ids') || '[]');
-                    const unseen = data.announcements.filter(a => !seenIds.includes(a.id));
+                    const seenOnceIds = JSON.parse(localStorage.getItem('seen_announcement_ids') || '[]');
+                    const todayKey = this.getTodayKey();
+                    const seenDailyIds = JSON.parse(localStorage.getItem(todayKey) || '[]');
+
+                    const unseen = data.announcements.filter(a => {
+                        if (a.repeat_type === 'daily') {
+                            return !seenDailyIds.includes(a.id);
+                        } else {
+                            return !seenOnceIds.includes(a.id);
+                        }
+                    });
                     
                     if (unseen.length > 0) {
                         this.reminders = unseen;
@@ -87,10 +101,19 @@ function announcementReminder() {
 
         dismissReminder() {
             if (this.currentReminder) {
-                const seenIds = JSON.parse(localStorage.getItem('seen_announcement_ids') || '[]');
-                if (!seenIds.includes(this.currentReminder.id)) {
-                    seenIds.push(this.currentReminder.id);
-                    localStorage.setItem('seen_announcement_ids', JSON.stringify(seenIds));
+                if (this.currentReminder.repeat_type === 'daily') {
+                    const todayKey = this.getTodayKey();
+                    const seenDailyIds = JSON.parse(localStorage.getItem(todayKey) || '[]');
+                    if (!seenDailyIds.includes(this.currentReminder.id)) {
+                        seenDailyIds.push(this.currentReminder.id);
+                        localStorage.setItem(todayKey, JSON.stringify(seenDailyIds));
+                    }
+                } else {
+                    const seenOnceIds = JSON.parse(localStorage.getItem('seen_announcement_ids') || '[]');
+                    if (!seenOnceIds.includes(this.currentReminder.id)) {
+                        seenOnceIds.push(this.currentReminder.id);
+                        localStorage.setItem('seen_announcement_ids', JSON.stringify(seenOnceIds));
+                    }
                 }
             }
             this.showNextReminder();

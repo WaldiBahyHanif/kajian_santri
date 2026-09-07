@@ -14,6 +14,8 @@ class Announcement extends Model
         'target_student_id',
         'is_active',
         'is_reminder',
+        'repeat_type',
+        'reminder_time',
         'scheduled_at',
         'sound_type',
     ];
