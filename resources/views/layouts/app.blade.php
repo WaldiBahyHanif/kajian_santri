@@ -344,7 +344,7 @@ function setupPushNotifications(registration) {
 }
 
 function subscribeUser(registration) {
-    const publicKey = '{{ env("VAPID_PUBLIC_KEY") }}';
+    const publicKey = '{{ config("webpush.vapid.public_key") }}';
     if (!publicKey) return;
 
     const applicationServerKey = urlBase64ToUint8Array(publicKey);

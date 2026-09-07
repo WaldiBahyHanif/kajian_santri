@@ -1713,9 +1713,9 @@ function setupPushNotifications(registration) {
 }
 
 function subscribeUser(registration) {
-    const publicKey = '{{ env("VAPID_PUBLIC_KEY") }}';
+    const publicKey = '{{ config("webpush.vapid.public_key") }}';
     if (!publicKey) {
-        console.warn('[PWA Push] VAPID public key not found in env.');
+        console.warn('[PWA Push] VAPID public key not found in config.');
         return;
     }
 
