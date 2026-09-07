@@ -45,6 +45,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/refleksi', [\App\Http\Controllers\ReflectionController::class, 'store'])->name('refleksi.store');
     Route::delete('/refleksi/{id}', [\App\Http\Controllers\ReflectionController::class, 'destroy'])->name('refleksi.destroy');
     Route::post('/saran', [DashboardController::class, 'storeSaran'])->name('saran.store');
+    Route::get('/api/announcements/active', [\App\Http\Controllers\AnnouncementNotificationController::class, 'activeReminders'])->name('announcements.active-reminders');
 
     // Izin & Cuti Routes
     Route::get('/izin', [\App\Http\Controllers\LeaveController::class, 'index'])->name('izin.index');

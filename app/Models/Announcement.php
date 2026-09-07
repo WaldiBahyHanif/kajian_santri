@@ -13,10 +13,15 @@ class Announcement extends Model
         'message',
         'target_student_id',
         'is_active',
+        'is_reminder',
+        'scheduled_at',
+        'sound_type',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'is_reminder' => 'boolean',
+        'scheduled_at' => 'datetime',
     ];
 
     public function student()
