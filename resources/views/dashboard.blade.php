@@ -294,10 +294,13 @@
                     <span class="material-symbols-outlined">event</span> {{ \Carbon\Carbon::now()->isoFormat('dddd, D MMMM Y') }}
                 </p>
             </div>
-            <div class="flex gap-4">
+            <div class="flex flex-wrap gap-3">
                 <a href="{{ route('attendance.scan') }}" class="bg-primary text-on-primary border-3 border-on-background neobrutal-shadow neobrutal-shadow-active px-6 py-3 rounded-lg font-bold transition-all text-center block">
                     Scan Absensi
                 </a>
+                <button type="button" onclick="testWebPushNotification()" class="bg-[#FFDE00] text-black border-3 border-on-background neobrutal-shadow neobrutal-shadow-active px-4 py-3 rounded-lg font-black transition-all text-center flex items-center gap-2 text-xs uppercase cursor-pointer">
+                    <span class="material-symbols-outlined text-base">notifications_active</span> Tes Notif HP
+                </button>
             </div>
         </section>
 

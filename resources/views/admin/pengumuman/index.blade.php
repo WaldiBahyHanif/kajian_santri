@@ -43,11 +43,18 @@
                             <span>🔔 Notifikasi Pengingat (Reminder)</span>
                         </label>
 
-                        <button type="button" 
-                                onclick="const st = document.getElementById('sound_type_select').value; if(window.BrimoAudio) BrimoAudio.playSound(st);" 
-                                class="bg-[#FFDE00] text-black px-3 py-1 font-black rounded-lg border-2 border-black text-xs uppercase shadow-[2px_2px_0_0_#000] active:translate-y-0.5 active:shadow-none transition-all flex items-center gap-1">
-                            <span class="material-symbols-outlined text-sm">volume_up</span> Tes Suara Notifikasi
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <button type="button" 
+                                    onclick="const st = document.getElementById('sound_type_select').value; if(window.BrimoAudio) BrimoAudio.playSound(st);" 
+                                    class="bg-[#FFDE00] text-black px-3 py-1 font-black rounded-lg border-2 border-black text-xs uppercase shadow-[2px_2px_0_0_#000] active:translate-y-0.5 active:shadow-none transition-all flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">volume_up</span> Tes Suara
+                            </button>
+                            <button type="button" 
+                                    onclick="testWebPushNotification()" 
+                                    class="bg-[#39FF14] text-black px-3 py-1 font-black rounded-lg border-2 border-black text-xs uppercase shadow-[2px_2px_0_0_#000] active:translate-y-0.5 active:shadow-none transition-all flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">notifications_active</span> Tes Push HP
+                            </button>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">

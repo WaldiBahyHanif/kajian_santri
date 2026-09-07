@@ -313,10 +313,13 @@
 // =========================================================
 // Service Worker & Web Push Notification Global Registration
 // =========================================================
+let globalSwReg = null;
+
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js', { scope: '/' })
             .then(reg => {
+                globalSwReg = reg;
                 console.log('[PWA] Service Worker registered:', reg.scope);
                 setupPushNotifications(reg);
             })
@@ -346,14 +349,21 @@ function subscribeUser(registration) {
 
     const applicationServerKey = urlBase64ToUint8Array(publicKey);
     
-    registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: applicationServerKey
-    })
-    .then(subscription => {
-        sendSubscriptionToServer(subscription);
-    })
-    .catch(err => console.error('[PWA Push] Failed to subscribe:', err));
+    registration.pushManager.getSubscription()
+        .then(subscription => {
+            if (subscription) {
+                sendSubscriptionToServer(subscription);
+                return subscription;
+            }
+            return registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: applicationServerKey
+            }).then(newSub => {
+                sendSubscriptionToServer(newSub);
+                return newSub;
+            });
+        })
+        .catch(err => console.error('[PWA Push] Failed to subscribe:', err));
 }
 
 function sendSubscriptionToServer(subscription) {
@@ -378,6 +388,49 @@ function urlBase64ToUint8Array(base64String) {
     }
     return outputArray;
 }
+
+window.testWebPushNotification = function() {
+    if (!('Notification' in window)) {
+        alert('Browser HP Anda belum mendukung Web Push Notifications.');
+        return;
+    }
+
+    if (Notification.permission === 'denied') {
+        alert('Izin notifikasi saat ini DITOLAK oleh browser HP Anda.\n\nSilakan buka setelan browser HP Anda (Site Settings -> Notifications) lalu ubah menjadi Izinkan (Allow).');
+        return;
+    }
+
+    const triggerTest = () => {
+        fetch('{{ route("push.test") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(r => r.json())
+        .then(data => {
+            alert(data.message + '\n\nSilakan kunci HP atau keluar dari aplikasi web sekarang untuk melihat notifikasi masuk di layar HP Anda!');
+        })
+        .catch(err => {
+            alert('Gagal mengirim notifikasi tes: ' + err);
+        });
+    };
+
+    if (Notification.permission === 'default') {
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                if (globalSwReg) subscribeUser(globalSwReg);
+                setTimeout(triggerTest, 1000);
+            } else {
+                alert('Izin notifikasi tidak diberikan.');
+            }
+        });
+    } else {
+        if (globalSwReg) subscribeUser(globalSwReg);
+        triggerTest();
+    }
+};
 </script>
 
 </body>

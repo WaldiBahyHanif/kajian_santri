@@ -21,6 +21,7 @@ Route::get('/offline', function () {
 // PWA Push Subscriptions routes
 Route::post('/push/subscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'store'])->name('push.subscribe');
 Route::post('/push/unsubscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
+Route::post('/push/test', [\App\Http\Controllers\PushSubscriptionController::class, 'sendTestPush'])->name('push.test');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
