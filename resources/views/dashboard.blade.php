@@ -304,7 +304,7 @@
             </div>
         </section>
 
-        @if(auth()->user()->title === 'Musyrif' && count($flaggedSantri) > 0)
+        @if(auth()->user()->title === 'Musyrif' && count($flaggedSantri ?? []) > 0)
             <!-- Musyrif Alert Banner -->
             <section class="bg-error-container text-on-error-container border-3 border-on-background p-6 rounded-xl neobrutal-shadow">
                 <div class="flex items-center gap-3 mb-4">

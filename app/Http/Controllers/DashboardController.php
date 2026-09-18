@@ -216,6 +216,15 @@ class DashboardController extends Controller
                 'garden_message' => 'Selamat beraktivitas! Mari hiasi hari kita dengan zikir dan kajian berilmu di pondok Daaru Hiraa.',
             ]);
         }
+
+        // Santri yang butuh perhatian (untuk Musyrif)
+        $flaggedSantri = collect();
+        if ($user->title === 'Musyrif') {
+            $flaggedSantri = \App\Models\DailyMood::with('student')
+                ->whereIn('mood_type', ['Futur', 'Butuh Cerita'])
+                ->whereDate('created_at', now()->toDateString())
+                ->get();
+        }
         
         return view('dashboard', compact(
             'user', 
@@ -227,7 +236,8 @@ class DashboardController extends Controller
             'prayerTimes',
             'gardenStage',
             'nextKajians',
-            'setting'
+            'setting',
+            'flaggedSantri'
         ));
     }
 
