@@ -26,6 +26,48 @@
                     <p class="text-xs text-gray-500 mt-1">Jika aktif, pengumuman akan muncul sebagai pop-up di halaman santri.</p>
                 </div>
 
+                @php
+                    $tahsinDays = \App\Models\Setting::getTahsinDays();
+                    $day1 = $tahsinDays[0] ?? 2;
+                    $day2 = $tahsinDays[1] ?? 5;
+                    $allDays = [
+                        1 => 'Senin',
+                        2 => 'Selasa',
+                        3 => 'Rabu',
+                        4 => 'Kamis',
+                        5 => 'Jumat',
+                        6 => 'Sabtu',
+                        7 => 'Ahad',
+                    ];
+                @endphp
+
+                <div class="border-t-4 border-black pt-4 bg-purple-50 p-4 rounded-xl border-4 border-black">
+                    <label class="block font-black uppercase text-xs mb-1 text-purple-950 flex items-center gap-1.5">
+                        <span class="text-base">🕌</span> Jadwal Rutin Tahsin & Tahfidz (2x Seminggu)
+                    </label>
+                    <p class="text-xs text-purple-900 font-bold mb-3">
+                        Pilih 2 hari rutin yang berbeda. Sistem akan menggunakan 2 hari ini untuk menampilkan kolom rekap bulanan secara rapi tanpa kolom kosong yang sia-sia.
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-black uppercase text-[11px] mb-1 text-gray-700">Hari Rutin 1</label>
+                            <select name="tahsin_day_1" class="w-full border-4 border-black p-2.5 rounded-lg font-bold bg-white text-sm focus:outline-none focus:bg-yellow-50">
+                                @foreach($allDays as $iso => $name)
+                                    <option value="{{ $iso }}" {{ $day1 == $iso ? 'selected' : '' }}>{{ $name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-black uppercase text-[11px] mb-1 text-gray-700">Hari Rutin 2 (Beda Hari)</label>
+                            <select name="tahsin_day_2" class="w-full border-4 border-black p-2.5 rounded-lg font-bold bg-white text-sm focus:outline-none focus:bg-yellow-50">
+                                @foreach($allDays as $iso => $name)
+                                    <option value="{{ $iso }}" {{ $day2 == $iso ? 'selected' : '' }}>{{ $name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="border-t-4 border-black pt-4">
                     <label class="block font-black uppercase text-xs mb-2 text-primary">⚙️ Mode Status Kebun Kebaikan</label>
                     <div class="flex items-center gap-4">

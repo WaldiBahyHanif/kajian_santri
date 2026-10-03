@@ -35,9 +35,11 @@ class RekapBulananExport implements FromCollection, WithHeadings, WithTitle, Sho
             ->orderBy('name', 'asc')
             ->get();
 
-        $daysInMonth = Carbon::create($this->year, $this->month, 1)->daysInMonth;
+        $activeDates = \App\Http\Controllers\RekapController::resolveBulananActiveDates(
+            $this->month, $this->year, $this->sessionType
+        );
 
-        // Get all logs for Kajian in the month
+        // Get all logs for session in the month
         $logs = AttendanceLog::whereMonth('attendance_date', $this->month)
             ->whereYear('attendance_date', $this->year)
             ->where('session_type', $this->sessionType)
@@ -58,15 +60,15 @@ class RekapBulananExport implements FromCollection, WithHeadings, WithTitle, Sho
         foreach ($santris as $index => $santri) {
             $hadirCount = 0;
             $row = [
-                'no' => $index + 1,
+                'no'   => $index + 1,
                 'name' => $santri->name,
             ];
 
-            for ($day = 1; $day <= $daysInMonth; $day++) {
-                $dateStr = sprintf('%04d-%02d-%02d', $this->year, $this->month, $day);
+            foreach ($activeDates as $dateInfo) {
+                $dateStr = $dateInfo['date'];
                 $status = $grid[$santri->id][$dateStr] ?? null;
                 
-                $row['day_' . $day] = $status ?: '-';
+                $row['day_' . $dateInfo['day']] = $status ?: '-';
 
                 if (in_array($status, ['H', 'I'])) {
                     $hadirCount++;
@@ -76,7 +78,7 @@ class RekapBulananExport implements FromCollection, WithHeadings, WithTitle, Sho
             $percentage = $totalKBMDays > 0 ? round(($hadirCount / $totalKBMDays) * 100) : 0;
             
             $row['total_hadir'] = $hadirCount;
-            $row['percentage'] = $percentage . '%';
+            $row['percentage']  = $percentage . '%';
 
             $rows[] = $row;
         }
@@ -89,11 +91,15 @@ class RekapBulananExport implements FromCollection, WithHeadings, WithTitle, Sho
      */
     public function headings(): array
     {
-        $daysInMonth = Carbon::create($this->year, $this->month, 1)->daysInMonth;
+        $activeDates = \App\Http\Controllers\RekapController::resolveBulananActiveDates(
+            $this->month, $this->year, $this->sessionType
+        );
         
         $headings = ['No', 'Nama Santri'];
-        for ($d = 1; $d <= $daysInMonth; $d++) {
-            $headings[] = (string) $d;
+        foreach ($activeDates as $dateInfo) {
+            $headings[] = $this->sessionType === 'Tahsin'
+                ? "{$dateInfo['day_name']} {$dateInfo['day']}"
+                : (string) $dateInfo['day'];
         }
         $headings[] = 'JML';
         $headings[] = '%';

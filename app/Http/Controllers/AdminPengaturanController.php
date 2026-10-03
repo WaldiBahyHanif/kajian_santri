@@ -30,6 +30,10 @@ class AdminPengaturanController extends Controller
             'garden_mode' => ['required', 'string', 'in:auto,manual'],
             'garden_status' => ['required', 'string', 'in:subur_sekali,subur,biasa,kering'],
             'garden_message' => ['nullable', 'string', 'max:500'],
+            'tahsin_day_1' => ['required', 'integer', 'between:1,7'],
+            'tahsin_day_2' => ['required', 'integer', 'between:1,7', 'different:tahsin_day_1'],
+        ], [
+            'tahsin_day_2.different' => 'Hari Tahsin ke-2 tidak boleh sama dengan Hari ke-1.',
         ]);
 
         $setting = Setting::first();
@@ -38,9 +42,14 @@ class AdminPengaturanController extends Controller
         $setting->garden_mode = $request->garden_mode;
         $setting->garden_status = $request->garden_status;
         $setting->garden_message = $request->garden_message;
+
+        $landingPage = $setting->landing_page ?? [];
+        $landingPage['tahsin_days'] = [(int) $request->tahsin_day_1, (int) $request->tahsin_day_2];
+        $setting->landing_page = $landingPage;
+
         $setting->save();
 
-        AdminActivityLog::log('update_settings', "Memperbarui pengaturan pop-up pengumuman dan Kebun Kebaikan global");
+        AdminActivityLog::log('update_settings', "Memperbarui pengaturan pop-up, Kebun Kebaikan, dan jadwal 2 hari Tahsin");
 
         return redirect()->route('admin.pengaturan.index')->with('success', 'Pengaturan berhasil disimpan!');
     }

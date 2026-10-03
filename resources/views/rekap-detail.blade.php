@@ -609,9 +609,18 @@
                             <tr>
                                 <th>No</th>
                                 <th class="text-left pl-3">Nama Santri</th>
-                                @for($d = 1; $d <= $daysInMonth; $d++)
-                                    <th class="min-w-[32px]">{{ $d }}</th>
-                                @endfor
+                                @if(isset($activeDates))
+                                    @foreach($activeDates as $dateInfo)
+                                        <th class="min-w-[40px] px-1">
+                                            <div class="text-[9px] font-cartoon opacity-80 uppercase">{{ $dateInfo['day_name'] }}</div>
+                                            <div class="text-xs">{{ $dateInfo['day'] }}</div>
+                                        </th>
+                                    @endforeach
+                                @else
+                                    @for($d = 1; $d <= $daysInMonth; $d++)
+                                        <th class="min-w-[32px]">{{ $d }}</th>
+                                    @endfor
+                                @endif
                                 <th class="min-w-[42px]">JML</th>
                                 <th class="min-w-[48px]">%</th>
                             </tr>
@@ -659,18 +668,33 @@
                                     @endphp
                                     <td class="col-pct {{ $pctClass }} font-cartoon">{{ $row['percentage'] }}%</td>
                                 @else
-                                    @for($d = 1; $d <= $daysInMonth; $d++)
-                                        @php
-                                            $status = $row['statuses'][$d];
-                                            $cellClass = 'cell-none';
-                                            $display = '-';
-                                            if ($status === 'H') { $cellClass = 'cell-h'; $display = '✓'; }
-                                            elseif ($status === 'I') { $cellClass = 'cell-i'; $display = 'I'; }
-                                            elseif ($status === 'A') { $cellClass = 'cell-a'; $display = '✗'; }
-                                            elseif ($status === 'S') { $cellClass = 'cell-s'; $display = 'S'; }
-                                        @endphp
-                                        <td class="{{ $cellClass }}">{{ $display }}</td>
-                                    @endfor
+                                    @if(isset($activeDates))
+                                        @foreach($activeDates as $dateInfo)
+                                            @php
+                                                $status = $row['statuses'][$dateInfo['day']] ?? null;
+                                                $cellClass = 'cell-none';
+                                                $display = '-';
+                                                if ($status === 'H') { $cellClass = 'cell-h'; $display = '✓'; }
+                                                elseif ($status === 'I') { $cellClass = 'cell-i'; $display = 'I'; }
+                                                elseif ($status === 'A') { $cellClass = 'cell-a'; $display = '✗'; }
+                                                elseif ($status === 'S') { $cellClass = 'cell-s'; $display = 'S'; }
+                                            @endphp
+                                            <td class="{{ $cellClass }}">{{ $display }}</td>
+                                        @endforeach
+                                    @else
+                                        @for($d = 1; $d <= $daysInMonth; $d++)
+                                            @php
+                                                $status = $row['statuses'][$d] ?? null;
+                                                $cellClass = 'cell-none';
+                                                $display = '-';
+                                                if ($status === 'H') { $cellClass = 'cell-h'; $display = '✓'; }
+                                                elseif ($status === 'I') { $cellClass = 'cell-i'; $display = 'I'; }
+                                                elseif ($status === 'A') { $cellClass = 'cell-a'; $display = '✗'; }
+                                                elseif ($status === 'S') { $cellClass = 'cell-s'; $display = 'S'; }
+                                            @endphp
+                                            <td class="{{ $cellClass }}">{{ $display }}</td>
+                                        @endfor
+                                    @endif
                                     <td class="col-total font-cartoon">{{ $row['total_hadir'] }}</td>
                                     @php
                                         $pctClass = $row['percentage'] >= 75 ? 'pct-high' : ($row['percentage'] >= 50 ? 'pct-mid' : 'pct-low');

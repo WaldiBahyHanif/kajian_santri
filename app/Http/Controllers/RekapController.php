@@ -27,6 +27,52 @@ class RekapController extends Controller
             ->get();
     }
 
+    public static function resolveBulananActiveDates(int $month, int $year, string $sessionType): array
+    {
+        $daysInMonth = Carbon::create($year, $month, 1)->daysInMonth;
+        
+        if ($sessionType !== 'Tahsin') {
+            $activeDates = [];
+            for ($day = 1; $day <= $daysInMonth; $day++) {
+                $dt = Carbon::create($year, $month, $day);
+                $activeDates[] = [
+                    'date'          => $dt->toDateString(),
+                    'day'           => $day,
+                    'day_name'      => \App\Models\Setting::getDayName($dt->dayOfWeekIso, true),
+                    'day_name_full' => \App\Models\Setting::getDayName($dt->dayOfWeekIso, false),
+                ];
+            }
+            return $activeDates;
+        }
+
+        // Khusus Tahsin: Filter berdasarkan 2 hari jadwal yang ditentukan Admin + tanggal riil yang ada datanya
+        $tahsinDays = \App\Models\Setting::getTahsinDays(); // [2, 5]
+        $existingLogDates = AttendanceLog::whereMonth('attendance_date', $month)
+            ->whereYear('attendance_date', $year)
+            ->where('session_type', 'Tahsin')
+            ->distinct('attendance_date')
+            ->pluck('attendance_date')
+            ->toArray();
+
+        $datesMap = [];
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $dt = Carbon::create($year, $month, $day);
+            $dateStr = $dt->toDateString();
+            if (in_array($dt->dayOfWeekIso, $tahsinDays, true) || in_array($dateStr, $existingLogDates, true)) {
+                $datesMap[$dateStr] = [
+                    'date'          => $dateStr,
+                    'day'           => $day,
+                    'day_name'      => \App\Models\Setting::getDayName($dt->dayOfWeekIso, true),
+                    'day_name_full' => \App\Models\Setting::getDayName($dt->dayOfWeekIso, false),
+                ];
+            }
+        }
+
+        ksort($datesMap);
+        return array_values($datesMap);
+    }
+
+
     /**
      * Overview page: charts and navigation cards.
      */
@@ -269,6 +315,8 @@ class RekapController extends Controller
             ));
         } else {
             // Bulanan (default)
+            $activeDates = $this->resolveBulananActiveDates($month, $year, $sessionType);
+
             $logs = AttendanceLog::whereMonth('attendance_date', $month)
                 ->whereYear('attendance_date', $year)
                 ->where('session_type', $sessionType)
@@ -290,10 +338,10 @@ class RekapController extends Controller
                 $hadirCount = 0;
                 $dailyStatuses = [];
 
-                for ($day = 1; $day <= $daysInMonth; $day++) {
-                    $dateStr = sprintf('%04d-%02d-%02d', $year, $month, $day);
+                foreach ($activeDates as $dateInfo) {
+                    $dateStr = $dateInfo['date'];
                     $status = $grid[$santri->id][$dateStr] ?? null;
-                    $dailyStatuses[$day] = $status;
+                    $dailyStatuses[$dateInfo['day']] = $status;
 
                     if (in_array($status, ['H', 'I'])) {
                         $hadirCount++;
@@ -303,16 +351,16 @@ class RekapController extends Controller
                 $percentage = $totalKBMDays > 0 ? round(($hadirCount / $totalKBMDays) * 100) : 0;
 
                 $rows[] = [
-                    'no' => $index + 1,
-                    'name' => $santri->name,
-                    'statuses' => $dailyStatuses,
+                    'no'          => $index + 1,
+                    'name'        => $santri->name,
+                    'statuses'    => $dailyStatuses,
                     'total_hadir' => $hadirCount,
-                    'percentage' => $percentage,
+                    'percentage'  => $percentage,
                 ];
             }
 
             return view('rekap-detail', compact(
-                'month', 'year', 'view', 'daysInMonth', 'rows', 'totalKBMDays', 'sessionType'
+                'month', 'year', 'view', 'daysInMonth', 'rows', 'totalKBMDays', 'sessionType', 'activeDates'
             ));
         }
     }
@@ -500,6 +548,7 @@ class RekapController extends Controller
         }
 
         // Harian / Bulanan (default)
+        $activeDates = $this->resolveBulananActiveDates($month, $year, $sessionType);
         $daysInMonth = Carbon::create($year, $month, 1)->daysInMonth;
         $logs = AttendanceLog::whereMonth('attendance_date', $month)
             ->whereYear('attendance_date', $year)
@@ -522,10 +571,10 @@ class RekapController extends Controller
             $hadirCount = 0;
             $dailyStatuses = [];
 
-            for ($day = 1; $day <= $daysInMonth; $day++) {
-                $dateStr = sprintf('%04d-%02d-%02d', $year, $month, $day);
+            foreach ($activeDates as $dateInfo) {
+                $dateStr = $dateInfo['date'];
                 $status = $grid[$santri->id][$dateStr] ?? null;
-                $dailyStatuses[$day] = $status;
+                $dailyStatuses[$dateInfo['day']] = $status;
 
                 if (in_array($status, ['H', 'I'])) {
                     $hadirCount++;
@@ -535,16 +584,18 @@ class RekapController extends Controller
             $percentage = $totalKBMDays > 0 ? round(($hadirCount / $totalKBMDays) * 100) : 0;
 
             $rows[] = [
-                'no' => $index + 1,
-                'name' => $santri->name,
-                'statuses' => $dailyStatuses,
+                'no'          => $index + 1,
+                'name'        => $santri->name,
+                'statuses'    => $dailyStatuses,
                 'total_hadir' => $hadirCount,
-                'percentage' => $percentage,
+                'percentage'  => $percentage,
             ];
         }
 
+        $sessionTitle = $sessionType === 'Tahsin' ? 'Tahsin & Tahfidz' : 'Kajian Rutin';
+
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.rekap-bulanan-pdf', compact(
-            'monthName', 'year', 'daysInMonth', 'rows', 'totalKBMDays'
+            'monthName', 'year', 'daysInMonth', 'rows', 'totalKBMDays', 'sessionType', 'sessionTitle', 'activeDates'
         ))->setPaper('a4', 'landscape');
 
         $monthNameStr = strtolower($monthName);

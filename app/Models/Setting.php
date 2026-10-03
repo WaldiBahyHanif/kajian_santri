@@ -24,11 +24,12 @@ class Setting extends Model
     ];
 
     /**
-     * Get default settings for landing page.
+     * Get default settings for landing page and app configs.
      */
     public static function defaultLandingPage(): array
     {
         return [
+            'tahsin_days' => [2, 5], // Default: 2 (Selasa) dan 5 (Jumat)
             'hero' => [
                 'badge' => '📖 Pusat Informasi Kajian Islam',
                 'title_1' => 'KAJIAN',
@@ -170,4 +171,38 @@ class Setting extends Model
         $data = $value ? json_decode($value, true) : [];
         return array_replace_recursive(static::defaultLandingPage(), $data ?: []);
     }
+
+    /**
+     * Helper to get configured Tahsin days as array of ISO numbers (1=Senin, ..., 7=Ahad).
+     */
+    public static function getTahsinDays(): array
+    {
+        $setting = static::first();
+        $days = $setting->landing_page['tahsin_days'] ?? [2, 5];
+        if (!is_array($days) || count($days) !== 2) {
+            $days = [2, 5];
+        }
+        return array_values(array_unique(array_map('intval', $days)));
+    }
+
+    /**
+     * Helper to get Indonesian name for ISO day of week (1=Senin ... 7=Ahad).
+     */
+    public static function getDayName(int $isoDay, bool $short = false): string
+    {
+        $names = [
+            1 => ['full' => 'Senin', 'short' => 'Sen'],
+            2 => ['full' => 'Selasa', 'short' => 'Sel'],
+            3 => ['full' => 'Rabu', 'short' => 'Rab'],
+            4 => ['full' => 'Kamis', 'short' => 'Kam'],
+            5 => ['full' => 'Jumat', 'short' => 'Jum'],
+            6 => ['full' => 'Sabtu', 'short' => 'Sab'],
+            7 => ['full' => 'Ahad', 'short' => 'Ahd'],
+        ];
+        if (!isset($names[$isoDay])) {
+            return '';
+        }
+        return $short ? $names[$isoDay]['short'] : $names[$isoDay]['full'];
+    }
 }
+

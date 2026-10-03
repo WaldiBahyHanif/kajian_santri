@@ -40,7 +40,12 @@ class AdminAttendanceController extends Controller
             ->get()
             ->keyBy(fn($item) => (int) ($item->student_id ?? $item->user_id));
 
-        return view('admin.attendance.index', compact('santris', 'selectedDate', 'attendanceLogs', 'sessionType'));
+        $tahsinDays = \App\Models\Setting::getTahsinDays();
+        $tahsinDayNames = array_map(fn($d) => \App\Models\Setting::getDayName($d), $tahsinDays);
+
+        return view('admin.attendance.index', compact(
+            'santris', 'selectedDate', 'attendanceLogs', 'sessionType', 'tahsinDays', 'tahsinDayNames'
+        ));
     }
 
     public function store(Request $request)

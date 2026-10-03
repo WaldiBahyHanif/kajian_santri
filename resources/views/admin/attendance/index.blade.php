@@ -47,19 +47,66 @@
         @endforeach
     </div>
 
-    <!-- Date Selector -->
-    <div class="bg-white border-4 border-black p-4 rounded-lg mb-6 shadow-[4px_4px_0_0_#000] flex flex-col md:flex-row justify-between items-center gap-4">
-        <div>
-            <h3 class="font-black text-lg uppercase">
-                {{ \Carbon\Carbon::parse($selectedDate)->translatedFormat('d F Y') }}
-            </h3>
-            <p class="text-xs text-gray-500 font-bold">Absensi {{ $sessionLabel }}</p>
+    <!-- Date Selector & Schedule Info -->
+    <div class="bg-white border-4 border-black p-4 rounded-lg mb-6 shadow-[4px_4px_0_0_#000] space-y-3">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h3 class="font-black text-lg uppercase flex items-center gap-2">
+                    <span>{{ \Carbon\Carbon::parse($selectedDate)->translatedFormat('l, d F Y') }}</span>
+                    @if($sessionType === 'Tahsin')
+                        @php
+                            $currentIso = \Carbon\Carbon::parse($selectedDate)->dayOfWeekIso;
+                            $isScheduled = in_array($currentIso, $tahsinDays ?? [2, 5], true);
+                        @endphp
+                        @if($isScheduled)
+                            <span class="text-[10px] bg-emerald-400 text-black px-2 py-0.5 rounded border border-black font-black">
+                                ✓ HARI JADWAL RUTIN
+                            </span>
+                        @else
+                            <span class="text-[10px] bg-amber-300 text-black px-2 py-0.5 rounded border border-black font-black">
+                                ℹ️ SESI KHUSUS / PENGGANTI
+                            </span>
+                        @endif
+                    @endif
+                </h3>
+                <p class="text-xs text-gray-500 font-bold">
+                    Input Absensi {{ $sessionLabel }}
+                    @if($sessionType === 'Tahsin')
+                        • Jadwal Rutin: <strong class="text-purple-700">{{ implode(' & ', $tahsinDayNames ?? ['Selasa', 'Jumat']) }}</strong>
+                    @endif
+                </p>
+            </div>
+            <form action="{{ route('admin.attendance.index') }}" method="GET" class="flex gap-2 bg-yellow-50 p-2 rounded-lg border-2 border-black w-full md:w-auto">
+                <input type="hidden" name="session_type" value="{{ $sessionType }}">
+                <input type="date" name="date" value="{{ $selectedDate }}" class="border-2 border-black p-1.5 rounded font-bold w-full md:w-auto focus:outline-none text-sm">
+                <button type="submit" class="bg-black text-white px-3 py-1 rounded font-bold text-sm border-2 border-black hover:bg-gray-800 whitespace-nowrap">CARI</button>
+            </form>
         </div>
-        <form action="{{ route('admin.attendance.index') }}" method="GET" class="flex gap-2 bg-yellow-50 p-2 rounded-lg border-2 border-black w-full md:w-auto">
-            <input type="hidden" name="session_type" value="{{ $sessionType }}">
-            <input type="date" name="date" value="{{ $selectedDate }}" class="border-2 border-black p-1.5 rounded font-bold w-full md:w-auto focus:outline-none text-sm">
-            <button type="submit" class="bg-black text-white px-3 py-1 rounded font-bold text-sm border-2 border-black hover:bg-gray-800 whitespace-nowrap">CARI</button>
-        </form>
+
+        @if($sessionType === 'Tahsin')
+            <!-- Quick Date Selector for Scheduled Days -->
+            @php
+                $centerDate = \Carbon\Carbon::parse($selectedDate);
+                $quickDates = [];
+                // Cari 2 minggu ke belakang dan 2 minggu ke depan yang sesuai hari jadwal
+                for ($offset = -14; $offset <= 14; $offset++) {
+                    $d = $centerDate->copy()->addDays($offset);
+                    if (in_array($d->dayOfWeekIso, $tahsinDays ?? [2, 5], true)) {
+                        $quickDates[] = $d;
+                    }
+                }
+            @endphp
+            <div class="pt-2 border-t-2 border-gray-100 flex items-center gap-1.5 overflow-x-auto text-xs pb-1">
+                <span class="text-[11px] font-black text-gray-500 shrink-0">Pilih Tanggal Jadwal:</span>
+                @foreach($quickDates as $qd)
+                    @php $isCurr = $qd->toDateString() === $selectedDate; @endphp
+                    <a href="{{ route('admin.attendance.index', ['date' => $qd->toDateString(), 'session_type' => 'Tahsin']) }}"
+                       class="px-2.5 py-1 rounded border-2 border-black font-bold whitespace-nowrap text-[11px] {{ $isCurr ? 'bg-black text-white' : 'bg-purple-100 text-purple-950 hover:bg-purple-200' }}">
+                        {{ $qd->translatedFormat('D, d M') }}
+                    </a>
+                @endforeach
+            </div>
+        @endif
     </div>
 
     <!-- Attendance Form -->
