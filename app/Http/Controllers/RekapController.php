@@ -10,6 +10,23 @@ use Illuminate\Support\Facades\Cache;
 
 class RekapController extends Controller
 {
+    private const VALID_SESSIONS = ['Kajian', 'Tahsin'];
+
+    private function resolveSessionType(Request $request): string
+    {
+        $type = $request->get('session_type', 'Kajian');
+        return in_array($type, self::VALID_SESSIONS, true) ? $type : 'Kajian';
+    }
+
+    private function getActiveSantris()
+    {
+        return Student::select(['id', 'name'])
+            ->where('status_aktif', 'Aktif')
+            ->whereIn('title', ['Santri', 'Musyrif'])
+            ->orderBy('name', 'asc')
+            ->get();
+    }
+
     /**
      * Overview page: charts and navigation cards.
      */
@@ -17,30 +34,27 @@ class RekapController extends Controller
     {
         $month = $request->get('month', now()->month);
         $year = $request->get('year', now()->year);
+        $sessionType = $this->resolveSessionType($request);
 
-        $santris = Student::select(['id', 'name'])
-            ->where('status_aktif', 'Aktif')
-            ->whereIn('title', ['Santri', 'Musyrif'])
-            ->orderBy('name', 'asc')
-            ->get();
+        $santris = $this->getActiveSantris();
 
-        $cacheKey = "rekap_overview_{$month}_{$year}";
-        $ttl = now()->month == $month && now()->year == $year ? 15 * 60 : 60 * 60; // 15 menit bulan ini, 1 jam bulan lalu
+        $cacheKey = "rekap_overview_{$sessionType}_{$month}_{$year}";
+        $ttl = now()->month == $month && now()->year == $year ? 15 * 60 : 60 * 60;
 
-        [$totalKBMDays, $studentStats, $sessionStats] = Cache::remember($cacheKey, $ttl, function () use ($month, $year, $santris) {
+        [$totalKBMDays, $studentStats, $sessionStats] = Cache::remember($cacheKey, $ttl, function () use ($month, $year, $santris, $sessionType) {
 
-            // Total KBM days
+            // Total KBM days for selected session type
             $totalKBMDays = AttendanceLog::whereMonth('attendance_date', $month)
                 ->whereYear('attendance_date', $year)
-                ->where('session_type', 'Kajian')
+                ->where('session_type', $sessionType)
                 ->distinct('attendance_date')
                 ->count('attendance_date');
 
-            // Ambil semua log bulan ini sekaligus — 1 query, bukan N query
+            // Ambil semua log bulan ini sekaligus — 1 query
             $allLogs = AttendanceLog::selectRaw('student_id, status, COUNT(*) as count')
                 ->whereMonth('attendance_date', $month)
                 ->whereYear('attendance_date', $year)
-                ->where('session_type', 'Kajian')
+                ->where('session_type', $sessionType)
                 ->groupBy('student_id', 'status')
                 ->get()
                 ->groupBy('student_id');
@@ -61,7 +75,7 @@ class RekapController extends Controller
                 ];
             }
 
-            // Sort by percentage descending for bar chart
+            // Sort by percentage descending
             usort($studentStats, fn($a, $b) => $b['percentage'] <=> $a['percentage']);
 
             // Per-session-type ring chart — 1 query GROUP BY
@@ -89,7 +103,7 @@ class RekapController extends Controller
         });
 
         return view('rekap', compact(
-            'month', 'year', 'studentStats', 'sessionStats', 'totalKBMDays'
+            'month', 'year', 'studentStats', 'sessionStats', 'totalKBMDays', 'sessionType'
         ));
     }
 
@@ -102,43 +116,42 @@ class RekapController extends Controller
         $year = $request->get('year', now()->year);
         $view = $request->get('view', 'bulanan');
         $selectedDate = $request->get('date', now()->toDateString());
+        $sessionType = $this->resolveSessionType($request);
 
-        $santris = Student::where('status_aktif', 'Aktif')
-            ->whereIn('title', ['Santri', 'Musyrif'])
-            ->orderBy('name', 'asc')
-            ->get();
+        $santris = $this->getActiveSantris();
 
         // Build date for the month
         $daysInMonth = Carbon::create($year, $month, 1)->daysInMonth;
 
         if ($view === 'tahunan') {
-            $cacheKeyTahunan = "rekap_tahunan_{$year}";
-            [$totalKBMDays, $rows] = Cache::remember($cacheKeyTahunan, 30 * 60, function () use ($month, $year, $santris) {
+            $cacheKeyTahunan = "rekap_tahunan_{$sessionType}_{$year}";
+            [$totalKBMDays, $rows] = Cache::remember($cacheKeyTahunan, 30 * 60, function () use ($month, $year, $santris, $sessionType) {
 
-                // KBM days untuk bulan yang sedang dipilih
                 $totalKBMDays = AttendanceLog::whereMonth('attendance_date', $month)
                     ->whereYear('attendance_date', $year)
-                    ->where('session_type', 'Kajian')
+                    ->where('session_type', $sessionType)
                     ->distinct('attendance_date')
                     ->count('attendance_date');
 
-                // Ambil semua hadir per santri per bulan — 1 query saja
+                // Ambil semua hadir per santri per bulan — 1 query
                 $yearlyLogs = AttendanceLog::selectRaw('student_id, MONTH(attendance_date) as month, COUNT(*) as count')
                     ->whereYear('attendance_date', $year)
-                    ->where('session_type', 'Kajian')
+                    ->where('session_type', $sessionType)
                     ->whereIn('status', ['H', 'I'])
                     ->groupBy('student_id', 'month')
                     ->get()
                     ->groupBy('student_id');
 
-                // KBM days per bulan — 12 query (1 per bulan, bukan 1 per santri×bulan)
+                // KBM days per bulan — 1 query with groupBy instead of 12 separate queries
+                $kbmRaw = AttendanceLog::selectRaw('MONTH(attendance_date) as month, COUNT(DISTINCT attendance_date) as days')
+                    ->whereYear('attendance_date', $year)
+                    ->where('session_type', $sessionType)
+                    ->groupByRaw('MONTH(attendance_date)')
+                    ->pluck('days', 'month');
+
                 $kbmPerBulan = [];
                 for ($m = 1; $m <= 12; $m++) {
-                    $kbmPerBulan[$m] = AttendanceLog::whereMonth('attendance_date', $m)
-                        ->whereYear('attendance_date', $year)
-                        ->where('session_type', 'Kajian')
-                        ->distinct('attendance_date')
-                        ->count('attendance_date');
+                    $kbmPerBulan[$m] = $kbmRaw->get($m, 0);
                 }
 
                 $rows = [];
@@ -174,7 +187,7 @@ class RekapController extends Controller
             });
 
             return view('rekap-detail', compact(
-                'month', 'year', 'view', 'daysInMonth', 'rows', 'totalKBMDays'
+                'month', 'year', 'view', 'daysInMonth', 'rows', 'totalKBMDays', 'sessionType'
             ));
         } elseif ($view === 'mingguan') {
             $carbonDate = Carbon::parse($selectedDate);
@@ -205,7 +218,7 @@ class RekapController extends Controller
                 $startOfWeek->toDateString(), 
                 $endOfWeek->toDateString()
             ])
-            ->where('session_type', 'Kajian')
+            ->where('session_type', $sessionType)
             ->get();
 
             $grid = [];
@@ -217,7 +230,7 @@ class RekapController extends Controller
                 $startOfWeek->toDateString(), 
                 $endOfWeek->toDateString()
             ])
-            ->where('session_type', 'Kajian')
+            ->where('session_type', $sessionType)
             ->distinct('attendance_date')
             ->count('attendance_date');
 
@@ -252,13 +265,13 @@ class RekapController extends Controller
 
             return view('rekap-detail', compact(
                 'month', 'year', 'view', 'rows', 'totalKBMDays', 'weekDays', 
-                'selectedDate', 'startOfWeek', 'endOfWeek', 'prevWeekDate', 'nextWeekDate'
+                'selectedDate', 'startOfWeek', 'endOfWeek', 'prevWeekDate', 'nextWeekDate', 'sessionType'
             ));
         } else {
             // Bulanan (default)
             $logs = AttendanceLog::whereMonth('attendance_date', $month)
                 ->whereYear('attendance_date', $year)
-                ->where('session_type', 'Kajian')
+                ->where('session_type', $sessionType)
                 ->get();
 
             $grid = [];
@@ -268,7 +281,7 @@ class RekapController extends Controller
 
             $totalKBMDays = AttendanceLog::whereMonth('attendance_date', $month)
                 ->whereYear('attendance_date', $year)
-                ->where('session_type', 'Kajian')
+                ->where('session_type', $sessionType)
                 ->distinct('attendance_date')
                 ->count('attendance_date');
 
@@ -299,7 +312,7 @@ class RekapController extends Controller
             }
 
             return view('rekap-detail', compact(
-                'month', 'year', 'view', 'daysInMonth', 'rows', 'totalKBMDays'
+                'month', 'year', 'view', 'daysInMonth', 'rows', 'totalKBMDays', 'sessionType'
             ));
         }
     }
@@ -312,19 +325,21 @@ class RekapController extends Controller
         $month = $request->get('month', now()->month);
         $year = $request->get('year', now()->year);
         $view = $request->get('view', 'bulanan');
+        $sessionType = $this->resolveSessionType($request);
+        $sessionSuffix = $sessionType === 'Tahsin' ? '_tahsin' : '';
 
         if ($view === 'tahunan') {
             return \Maatwebsite\Excel\Facades\Excel::download(
-                new \App\Exports\RekapTahunanExport($year), 
-                "rekap_tahunan_{$year}.xlsx"
+                new \App\Exports\RekapTahunanExport($year, $sessionType), 
+                "rekap_tahunan{$sessionSuffix}_{$year}.xlsx"
             );
         }
 
         if ($view === 'mingguan') {
             $date = $request->get('date', now()->toDateString());
             return \Maatwebsite\Excel\Facades\Excel::download(
-                new \App\Exports\RekapMingguanExport($date), 
-                "rekap_mingguan_{$date}.xlsx"
+                new \App\Exports\RekapMingguanExport($date, $sessionType), 
+                "rekap_mingguan{$sessionSuffix}_{$date}.xlsx"
             );
         }
 
@@ -332,8 +347,8 @@ class RekapController extends Controller
         $monthNameStr = strtolower($monthNames[$month]);
 
         return \Maatwebsite\Excel\Facades\Excel::download(
-            new \App\Exports\RekapBulananExport($month, $year), 
-            "rekap_{$monthNameStr}_{$year}.xlsx"
+            new \App\Exports\RekapBulananExport($month, $year, $sessionType), 
+            "rekap{$sessionSuffix}_{$monthNameStr}_{$year}.xlsx"
         );
     }
 
@@ -345,33 +360,34 @@ class RekapController extends Controller
         $month = $request->get('month', now()->month);
         $year = $request->get('year', now()->year);
         $view = $request->get('view', 'bulanan');
+        $sessionType = $this->resolveSessionType($request);
+        $sessionSuffix = $sessionType === 'Tahsin' ? '_tahsin' : '';
 
-        $santris = Student::where('status_aktif', 'Aktif')
-            ->whereIn('title', ['Santri', 'Musyrif'])
-            ->orderBy('name', 'asc')
-            ->get();
+        $santris = $this->getActiveSantris();
 
         $monthNames = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
         $monthName = $monthNames[$month];
 
         if ($view === 'tahunan') {
-            // Ambil semua hadir per santri per bulan — 1 query saja
+            // Ambil semua hadir per santri per bulan — 1 query
             $yearlyLogs = AttendanceLog::selectRaw('student_id, MONTH(attendance_date) as month, COUNT(*) as count')
                 ->whereYear('attendance_date', $year)
-                ->where('session_type', 'Kajian')
+                ->where('session_type', $sessionType)
                 ->whereIn('status', ['H', 'I'])
                 ->groupBy('student_id', 'month')
                 ->get()
                 ->groupBy('student_id');
 
-            // KBM days per bulan — 12 query total (bukan N santri x 12 bulan x 2)
+            // KBM days per bulan — 1 optimized query
+            $kbmRaw = AttendanceLog::selectRaw('MONTH(attendance_date) as month, COUNT(DISTINCT attendance_date) as days')
+                ->whereYear('attendance_date', $year)
+                ->where('session_type', $sessionType)
+                ->groupByRaw('MONTH(attendance_date)')
+                ->pluck('days', 'month');
+
             $kbmPerBulan = [];
             for ($m = 1; $m <= 12; $m++) {
-                $kbmPerBulan[$m] = AttendanceLog::whereMonth('attendance_date', $m)
-                    ->whereYear('attendance_date', $year)
-                    ->where('session_type', 'Kajian')
-                    ->distinct('attendance_date')
-                    ->count('attendance_date');
+                $kbmPerBulan[$m] = $kbmRaw->get($m, 0);
             }
 
             $rows = [];
@@ -406,7 +422,7 @@ class RekapController extends Controller
             $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.rekap-tahunan-pdf', compact('year', 'rows'))
                 ->setPaper('a4', 'landscape');
 
-            return $pdf->download("rekap_tahunan_{$year}.pdf");
+            return $pdf->download("rekap_tahunan{$sessionSuffix}_{$year}.pdf");
         } elseif ($view === 'mingguan') {
             $selectedDate = $request->get('date', now()->toDateString());
             $carbonDate = Carbon::parse($selectedDate);
@@ -429,7 +445,7 @@ class RekapController extends Controller
                 $startOfWeek->toDateString(), 
                 $endOfWeek->toDateString()
             ])
-            ->where('session_type', 'Kajian')
+            ->where('session_type', $sessionType)
             ->get();
 
             $grid = [];
@@ -441,7 +457,7 @@ class RekapController extends Controller
                 $startOfWeek->toDateString(), 
                 $endOfWeek->toDateString()
             ])
-            ->where('session_type', 'Kajian')
+            ->where('session_type', $sessionType)
             ->distinct('attendance_date')
             ->count('attendance_date');
 
@@ -480,14 +496,14 @@ class RekapController extends Controller
                 'rows', 'totalKBMDays', 'weekDays', 'startOfWeek', 'endOfWeek', 'startOfWeekFormatted', 'endOfWeekFormatted'
             ))->setPaper('a4', 'landscape');
 
-            return $pdf->download("rekap_mingguan_{$selectedDate}.pdf");
+            return $pdf->download("rekap_mingguan{$sessionSuffix}_{$selectedDate}.pdf");
         }
 
         // Harian / Bulanan (default)
         $daysInMonth = Carbon::create($year, $month, 1)->daysInMonth;
         $logs = AttendanceLog::whereMonth('attendance_date', $month)
             ->whereYear('attendance_date', $year)
-            ->where('session_type', 'Kajian')
+            ->where('session_type', $sessionType)
             ->get();
 
         $grid = [];
@@ -497,7 +513,7 @@ class RekapController extends Controller
 
         $totalKBMDays = AttendanceLog::whereMonth('attendance_date', $month)
             ->whereYear('attendance_date', $year)
-            ->where('session_type', 'Kajian')
+            ->where('session_type', $sessionType)
             ->distinct('attendance_date')
             ->count('attendance_date');
 
@@ -532,6 +548,6 @@ class RekapController extends Controller
         ))->setPaper('a4', 'landscape');
 
         $monthNameStr = strtolower($monthName);
-        return $pdf->download("rekap_{$monthNameStr}_{$year}.pdf");
+        return $pdf->download("rekap{$sessionSuffix}_{$monthNameStr}_{$year}.pdf");
     }
 }

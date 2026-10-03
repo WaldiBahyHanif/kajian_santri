@@ -11,13 +11,21 @@ use Illuminate\Support\Facades\Schema;
 
 class AdminAttendanceController extends Controller
 {
+    private const VALID_SESSIONS = ['Kajian', 'Tahsin', 'Subuh'];
+
     public function index(Request $request)
     {
-        $selectedDate = $request->get('date') 
-            ? Carbon::parse($request->get('date'))->format('Y-m-d') 
+        $selectedDate = $request->get('date')
+            ? Carbon::parse($request->get('date'))->format('Y-m-d')
             : Carbon::today()->toDateString();
 
-        $santris = Student::whereIn('status_aktif', ['Aktif', 'aktif'])
+        $sessionType = $request->get('session_type', 'Kajian');
+        if (!in_array($sessionType, self::VALID_SESSIONS, true)) {
+            $sessionType = 'Kajian';
+        }
+
+        $santris = Student::select(['id', 'name', 'title'])
+            ->whereIn('status_aktif', ['Aktif', 'aktif'])
             ->where(function ($q) {
                 $q->whereIn('title', ['Santri', 'Musyrif', 'santri', 'musyrif', 'Mahasantri', 'mahasantri'])
                   ->orWhereNull('title')
@@ -26,21 +34,25 @@ class AdminAttendanceController extends Controller
             ->orderBy('name', 'asc')
             ->get();
 
-        // Get attendance for selected date (key by student ID)
+        // Get attendance for selected date & session type (key by student ID)
         $attendanceLogs = AttendanceLog::whereDate('attendance_date', $selectedDate)
+            ->where('session_type', $sessionType)
             ->get()
-            ->keyBy(function ($item) {
-                return (int) ($item->student_id ?? $item->user_id);
-            });
+            ->keyBy(fn($item) => (int) ($item->student_id ?? $item->user_id));
 
-        return view('admin.attendance.index', compact('santris', 'selectedDate', 'attendanceLogs'));
+        return view('admin.attendance.index', compact('santris', 'selectedDate', 'attendanceLogs', 'sessionType'));
     }
 
     public function store(Request $request)
     {
-        $selectedDate = $request->input('date') 
-            ? Carbon::parse($request->input('date'))->format('Y-m-d') 
+        $selectedDate = $request->input('date')
+            ? Carbon::parse($request->input('date'))->format('Y-m-d')
             : Carbon::today()->toDateString();
+
+        $sessionType = $request->input('session_type', 'Kajian');
+        if (!in_array($sessionType, self::VALID_SESSIONS, true)) {
+            $sessionType = 'Kajian';
+        }
 
         $statuses = $request->input('status', []);
 
@@ -49,15 +61,18 @@ class AdminAttendanceController extends Controller
         $hasUpdatedAtCol = Schema::hasColumn('attendance_logs', 'updated_at');
         $hasCreatedAtCol = Schema::hasColumn('attendance_logs', 'created_at');
 
+        $now = Carbon::now();
+
         foreach ($statuses as $studentId => $status) {
             $studentId = (int) $studentId;
             if ($studentId <= 0) {
                 continue;
             }
 
-            // 1. Hapus log absensi lama pada tanggal ini untuk santri ini
+            // 1. Hapus log absensi lama pada tanggal & sesi ini untuk santri ini
             DB::table('attendance_logs')
                 ->whereDate('attendance_date', $selectedDate)
+                ->where('session_type', $sessionType)
                 ->where(function ($q) use ($studentId) {
                     $q->where('student_id', $studentId)
                       ->orWhere('user_id', $studentId);
@@ -67,9 +82,9 @@ class AdminAttendanceController extends Controller
             // 2. Insert data absensi baru dengan status terbaru
             $dataToInsert = [
                 'attendance_date' => $selectedDate,
-                'session_type'    => 'Kajian',
+                'session_type'    => $sessionType,
                 'status'          => $status,
-                'attendance_time' => Carbon::now()->toTimeString(),
+                'attendance_time' => $now->toTimeString(),
             ];
 
             if ($hasStudentIdCol) {
@@ -79,10 +94,10 @@ class AdminAttendanceController extends Controller
                 $dataToInsert['user_id'] = $studentId;
             }
             if ($hasCreatedAtCol) {
-                $dataToInsert['created_at'] = Carbon::now();
+                $dataToInsert['created_at'] = $now;
             }
             if ($hasUpdatedAtCol) {
-                $dataToInsert['updated_at'] = Carbon::now();
+                $dataToInsert['updated_at'] = $now;
             }
 
             DB::table('attendance_logs')->insert($dataToInsert);
@@ -98,7 +113,9 @@ class AdminAttendanceController extends Controller
             }
         }
 
-        return redirect()->route('admin.attendance.index', ['date' => $selectedDate])
-            ->with('success', "Data Absensi Tanggal " . Carbon::parse($selectedDate)->format('d-m-Y') . " Berhasil Disimpan!");
+        $sessionLabel = $sessionType === 'Tahsin' ? 'Tahsin & Tahfidz' : $sessionType;
+
+        return redirect()->route('admin.attendance.index', ['date' => $selectedDate, 'session_type' => $sessionType])
+            ->with('success', "Data Absensi {$sessionLabel} Tanggal " . Carbon::parse($selectedDate)->format('d-m-Y') . " Berhasil Disimpan!");
     }
 }

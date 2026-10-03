@@ -48,24 +48,32 @@ class DashboardController extends Controller
             ->whereIn('title', ['Santri', 'Musyrif'])
             ->count();
         
-        $logsToday = AttendanceLog::where('attendance_date', $todayDate)
-            ->where('session_type', 'Kajian')
-            ->get();
+        $todaySummary = AttendanceLog::selectRaw('session_type, status, COUNT(*) as c')
+            ->where('attendance_date', $todayDate)
+            ->whereIn('session_type', ['Kajian', 'Tahsin'])
+            ->groupBy('session_type', 'status')
+            ->get()
+            ->groupBy('session_type');
 
-        $hadirCount = $logsToday->where('status', 'H')->count();
-        $izinCount  = $logsToday->where('status', 'I')->count();
-        $sakitCount = $logsToday->where('status', 'S')->count();
-        $alphaCount = max(0, $totalSantri - ($hadirCount + $izinCount + $sakitCount));
-        $percentage = $totalSantri > 0 ? round(($hadirCount / $totalSantri) * 100) : 0;
+        $buildStats = function (string $type) use ($todaySummary, $totalSantri) {
+            $rows = $todaySummary->get($type, collect())->pluck('c', 'status');
+            $h = (int) $rows->get('H', 0);
+            $i = (int) $rows->get('I', 0);
+            $s = (int) $rows->get('S', 0);
+            return (object) [
+                'total_santri' => $totalSantri,
+                'hadir'        => $h,
+                'izin'         => $i,
+                'sakit'        => $s,
+                'alpha'        => max(0, $totalSantri - ($h + $i + $s)),
+                'percentage'   => $totalSantri > 0 ? round(($h / $totalSantri) * 100) : 0,
+                'has_session'  => $rows->isNotEmpty(),
+            ];
+        };
 
-        $attendanceStats = (object) [
-            'total_santri' => $totalSantri,
-            'hadir'        => $hadirCount,
-            'izin'         => $izinCount,
-            'sakit'        => $sakitCount,
-            'alpha'        => $alphaCount,
-            'percentage'   => $percentage,
-        ];
+        $attendanceStats = $buildStats('Kajian');
+        $tahsinStats = $buildStats('Tahsin');
+        $percentage = $attendanceStats->percentage;
 
         // Hitung Stage Kebun Kebaikan Kartun (1=Benih, 2=Tunas, 3=Pohon Rimbun, 4=Pohon Berbuah)
         if ($percentage >= 85) {
@@ -233,6 +241,7 @@ class DashboardController extends Controller
             'allStreaks', 
             'reflections', 
             'attendanceStats',
+            'tahsinStats',
             'prayerTimes',
             'gardenStage',
             'nextKajians',

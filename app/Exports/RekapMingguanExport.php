@@ -15,10 +15,12 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 class RekapMingguanExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, WithStyles
 {
     protected $date;
+    protected $sessionType;
 
-    public function __construct($date)
+    public function __construct($date, $sessionType = 'Kajian')
     {
         $this->date = $date;
+        $this->sessionType = $sessionType;
     }
 
     /**
@@ -45,7 +47,7 @@ class RekapMingguanExport implements FromCollection, WithHeadings, WithTitle, Sh
             $startOfWeek->toDateString(), 
             $endOfWeek->toDateString()
         ])
-        ->where('session_type', 'Kajian')
+        ->where('session_type', $this->sessionType)
         ->get();
 
         $grid = [];
@@ -57,7 +59,7 @@ class RekapMingguanExport implements FromCollection, WithHeadings, WithTitle, Sh
             $startOfWeek->toDateString(), 
             $endOfWeek->toDateString()
         ])
-        ->where('session_type', 'Kajian')
+        ->where('session_type', $this->sessionType)
         ->distinct('attendance_date')
         ->count('attendance_date');
 

@@ -404,39 +404,50 @@
                     <span>📑 TABEL PRESENSI DETAIL</span>
                 </div>
                 <h1 class="font-cartoon text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                    Rekap Detail Santri 📊
+                    Rekap Detail {{ $sessionType === 'Tahsin' ? 'Tahsin & Tahfidz' : 'Kajian' }} 📊
                 </h1>
                 <p class="font-body text-slate-600 dark:text-slate-300 text-xs sm:text-sm mt-0.5">
                     Transkrip kehadiran santri per hari/minggu/bulan dengan fitur ekspor data.
                 </p>
             </div>
             <div class="flex flex-wrap gap-2.5 self-stretch sm:self-auto">
-                <a href="{{ route('rekap', ['month' => $month, 'year' => $year]) }}" class="neo-btn bg-white dark:bg-zinc-800 text-slate-900 dark:text-white font-cartoon font-bold px-4 py-2 flex items-center gap-2 text-xs no-underline">
+                <a href="{{ route('rekap', ['month' => $month, 'year' => $year, 'session_type' => $sessionType]) }}" class="neo-btn bg-white dark:bg-zinc-800 text-slate-900 dark:text-white font-cartoon font-bold px-4 py-2 flex items-center gap-2 text-xs no-underline">
                     <span class="material-symbols-outlined text-base">arrow_back</span>
                     Kembali
                 </a>
-                <a href="{{ route('rekap.export.excel', ['month' => $month, 'year' => $year, 'view' => $view, 'date' => $selectedDate ?? '']) }}" class="neo-btn bg-emerald-400 dark:bg-emerald-600 text-slate-900 dark:text-white font-cartoon font-bold px-4 py-2 flex items-center gap-2 text-xs no-underline">
+                <a href="{{ route('rekap.export.excel', ['month' => $month, 'year' => $year, 'view' => $view, 'date' => $selectedDate ?? '', 'session_type' => $sessionType]) }}" class="neo-btn bg-emerald-400 dark:bg-emerald-600 text-slate-900 dark:text-white font-cartoon font-bold px-4 py-2 flex items-center gap-2 text-xs no-underline">
                     <span class="material-symbols-outlined text-base">table_chart</span>
                     Ekspor Excel
                 </a>
-                <a href="{{ route('rekap.export.pdf', ['month' => $month, 'year' => $year, 'view' => $view, 'date' => $selectedDate ?? '']) }}" class="neo-btn bg-rose-400 dark:bg-rose-600 text-slate-900 dark:text-white font-cartoon font-bold px-4 py-2 flex items-center gap-2 text-xs no-underline">
+                <a href="{{ route('rekap.export.pdf', ['month' => $month, 'year' => $year, 'view' => $view, 'date' => $selectedDate ?? '', 'session_type' => $sessionType]) }}" class="neo-btn bg-rose-400 dark:bg-rose-600 text-slate-900 dark:text-white font-cartoon font-bold px-4 py-2 flex items-center gap-2 text-xs no-underline">
                     <span class="material-symbols-outlined text-base">picture_as_pdf</span>
                     Ekspor PDF
                 </a>
             </div>
         </div>
 
+
+        <!-- Session Switcher: Kajian / Tahsin & Tahfidz -->
+        <div class="flex gap-2 mb-4 overflow-x-auto pb-0.5">
+            @foreach (['Kajian' => ['📖', 'KAJIAN'], 'Tahsin' => ['🕌', 'TAHSIN & TAHFIDZ']] as $key => [$icon, $label])
+                <a href="{{ route(Route::currentRouteName(), array_merge(request()->except('session_type'), ['session_type' => $key])) }}"
+                   class="neo-tab {{ $sessionType === $key ? 'active' : '' }}">
+                    <span>{{ $icon }}</span>
+                    <span>{{ $label }}</span>
+                </a>
+            @endforeach
+        </div>
         <!-- Navigation Tabs -->
         <div class="flex gap-2 mb-0 animate-fade-up animate-fade-up-d1 overflow-x-auto pb-0.5">
-            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'bulanan']) }}" class="neo-tab {{ $view === 'bulanan' ? 'active' : '' }}">
+            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'bulanan', 'session_type' => $sessionType]) }}" class="neo-tab {{ $view === 'bulanan' ? 'active' : '' }}">
                 <span>📅</span>
                 <span>BULANAN</span>
             </a>
-            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'mingguan', 'date' => $selectedDate ?? '']) }}" class="neo-tab {{ $view === 'mingguan' ? 'active' : '' }}">
+            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'mingguan', 'date' => $selectedDate ?? '', 'session_type' => $sessionType]) }}" class="neo-tab {{ $view === 'mingguan' ? 'active' : '' }}">
                 <span>📋</span>
                 <span>MINGGUAN</span>
             </a>
-            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'tahunan']) }}" class="neo-tab {{ $view === 'tahunan' ? 'active' : '' }}">
+            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'tahunan', 'session_type' => $sessionType]) }}" class="neo-tab {{ $view === 'tahunan' ? 'active' : '' }}">
                 <span>🌐</span>
                 <span>TAHUNAN</span>
             </a>
@@ -449,6 +460,7 @@
             <div class="mb-5 p-4 bg-slate-100 dark:bg-zinc-800 rounded-xl border-2 border-black dark:border-white">
                 <form method="GET" action="{{ route('rekap.detail') }}" class="flex flex-wrap items-end gap-3 sm:gap-4">
                     <input type="hidden" name="view" value="{{ $view }}">
+                    <input type="hidden" name="session_type" value="{{ $sessionType }}">
                     <div class="flex items-center gap-2">
                         <span class="font-cartoon font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1">
                             <span class="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-sm">tune</span>
@@ -542,14 +554,14 @@
             @if($view === 'mingguan')
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6 max-w-md sm:max-w-xl mx-auto">
                     <div class="flex items-center justify-between w-full sm:w-auto gap-2">
-                        <a href="{{ route('rekap.detail', ['view' => 'mingguan', 'date' => $prevWeekDate]) }}" class="neo-btn bg-white dark:bg-zinc-800 text-slate-900 dark:text-white font-cartoon font-bold px-3 py-1.5 flex items-center gap-1 text-xs no-underline">
+                        <a href="{{ route('rekap.detail', ['view' => 'mingguan', 'date' => $prevWeekDate, 'session_type' => $sessionType]) }}" class="neo-btn bg-white dark:bg-zinc-800 text-slate-900 dark:text-white font-cartoon font-bold px-3 py-1.5 flex items-center gap-1 text-xs no-underline">
                             <span class="material-symbols-outlined text-sm">chevron_left</span>
                             Minggu Lalu
                         </a>
                         <span class="neo-btn bg-amber-300 dark:bg-amber-900 text-amber-950 dark:text-amber-100 px-3 py-1.5 text-xs font-cartoon font-bold text-center flex-1 sm:flex-none min-w-[140px] sm:min-w-[190px]">
                             {{ \Carbon\Carbon::parse($startOfWeek)->isoFormat('D MMM') }} - {{ \Carbon\Carbon::parse($endOfWeek)->isoFormat('D MMM Y') }}
                         </span>
-                        <a href="{{ route('rekap.detail', ['view' => 'mingguan', 'date' => $nextWeekDate]) }}" class="neo-btn bg-white dark:bg-zinc-800 text-slate-900 dark:text-white font-cartoon font-bold px-3 py-1.5 flex items-center gap-1 text-xs no-underline">
+                        <a href="{{ route('rekap.detail', ['view' => 'mingguan', 'date' => $nextWeekDate, 'session_type' => $sessionType]) }}" class="neo-btn bg-white dark:bg-zinc-800 text-slate-900 dark:text-white font-cartoon font-bold px-3 py-1.5 flex items-center gap-1 text-xs no-underline">
                             Minggu Depan
                             <span class="material-symbols-outlined text-sm">chevron_right</span>
                         </a>

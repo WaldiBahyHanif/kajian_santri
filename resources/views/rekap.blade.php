@@ -261,7 +261,7 @@
                     <span>{{ $monthNames[$month] }} {{ $year }}</span>
                 </div>
                 <h1 class="font-cartoon text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-                    Rekap Kehadiran
+                    Rekap {{ $sessionType === 'Tahsin' ? 'Tahsin & Tahfidz' : 'Kajian' }}
                     <span class="inline-block transform hover:rotate-12 transition-transform cursor-pointer">📈</span>
                 </h1>
                 <p class="font-body text-slate-600 dark:text-slate-300 mt-1 text-sm md:text-base font-medium">
@@ -276,6 +276,17 @@
             </div>
         </div>
 
+
+        <!-- Session Switcher: Kajian / Tahsin & Tahfidz -->
+        <div class="flex gap-2 mb-4 overflow-x-auto pb-0.5">
+            @foreach (['Kajian' => ['📖', 'KAJIAN'], 'Tahsin' => ['🕌', 'TAHSIN & TAHFIDZ']] as $key => [$icon, $label])
+                <a href="{{ route(Route::currentRouteName(), array_merge(request()->except('session_type'), ['session_type' => $key])) }}"
+                   class="neo-tab {{ $sessionType === $key ? 'active' : '' }}">
+                    <span>{{ $icon }}</span>
+                    <span>{{ $label }}</span>
+                </a>
+            @endforeach
+        </div>
         <!-- Filter Panel & Quick Stats Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 animate-fade-up animate-fade-up-d1">
             <!-- Filter Form Card -->
@@ -292,6 +303,7 @@
                     </div>
 
                     <form method="GET" action="{{ route('rekap') }}" class="flex flex-wrap items-end gap-3 sm:gap-4">
+                        <input type="hidden" name="session_type" value="{{ $sessionType }}">
                         <div class="flex-1 min-w-[140px]">
                             <label class="font-cartoon font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5 block">Pilih Bulan</label>
                             <div class="relative">
@@ -364,7 +376,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             <!-- Rekap Bulanan Nav Card -->
-            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'bulanan']) }}" class="neo-nav-card bg-emerald-100 dark:bg-zinc-900 p-6 flex flex-col items-center gap-4 text-center animate-fade-up animate-fade-up-d1 no-underline group">
+            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'bulanan', 'session_type' => $sessionType]) }}" class="neo-nav-card bg-emerald-100 dark:bg-zinc-900 p-6 flex flex-col items-center gap-4 text-center animate-fade-up animate-fade-up-d1 no-underline group">
                 <div class="w-16 h-16 bg-emerald-400 dark:bg-emerald-600 rounded-2xl flex items-center justify-center text-3xl border-3 border-black dark:border-white shadow-[3px_3px_0_0_#000] dark:shadow-[3px_3px_0_0_#fff] group-hover:scale-110 transition-transform">
                     📅
                 </div>
@@ -379,7 +391,7 @@
             </a>
 
             <!-- Rekap Mingguan Nav Card -->
-            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'mingguan']) }}" class="neo-nav-card bg-amber-100 dark:bg-zinc-900 p-6 flex flex-col items-center gap-4 text-center animate-fade-up animate-fade-up-d2 no-underline group">
+            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'mingguan', 'session_type' => $sessionType]) }}" class="neo-nav-card bg-amber-100 dark:bg-zinc-900 p-6 flex flex-col items-center gap-4 text-center animate-fade-up animate-fade-up-d2 no-underline group">
                 <div class="w-16 h-16 bg-amber-400 dark:bg-amber-600 rounded-2xl flex items-center justify-center text-3xl border-3 border-black dark:border-white shadow-[3px_3px_0_0_#000] dark:shadow-[3px_3px_0_0_#fff] group-hover:scale-110 transition-transform">
                     📋
                 </div>
@@ -394,7 +406,7 @@
             </a>
 
             <!-- Rekap Tahunan Nav Card -->
-            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'tahunan']) }}" class="neo-nav-card bg-indigo-100 dark:bg-zinc-900 p-6 flex flex-col items-center gap-4 text-center animate-fade-up animate-fade-up-d3 no-underline group">
+            <a href="{{ route('rekap.detail', ['month' => $month, 'year' => $year, 'view' => 'tahunan', 'session_type' => $sessionType]) }}" class="neo-nav-card bg-indigo-100 dark:bg-zinc-900 p-6 flex flex-col items-center gap-4 text-center animate-fade-up animate-fade-up-d3 no-underline group">
                 <div class="w-16 h-16 bg-indigo-400 dark:bg-indigo-600 rounded-2xl flex items-center justify-center text-3xl border-3 border-black dark:border-white shadow-[3px_3px_0_0_#000] dark:shadow-[3px_3px_0_0_#fff] group-hover:scale-110 transition-transform">
                     🌐
                 </div>

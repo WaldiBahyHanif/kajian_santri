@@ -14,10 +14,12 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 class RekapTahunanExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, WithStyles
 {
     protected $year;
+    protected $sessionType;
 
-    public function __construct($year)
+    public function __construct($year, $sessionType = 'Kajian')
     {
         $this->year = $year;
+        $this->sessionType = $sessionType;
     }
 
     /**
@@ -30,6 +32,20 @@ class RekapTahunanExport implements FromCollection, WithHeadings, WithTitle, Sho
             ->orderBy('name', 'asc')
             ->get();
 
+        $yearlyLogs = AttendanceLog::selectRaw('student_id, MONTH(attendance_date) as month, COUNT(*) as count')
+            ->whereYear('attendance_date', $this->year)
+            ->where('session_type', $this->sessionType)
+            ->whereIn('status', ['H', 'I'])
+            ->groupBy('student_id', 'month')
+            ->get()
+            ->groupBy('student_id');
+
+        $kbmRaw = AttendanceLog::selectRaw('MONTH(attendance_date) as month, COUNT(DISTINCT attendance_date) as days')
+            ->whereYear('attendance_date', $this->year)
+            ->where('session_type', $this->sessionType)
+            ->groupByRaw('MONTH(attendance_date)')
+            ->pluck('days', 'month');
+
         $rows = [];
         foreach ($santris as $index => $santri) {
             $row = [
@@ -39,20 +55,11 @@ class RekapTahunanExport implements FromCollection, WithHeadings, WithTitle, Sho
 
             $totalHadirYearly = 0;
             $totalKBMYearly = 0;
+            $santriLogs = $yearlyLogs->get($santri->id, collect())->keyBy('month');
 
             for ($m = 1; $m <= 12; $m++) {
-                $hadir = AttendanceLog::where('student_id', $santri->id)
-                    ->whereMonth('attendance_date', $m)
-                    ->whereYear('attendance_date', $this->year)
-                    ->where('session_type', 'Kajian')
-                    ->whereIn('status', ['H', 'I'])
-                    ->count();
-
-                $totalKBM = AttendanceLog::whereMonth('attendance_date', $m)
-                    ->whereYear('attendance_date', $this->year)
-                    ->where('session_type', 'Kajian')
-                    ->distinct('attendance_date')
-                    ->count('attendance_date');
+                $hadir = $santriLogs->has($m) ? $santriLogs[$m]->count : 0;
+                $totalKBM = $kbmRaw->get($m, 0);
 
                 $totalHadirYearly += $hadir;
                 $totalKBMYearly += $totalKBM;

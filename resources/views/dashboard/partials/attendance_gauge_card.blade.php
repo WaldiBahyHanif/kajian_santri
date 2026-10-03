@@ -121,4 +121,19 @@
         </div>
     </div>
 
+    @if(isset($tahsinStats) && $tahsinStats->has_session)
+        <!-- Tahsin & Tahfidz Hari Ini -->
+        <div style="background-color: #e9d5ff;" class="border-3 border-black dark:border-white rounded-2xl p-3 flex items-center justify-between gap-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+            <div class="flex items-center gap-2">
+                <span class="text-xl">🕌</span>
+                <div>
+                    <p class="text-[11px] font-black text-purple-950 uppercase">Tahsin &amp; Tahfidz Hari Ini</p>
+                    <p class="text-xs font-bold text-purple-900">{{ $tahsinStats->hadir }} hadir · {{ $tahsinStats->izin + $tahsinStats->sakit }} izin/sakit · {{ $tahsinStats->alpha }} belum</p>
+                </div>
+            </div>
+            <span class="text-2xl font-black font-mono text-purple-950">{{ $tahsinStats->percentage }}%</span>
+        </div>
+    @endif
+
 </div>
+

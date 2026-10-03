@@ -16,11 +16,13 @@ class RekapBulananExport implements FromCollection, WithHeadings, WithTitle, Sho
 {
     protected $month;
     protected $year;
+    protected $sessionType;
 
-    public function __construct($month, $year)
+    public function __construct($month, $year, $sessionType = 'Kajian')
     {
         $this->month = $month;
         $this->year = $year;
+        $this->sessionType = $sessionType;
     }
 
     /**
@@ -38,7 +40,7 @@ class RekapBulananExport implements FromCollection, WithHeadings, WithTitle, Sho
         // Get all logs for Kajian in the month
         $logs = AttendanceLog::whereMonth('attendance_date', $this->month)
             ->whereYear('attendance_date', $this->year)
-            ->where('session_type', 'Kajian')
+            ->where('session_type', $this->sessionType)
             ->get();
 
         $grid = [];
@@ -48,7 +50,7 @@ class RekapBulananExport implements FromCollection, WithHeadings, WithTitle, Sho
 
         $totalKBMDays = AttendanceLog::whereMonth('attendance_date', $this->month)
             ->whereYear('attendance_date', $this->year)
-            ->where('session_type', 'Kajian')
+            ->where('session_type', $this->sessionType)
             ->distinct('attendance_date')
             ->count('attendance_date');
 
