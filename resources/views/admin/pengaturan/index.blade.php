@@ -120,6 +120,33 @@
             </form>
         </div>
 
+        <!-- Liqo Access Link Card -->
+        <div class="bg-white p-6 rounded-lg border-4 border-black shadow-[4px_4px_0_0_#000] mt-6" x-data="{ copied: false }">
+            <h3 class="font-black text-xl mb-2 uppercase flex items-center gap-2">
+                <span class="material-symbols-outlined text-green-700">link</span> Link Absensi Liqo
+            </h3>
+            <p class="text-xs font-bold text-gray-500 mb-4 leading-relaxed">
+                Bagikan link ini hanya ke guru/pembimbing liqo (misal lewat grup WA guru). Siapapun yang punya link ini bisa isi absensi kelompoknya tanpa perlu login.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-3 mb-3">
+                <input type="text" readonly id="liqo-link-input" value="{{ $liqoLink }}"
+                       class="flex-1 border-4 border-black p-2.5 rounded-lg font-bold text-sm bg-gray-50 focus:outline-none">
+                <button type="button"
+                        @click="navigator.clipboard.writeText(document.getElementById('liqo-link-input').value); copied = true; setTimeout(() => copied = false, 2000)"
+                        class="shrink-0 bg-blue-200 text-black px-4 py-2.5 font-black rounded-lg border-4 border-black shadow-[4px_4px_0_0_#000] active:translate-y-1 active:shadow-none transition-all text-xs uppercase flex items-center justify-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm" x-text="copied ? 'check' : 'content_copy'"></span>
+                    <span x-text="copied ? 'Tersalin!' : 'Salin Link'"></span>
+                </button>
+            </div>
+            <form action="{{ route('admin.pengaturan.liqo-code.regenerate') }}" method="POST"
+                  onsubmit="return confirm('Yakin mau buat link baru? Link lama akan langsung tidak berfungsi dan guru harus diberi link baru.');">
+                @csrf
+                <button type="submit" class="bg-red-400 text-black px-4 py-2 font-black rounded-lg border-4 border-black shadow-[4px_4px_0_0_#000] active:translate-y-1 active:shadow-none transition-all text-xs uppercase flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">autorenew</span> Regenerate Link
+                </button>
+            </form>
+        </div>
+
         <!-- Archiving Card -->
         <div class="bg-white p-6 rounded-lg border-4 border-black shadow-[4px_4px_0_0_#000] mt-6">
             <h3 class="font-black text-xl mb-4 uppercase flex items-center gap-2">

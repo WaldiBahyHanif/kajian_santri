@@ -19,7 +19,21 @@ class AdminPengaturanController extends Controller
             ]);
         }
         $admins = \App\Models\Admin::orderBy('username', 'asc')->get();
-        return view('admin.pengaturan.index', compact('setting', 'admins'));
+
+        $liqoAccessCode = Setting::getOrCreateLiqoAccessCode();
+        $liqoLink = url('/liqo/' . $liqoAccessCode);
+
+        return view('admin.pengaturan.index', compact('setting', 'admins', 'liqoLink'));
+    }
+
+    public function regenerateLiqoCode()
+    {
+        $code = Setting::regenerateLiqoAccessCode();
+
+        AdminActivityLog::log('regenerate_liqo_code', 'Meregenerasi link absensi liqo (link lama tidak berlaku lagi)');
+
+        return redirect()->route('admin.pengaturan.index')
+            ->with('success', 'Link absensi liqo berhasil diperbarui! Link lama sudah tidak berlaku.');
     }
 
     public function update(Request $request)

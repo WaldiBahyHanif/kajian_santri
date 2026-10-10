@@ -162,6 +162,7 @@ Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(functi
     Route::post('/pengaturan/archive-purge', [\App\Http\Controllers\AdminPengaturanController::class, 'purgeArchive'])->name('pengaturan.archive-purge');
     Route::post('/pengaturan/admin', [\App\Http\Controllers\AdminPengaturanController::class, 'storeAdmin'])->name('pengaturan.admin.store');
     Route::delete('/pengaturan/admin/{id}', [\App\Http\Controllers\AdminPengaturanController::class, 'destroyAdmin'])->name('pengaturan.admin.destroy');
+    Route::post('/pengaturan/liqo-code/regenerate', [\App\Http\Controllers\AdminPengaturanController::class, 'regenerateLiqoCode'])->name('pengaturan.liqo-code.regenerate');
 
     // Kelola Santri Rollover
     Route::post('/santri/rollover', [\App\Http\Controllers\AdminSantriController::class, 'rollover'])->name('santri.rollover');
