@@ -12,28 +12,30 @@
                     <!-- Type -->
                     <div>
                         <label class="block font-black text-sm uppercase mb-2 text-black dark:text-white">Tipe Pengajuan</label>
-                        <select name="type" class="w-full border-4 border-black rounded-lg px-4 py-3 font-bold text-sm bg-white dark:bg-zinc-700 dark:text-white focus:border-[#FF007F] focus:ring-0" required>
+                        <select name="type" id="type" class="w-full border-4 border-black rounded-lg px-4 py-3 font-bold text-sm bg-white dark:bg-zinc-700 dark:text-white focus:border-[#FF007F] focus:ring-0" required>
+                            <option value="pengajian" {{ old('type') === 'pengajian' ? 'selected' : '' }}>🕌 Izin Pengajian</option>
                             <option value="izin" {{ old('type') === 'izin' ? 'selected' : '' }}>📋 Izin</option>
                             <option value="cuti" {{ old('type') === 'cuti' ? 'selected' : '' }}>🏖️ Cuti</option>
                             <option value="sakit" {{ old('type') === 'sakit' ? 'selected' : '' }}>🤒 Sakit</option>
                         </select>
                         @error('type') <p class="text-red-500 text-xs font-bold mt-1">{{ $message }}</p> @enderror
+                        <p class="text-xs text-gray-500 mt-1 font-bold">Pilih "Izin Pengajian" jika hanya tidak ikut kajian saja (bukan tidak di asrama).</p>
                     </div>
 
                     <!-- Start Date -->
                     <div>
                         <label class="block font-black text-sm uppercase mb-2 text-black dark:text-white">Tanggal Mulai</label>
-                        <input type="date" name="start_date" value="{{ old('start_date') }}" class="w-full border-4 border-black rounded-lg px-4 py-3 font-bold text-sm bg-white dark:bg-zinc-700 dark:text-white focus:border-[#FF007F] focus:ring-0" required>
+                        <input type="date" name="start_date" id="start_date" value="{{ old('start_date') }}" class="w-full border-4 border-black rounded-lg px-4 py-3 font-bold text-sm bg-white dark:bg-zinc-700 dark:text-white focus:border-[#FF007F] focus:ring-0" required>
                         @error('start_date') <p class="text-red-500 text-xs font-bold mt-1">{{ $message }}</p> @enderror
                     </div>
                 </div>
 
-                <!-- End Date -->
+                <!-- Duration -->
                 <div class="mb-5">
-                    <label class="block font-black text-sm uppercase mb-2 text-black dark:text-white">Tanggal Selesai</label>
-                    <input type="date" name="end_date" value="{{ old('end_date') }}" class="w-full border-4 border-black rounded-lg px-4 py-3 font-bold text-sm bg-white dark:bg-zinc-700 dark:text-white focus:border-[#FF007F] focus:ring-0" required>
-                    @error('end_date') <p class="text-red-500 text-xs font-bold mt-1">{{ $message }}</p> @enderror
-                    <p class="text-xs text-gray-500 mt-1 font-bold">Untuk 1 hari, isi tanggal mulai dan selesai sama.</p>
+                    <label class="block font-black text-sm uppercase mb-2 text-black dark:text-white">Lama Izin (Hari)</label>
+                    <input type="number" name="duration" id="duration" min="1" max="30" value="{{ old('duration', 1) }}" class="w-full border-4 border-black rounded-lg px-4 py-3 font-bold text-sm bg-white dark:bg-zinc-700 dark:text-white focus:border-[#FF007F] focus:ring-0" required placeholder="misal: 3">
+                    @error('duration') <p class="text-red-500 text-xs font-bold mt-1">{{ $message }}</p> @enderror
+                    <p id="duration-preview" class="text-xs text-gray-500 mt-1 font-bold"></p>
                 </div>
 
                 <!-- Reason -->
@@ -79,13 +81,6 @@
                     @error('covered_sessions') <p class="text-red-500 text-xs font-bold mt-1">{{ $message }}</p> @enderror
                 </div>
 
-                <!-- Notes -->
-                <div class="mb-5">
-                    <label class="block font-black text-sm uppercase mb-2 text-black dark:text-white">Catatan Tambahan <span class="text-gray-400">(opsional)</span></label>
-                    <textarea name="notes" rows="2" class="w-full border-4 border-black rounded-lg px-4 py-3 font-bold text-sm bg-white dark:bg-zinc-700 dark:text-white focus:border-[#FF007F] focus:ring-0" placeholder="Catatan tambahan jika ada...">{{ old('notes') }}</textarea>
-                    @error('notes') <p class="text-red-500 text-xs font-bold mt-1">{{ $message }}</p> @enderror
-                </div>
-
                 <!-- Submit -->
                 <div class="flex items-center gap-3">
                     <button type="submit" class="bg-[#FF007F] text-white border-4 border-black px-6 py-3 font-black shadow-[4px_4px_0_0_#000] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all text-sm flex items-center gap-2">
@@ -98,4 +93,34 @@
             </form>
         </div>
     </div>
+
+    <script>
+        function updateDurationPreview() {
+            const startInput = document.getElementById('start_date');
+            const durationInput = document.getElementById('duration');
+            const preview = document.getElementById('duration-preview');
+
+            const startValue = startInput.value;
+            const duration = parseInt(durationInput.value, 10);
+
+            if (!startValue || !duration || duration < 1) {
+                preview.textContent = '';
+                return;
+            }
+
+            const start = new Date(startValue + 'T00:00:00');
+            const end = new Date(start);
+            end.setDate(end.getDate() + (duration - 1));
+
+            const fmt = (d) => d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+            preview.textContent = duration === 1
+                ? `📅 Izin tanggal ${fmt(start)}`
+                : `📅 Izin dari ${fmt(start)} sampai ${fmt(end)}`;
+        }
+
+        document.getElementById('start_date').addEventListener('change', updateDurationPreview);
+        document.getElementById('duration').addEventListener('input', updateDurationPreview);
+        updateDurationPreview();
+    </script>
 </x-app-layout>
