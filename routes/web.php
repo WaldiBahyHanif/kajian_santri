@@ -18,6 +18,15 @@ Route::get('/offline', function () {
     return response()->file(public_path('offline.html'));
 })->name('offline');
 
+// Liqo Attendance (public, gated by shared secret code, no login required)
+Route::middleware(['liqo.access'])->prefix('liqo')->group(function () {
+    Route::get('/{code}', [\App\Http\Controllers\LiqoAttendanceController::class, 'show'])->name('liqo.show');
+    Route::get('/{code}/roster', [\App\Http\Controllers\LiqoAttendanceController::class, 'roster'])->name('liqo.roster');
+    Route::post('/{code}', [\App\Http\Controllers\LiqoAttendanceController::class, 'store'])
+        ->middleware('throttle:10,1')
+        ->name('liqo.store');
+});
+
 // PWA Push Subscriptions routes
 Route::post('/push/subscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'store'])->name('push.subscribe');
 Route::post('/push/unsubscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
