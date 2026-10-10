@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'liqo.access' => \App\Http\Middleware\VerifyLiqoAccessCode::class,
         ]);
         $middleware->appendToGroup('web', \App\Http\Middleware\CheckStatusAktif::class);
 
