@@ -90,14 +90,14 @@ Urutan di bawah disusun supaya setiap langkah bisa dijalankan & diverifikasi (`p
 
 ## Fase 8 — Testing
 
-26. Feature test `tests/Feature/LiqoAttendanceTest.php`:
-    - Submit dengan code benar → assert baris `attendance_logs` sesuai roster, `kajian_topic`/`notes` tersalin ke semua baris.
-    - Akses code salah → assert `404`.
-    - Submit ulang tanggal sama → assert overwrite (jumlah baris tidak dobel).
-    - `attendance_date` di luar rentang H-7 s/d H → assert validasi gagal.
-27. Feature test `tests/Feature/AdminLiqoImportTest.php`:
-    - Import spreadsheet campuran baris valid/invalid → assert ringkasan sukses/gagal akurat, `liqo_group_id` santri valid ter-update, yang invalid tidak berubah.
-28. Manual check: buka `/liqo/{code}` di browser, submit dummy data, cek muncul di `/rekap?session_type=Liqo` (overview + detail) dan di export Excel/PDF.
+**Keputusan:** tidak menulis PHPUnit feature test otomatis untuk fitur ini. Saat mengerjakan Fase 8, ditemukan bug lama (pre-existing, tidak terkait Liqo): migration yang membuat tabel `topics` hilang dari repo — tabel itu hanya ada di database produksi, dibuat di luar migration. Akibatnya `php artisan migrate` dari nol (baik di SQLite test maupun MySQL kosong) selalu gagal di titik itu, jadi seluruh test suite project ini (bukan cuma punya Liqo) tidak bisa jalan dari fresh state sampai bug itu diperbaiki secara terpisah. Pemilik produk memilih untuk tidak memperbaiki bug ini sekarang (di luar scope) dan cukup mengandalkan verifikasi manual yang sudah dilakukan di setiap fase:
+
+- Fase 4 (manual, via curl terhadap server lokal): code salah → 404; code benar → 200; submit → baris `attendance_logs` sesuai roster dengan `kajian_topic`/`notes` tersalin; submit ulang tanggal sama → overwrite, bukan dobel; tanggal di luar rentang H-7 s/d H → ditolak validasi server.
+- Fase 5 (manual, via tinker terhadap database produksi yang di-import): CRUD kelompok, tambah/hapus anggota, download template, import 3 baris (2 valid + 1 nama tidak ketemu) → ringkasan akurat dan `liqo_group_id` ter-update benar.
+- Fase 6 (manual, via tinker + curl): regenerate link → link lama langsung 404, link baru langsung aktif.
+- Fase 7 (manual, via tinker): overview/detail/export Excel/export PDF/admin fallback semua render tanpa error untuk `session_type=Liqo`, dan `totalKBMDays`/persentase kehadiran terbukti akurat (bukan terdilusi).
+
+Kalau suatu saat bug migration `topics` diperbaiki terpisah, test otomatis untuk flow Liqo ini bisa ditulis menyusul mengikuti skenario yang sama seperti verifikasi manual di atas.
 
 ## Catatan Eksekusi
 
