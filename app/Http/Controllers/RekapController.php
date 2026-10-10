@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Cache;
 
 class RekapController extends Controller
 {
-    private const VALID_SESSIONS = ['Kajian', 'Tahsin'];
+    private const VALID_SESSIONS = ['Kajian', 'Tahsin', 'Liqo'];
 
     private function resolveSessionType(Request $request): string
     {
@@ -30,7 +30,32 @@ class RekapController extends Controller
     public static function resolveBulananActiveDates(int $month, int $year, string $sessionType): array
     {
         $daysInMonth = Carbon::create($year, $month, 1)->daysInMonth;
-        
+
+        if ($sessionType === 'Liqo') {
+            // Liqo tidak punya jadwal tetap harian/mingguan di level aplikasi (tiap
+            // kelompok MR bebas menentukan sendiri) - jadi "hari KBM" hanya tanggal
+            // yang benar-benar punya submission, bukan diasumsikan setiap hari.
+            $existingLogDates = AttendanceLog::whereMonth('attendance_date', $month)
+                ->whereYear('attendance_date', $year)
+                ->where('session_type', 'Liqo')
+                ->distinct('attendance_date')
+                ->pluck('attendance_date')
+                ->toArray();
+
+            $activeDates = [];
+            foreach ($existingLogDates as $dateStr) {
+                $dt = Carbon::parse($dateStr);
+                $activeDates[$dateStr] = [
+                    'date'          => $dateStr,
+                    'day'           => $dt->day,
+                    'day_name'      => \App\Models\Setting::getDayName($dt->dayOfWeekIso, true),
+                    'day_name_full' => \App\Models\Setting::getDayName($dt->dayOfWeekIso, false),
+                ];
+            }
+            ksort($activeDates);
+            return array_values($activeDates);
+        }
+
         if ($sessionType !== 'Tahsin') {
             $activeDates = [];
             for ($day = 1; $day <= $daysInMonth; $day++) {
@@ -128,13 +153,13 @@ class RekapController extends Controller
             $sessionRaw = AttendanceLog::selectRaw('session_type, status, COUNT(*) as count')
                 ->whereMonth('attendance_date', $month)
                 ->whereYear('attendance_date', $year)
-                ->whereIn('session_type', ['Kajian', 'Subuh', 'Tahsin'])
+                ->whereIn('session_type', ['Kajian', 'Subuh', 'Tahsin', 'Liqo'])
                 ->groupBy('session_type', 'status')
                 ->get()
                 ->groupBy('session_type');
 
             $sessionStats = [];
-            foreach (['Kajian', 'Subuh', 'Tahsin'] as $type) {
+            foreach (['Kajian', 'Subuh', 'Tahsin', 'Liqo'] as $type) {
                 $rows = $sessionRaw->get($type, collect());
                 $totalLogs = $rows->sum('count');
                 $hadirLogs = $rows->whereIn('status', ['H', 'I'])->sum('count');

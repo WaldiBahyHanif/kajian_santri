@@ -261,7 +261,7 @@
                     <span>{{ $monthNames[$month] }} {{ $year }}</span>
                 </div>
                 <h1 class="font-cartoon text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-                    Rekap {{ $sessionType === 'Tahsin' ? 'Tahsin & Tahfidz' : 'Kajian' }}
+                    Rekap {{ $sessionType === 'Tahsin' ? 'Tahsin & Tahfidz' : ($sessionType === 'Liqo' ? 'Liqo' : 'Kajian') }}
                     <span class="inline-block transform hover:rotate-12 transition-transform cursor-pointer">📈</span>
                 </h1>
                 <p class="font-body text-slate-600 dark:text-slate-300 mt-1 text-sm md:text-base font-medium">
@@ -279,7 +279,7 @@
 
         <!-- Session Switcher: Kajian / Tahsin & Tahfidz -->
         <div class="flex gap-2 mb-4 overflow-x-auto pb-0.5">
-            @foreach (['Kajian' => ['📖', 'KAJIAN'], 'Tahsin' => ['🕌', 'TAHSIN & TAHFIDZ']] as $key => [$icon, $label])
+            @foreach (['Kajian' => ['📖', 'KAJIAN'], 'Tahsin' => ['🕌', 'TAHSIN & TAHFIDZ'], 'Liqo' => ['🤝', 'LIQO']] as $key => [$icon, $label])
                 <a href="{{ route(Route::currentRouteName(), array_merge(request()->except('session_type'), ['session_type' => $key])) }}"
                    class="neo-tab {{ $sessionType === $key ? 'active' : '' }}">
                     <span>{{ $icon }}</span>
@@ -581,6 +581,10 @@
                                 'Tahsin' => [
                                     'stroke' => '#34d399',
                                     'desc' => 'Kehadiran bimbingan membaca & setoran Quran.'
+                                ],
+                                'Liqo' => [
+                                    'stroke' => '#a78bfa',
+                                    'desc' => 'Kehadiran santri pada kelompok bimbingan liqo.'
                                 ],
                             ];
                         @endphp

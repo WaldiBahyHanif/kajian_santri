@@ -404,7 +404,7 @@
                     <span>📑 TABEL PRESENSI DETAIL</span>
                 </div>
                 <h1 class="font-cartoon text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                    Rekap Detail {{ $sessionType === 'Tahsin' ? 'Tahsin & Tahfidz' : 'Kajian' }} 📊
+                    Rekap Detail {{ $sessionType === 'Tahsin' ? 'Tahsin & Tahfidz' : ($sessionType === 'Liqo' ? 'Liqo' : 'Kajian') }} 📊
                 </h1>
                 <p class="font-body text-slate-600 dark:text-slate-300 text-xs sm:text-sm mt-0.5">
                     Transkrip kehadiran santri per hari/minggu/bulan dengan fitur ekspor data.
@@ -429,7 +429,7 @@
 
         <!-- Session Switcher: Kajian / Tahsin & Tahfidz -->
         <div class="flex gap-2 mb-4 overflow-x-auto pb-0.5">
-            @foreach (['Kajian' => ['📖', 'KAJIAN'], 'Tahsin' => ['🕌', 'TAHSIN & TAHFIDZ']] as $key => [$icon, $label])
+            @foreach (['Kajian' => ['📖', 'KAJIAN'], 'Tahsin' => ['🕌', 'TAHSIN & TAHFIDZ'], 'Liqo' => ['🤝', 'LIQO']] as $key => [$icon, $label])
                 <a href="{{ route(Route::currentRouteName(), array_merge(request()->except('session_type'), ['session_type' => $key])) }}"
                    class="neo-tab {{ $sessionType === $key ? 'active' : '' }}">
                     <span>{{ $icon }}</span>

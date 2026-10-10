@@ -27,12 +27,14 @@
         $sessionLabel = match($sessionType) {
             'Tahsin' => 'Tahsin & Tahfidz',
             'Subuh' => 'Subuh',
+            'Liqo' => 'Liqo',
             default => 'Kajian Rutin',
         };
         $sessions = [
             'Kajian' => ['label' => '📖 Kajian Rutin', 'desc' => 'Harian'],
             'Tahsin' => ['label' => '🎙️ Tahsin & Tahfidz', 'desc' => '2x / Minggu'],
             'Subuh'  => ['label' => '🕌 Subuh', 'desc' => 'Harian'],
+            'Liqo'   => ['label' => '🤝 Liqo', 'desc' => 'Koreksi Manual'],
         ];
     @endphp
 

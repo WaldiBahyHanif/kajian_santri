@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Schema;
 
 class AdminAttendanceController extends Controller
 {
-    private const VALID_SESSIONS = ['Kajian', 'Tahsin', 'Subuh'];
+    private const VALID_SESSIONS = ['Kajian', 'Tahsin', 'Subuh', 'Liqo'];
 
     public function index(Request $request)
     {
