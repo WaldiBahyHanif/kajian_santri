@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Setting extends Model
 {
@@ -16,6 +17,7 @@ class Setting extends Model
         'garden_status',
         'garden_message',
         'garden_mode',
+        'liqo_access_code',
     ];
 
     protected $casts = [
@@ -183,6 +185,34 @@ class Setting extends Model
             $days = [2, 5];
         }
         return array_values(array_unique(array_map('intval', $days)));
+    }
+
+    /**
+     * Get the shared secret code used in the public Liqo attendance link,
+     * generating one on first use.
+     */
+    public static function getOrCreateLiqoAccessCode(): string
+    {
+        $setting = static::firstOrCreate([]);
+
+        if (!$setting->liqo_access_code) {
+            $setting->liqo_access_code = Str::random(32);
+            $setting->save();
+        }
+
+        return $setting->liqo_access_code;
+    }
+
+    /**
+     * Rotate the Liqo access code, invalidating the previous link.
+     */
+    public static function regenerateLiqoAccessCode(): string
+    {
+        $setting = static::firstOrCreate([]);
+        $setting->liqo_access_code = Str::random(32);
+        $setting->save();
+
+        return $setting->liqo_access_code;
     }
 
     /**

@@ -29,6 +29,7 @@ class Student extends Authenticatable
         'total_zikir',
         'universitas',
         'angkatan',
+        'liqo_group_id',
     ];
 
     protected $hidden = [
@@ -62,6 +63,11 @@ class Student extends Authenticatable
         return MitsurPair::where('student_id_1', $this->id)
             ->orWhere('student_id_2', $this->id)
             ->first();
+    }
+
+    public function liqoGroup()
+    {
+        return $this->belongsTo(LiqoGroup::class, 'liqo_group_id');
     }
 
     public function recalculateStats()
