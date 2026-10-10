@@ -17,13 +17,23 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->appendToGroup('web', \App\Http\Middleware\CheckStatusAktif::class);
 
-        // Jika admin sudah login dan mengakses halaman guest (login),
-        // redirect ke admin.dashboard bukan /dashboard santri.
+        // Dipanggil saat request gagal auth untuk guard yang dibutuhkan middleware 'auth'.
+        // - Kalau sebenarnya sudah login di guard lain (admin kena rute santri, atau
+        //   sebaliknya), arahkan ke dashboard guard itu alih-alih memaksa login ulang.
+        // - Kalau benar-benar belum login sama sekali, arahkan ke halaman login yang
+        //   sesuai (bukan ke /dashboard atau /admin/*, yang keduanya butuh auth lagi
+        //   dan akan menyebabkan redirect loop tak berujung untuk tamu).
         $middleware->redirectGuestsTo(function ($request) {
             if (\Illuminate\Support\Facades\Auth::guard('admin')->check()) {
                 return route('admin.dashboard');
             }
-            return route('dashboard');
+            if (\Illuminate\Support\Facades\Auth::guard('web')->check()) {
+                return route('dashboard');
+            }
+            if ($request->is('admin') || $request->is('admin/*')) {
+                return route('login', ['admin' => 1]);
+            }
+            return route('login');
         });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
