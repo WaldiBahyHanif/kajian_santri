@@ -112,6 +112,17 @@ Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(functi
     Route::get('/attendance', [\App\Http\Controllers\AdminAttendanceController::class, 'index'])->name('attendance.index');
     Route::post('/attendance', [\App\Http\Controllers\AdminAttendanceController::class, 'store'])->name('attendance.store');
 
+    // Kelola Liqo
+    Route::get('/liqo', [\App\Http\Controllers\AdminLiqoController::class, 'index'])->name('liqo.index');
+    Route::post('/liqo', [\App\Http\Controllers\AdminLiqoController::class, 'store'])->name('liqo.store');
+    Route::put('/liqo/{liqo}', [\App\Http\Controllers\AdminLiqoController::class, 'update'])->name('liqo.update');
+    Route::delete('/liqo/{liqo}', [\App\Http\Controllers\AdminLiqoController::class, 'destroy'])->name('liqo.destroy');
+    Route::get('/liqo/{liqo}/anggota', [\App\Http\Controllers\AdminLiqoController::class, 'members'])->name('liqo.members');
+    Route::post('/liqo/{liqo}/anggota', [\App\Http\Controllers\AdminLiqoController::class, 'addMember'])->name('liqo.members.add');
+    Route::delete('/liqo/{liqo}/anggota/{student}', [\App\Http\Controllers\AdminLiqoController::class, 'removeMember'])->name('liqo.members.remove');
+    Route::get('/liqo/template/download', [\App\Http\Controllers\AdminLiqoController::class, 'downloadTemplate'])->name('liqo.template');
+    Route::post('/liqo/import', [\App\Http\Controllers\AdminLiqoController::class, 'import'])->name('liqo.import');
+
     // QR Generator
     Route::get('/qr-generator', [\App\Http\Controllers\AdminQrController::class, 'index'])->name('qr.index');
     Route::post('/qr-generator', [\App\Http\Controllers\AdminQrController::class, 'store'])->name('qr.store');

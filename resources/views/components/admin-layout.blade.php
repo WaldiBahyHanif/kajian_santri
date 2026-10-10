@@ -317,6 +317,10 @@
                 <span class="material-symbols-outlined text-xl">checklist</span>
                 Input Absensi
             </a>
+            <a href="{{ route('admin.liqo.index') }}" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold text-sm border-2 border-transparent {{ $active === 'liqo' ? 'active' : 'text-black hover:bg-gray-100' }}">
+                <span class="material-symbols-outlined text-xl">diversity_3</span>
+                Kelola Liqo
+            </a>
             <a href="{{ route('admin.qr.index') }}" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold text-sm border-2 border-transparent {{ $active === 'qr' ? 'active' : 'text-black hover:bg-gray-100' }}">
                 <span class="material-symbols-outlined text-xl">qr_code</span>
                 QR Generator
