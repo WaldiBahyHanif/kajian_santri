@@ -45,7 +45,7 @@ Urutan di bawah disusun supaya setiap langkah bisa dijalankan & diverifikasi (`p
 11. Buat `app/Http/Controllers/LiqoAttendanceController.php`:
     - `show(Request $request, string $code)` — load `LiqoGroup::where('is_active', true)->orderBy('name')->get()` untuk dropdown, render view.
     - `roster(Request $request, string $code)` — endpoint AJAX: terima `liqo_group_id` + `date`, return JSON daftar santri aktif di kelompok itu + status existing (mode edit) kalau ada submission di tanggal itu + materi/catatan existing.
-    - `store(Request $request, string $code)` — validasi (`liqo_group_id` exists & active, `attendance_date` dalam rentang H-7 s/d H, `materi` required, `statuses.*` required in H/I/A/S), hapus baris lama untuk kombinasi kelompok+tanggal itu, insert baris baru per santri (pola sama seperti `AdminAttendanceController::store()`), panggil `recalculateStats()` per santri kalau relevan.
+    - `store(Request $request, string $code)` — validasi (`liqo_group_id` exists & active, `attendance_date` dalam rentang H-7 s/d H, `materi` required, `statuses.*` required in H/I/A), hapus baris lama untuk kombinasi kelompok+tanggal itu, insert baris baru per santri (pola sama seperti `AdminAttendanceController::store()`), panggil `recalculateStats()` per santri kalau relevan.
 12. Tambah route di `routes/web.php` (di luar grup `auth`/`auth:admin`, pakai middleware `VerifyLiqoAccessCode` + `throttle:10,1` untuk POST):
     ```
     Route::middleware(['liqo.access'])->prefix('liqo')->group(function () {
@@ -55,7 +55,7 @@ Urutan di bawah disusun supaya setiap langkah bisa dijalankan & diverifikasi (`p
     });
     ```
 13. Buat view `resources/views/liqo/form.blade.php`:
-    - Struktur sesuai wireframe di spec: pill counter, dropdown MR, date picker (`min`/`max` di-set JS sesuai H-7/H), checklist santri (segmented control H/I/A/S per baris), input materi, textarea catatan, tombol submit sticky.
+    - Struktur sesuai wireframe di spec: pill counter, dropdown MR, date picker (`min`/`max` di-set JS sesuai H-7/H), checklist santri (segmented control H/I/A per baris), input materi, textarea catatan, tombol submit sticky.
     - Styling glassmorphism sesuai Section 7 spec: 1 warna aksen (`primary` token yang sudah ada), kartu `backdrop-blur-xl` + opacity tinggi, label teks untuk status (bukan warna-warni).
     - JS: fetch ke endpoint `roster` saat MR/tanggal berubah, update counter live saat status diklik, toggle state tombol submit (disabled/outline → aktif) saat semua santri + materi terisi.
 

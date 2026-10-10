@@ -44,7 +44,7 @@ Ringkasan keputusan yang sudah dikonfirmasi selama brainstorming (lihat alasan d
 ### 3.4 Tabel `attendance_logs` — migration tambahan
 
 - Modifikasi ENUM `session_type` dari `['Kajian', 'Subuh', 'Tahsin']` menjadi `['Kajian', 'Subuh', 'Tahsin', 'Liqo']`. Laravel tidak punya helper native untuk modify enum column, jadi migration ini pakai raw SQL (`DB::statement("ALTER TABLE attendance_logs MODIFY session_type ENUM('Kajian','Subuh','Tahsin','Liqo')")`) — perlu disesuaikan ke driver DB yang dipakai (MySQL).
-- Submission liqo ditulis sebagai baris per santri di kelompok itu: `student_id`, `attendance_date`, `status` (H/I/A/S), `session_type = 'Liqo'`, `kajian_topic` = materi (disalin sama ke semua baris dalam 1 submission), `notes` = catatan tambahan (disalin sama ke semua baris, boleh null).
+- Submission liqo ditulis sebagai baris per santri di kelompok itu: `student_id`, `attendance_date`, `status` (H/I/A), `session_type = 'Liqo'`, `kajian_topic` = materi (disalin sama ke semua baris dalam 1 submission), `notes` = catatan tambahan (disalin sama ke semua baris, boleh null).
 
 ### 3.5 Relasi model baru
 
@@ -63,7 +63,7 @@ Ringkasan keputusan yang sudah dikonfirmasi selama brainstorming (lihat alasan d
 
 1. **Nama MR** — dropdown dari `LiqoGroup::where('is_active', true)->orderBy('name')->get()`.
 2. **Hari/Tanggal** — date picker. Default hari ini. `min` = hari ini − 7 hari, `max` = hari ini (divalidasi juga di server, bukan cuma atribut HTML).
-3. **Checklist kehadiran** — setelah MR dipilih (AJAX, tanpa reload halaman), tampilkan santri dari `Student::where('liqo_group_id', $groupId)->where('status_aktif', 'Aktif')->orderBy('name')->get()`. Tiap santri punya 1 pilihan status: Hadir (H) / Izin (I) / Alpha (A) / Sakit (S), default belum dipilih.
+3. **Checklist kehadiran** — setelah MR dipilih (AJAX, tanpa reload halaman), tampilkan santri dari `Student::where('liqo_group_id', $groupId)->where('status_aktif', 'Aktif')->orderBy('name')->get()`. Tiap santri punya 1 pilihan status: Hadir (H) / Izin (I) / Alpha (A), default belum dipilih. (Catatan: enum `status` di produksi hanya H/I/A, konsisten dengan form admin attendance yang sudah ada — tidak ada opsi Sakit).
 4. **Materi** — teks singkat, required.
 5. **Catatan tambahan** — textarea, optional.
 
@@ -123,7 +123,7 @@ Target: guru mengisi dari HP, buru-buru/sambil berdiri setelah sesi liqo, termas
 
 - **Background**: gradient sangat pudar nyaris putih (putih → mint pudar), blur halus, tidak mencolok.
 - **Kartu**: glass panel — putih semi-transparan ~85-90% opacity + `backdrop-blur-xl`, border putih tipis 1px, shadow lembut. Opacity dijaga tetap tinggi (bukan kaca bening penuh) agar teks tetap terbaca — risiko utama glassmorphism adalah kontras rendah, terutama untuk pengguna dengan penglihatan kurang tajam.
-- **Warna**: hanya **1 warna aksen** (hijau `primary` yang sudah ada di design token app, `#003527` light / `#4ade80` dark), dipakai untuk status terpilih & tombol submit. Status kehadiran (H/I/A/S) dibedakan lewat **label teks jelas** dalam segmented control, bukan lewat warna berbeda-beda — yang terpilih terisi warna aksen, yang tidak terpilih abu-abu netral.
+- **Warna**: hanya **1 warna aksen** (hijau `primary` yang sudah ada di design token app, `#003527` light / `#4ade80` dark), dipakai untuk status terpilih & tombol submit. Status kehadiran (H/I/A) dibedakan lewat **label teks jelas** dalam segmented control, bukan lewat warna berbeda-beda — yang terpilih terisi warna aksen, yang tidak terpilih abu-abu netral.
 - **Tipografi**: tetap Space Grotesk (judul) + Inter (body), konsisten dengan sistem desain app yang sudah ada. Ukuran font sedikit lebih besar dari standar untuk keterbacaan.
 - **Layout mobile** (prioritas utama):
 
@@ -134,8 +134,8 @@ Target: guru mengisi dari HP, buru-buru/sambil berdiri setelah sesi liqo, termas
 │ [Pilih Nama MR ▾]       │
 │ [📅 Tanggal: Hari ini]  │
 ├─────────────────────────┤
-│ Ahmad    [Hadir][Izin][Alpha][Sakit] │
-│ Budi     [Hadir][Izin][Alpha][Sakit] │
+│ Ahmad    [Hadir][Izin][Alpha] │
+│ Budi     [Hadir][Izin][Alpha] │
 │ ...  (scroll di dalam 1 glass panel)
 ├─────────────────────────┤
 │ Materi: [___________]   │
