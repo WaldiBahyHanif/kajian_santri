@@ -67,12 +67,7 @@ class LeaveRequest extends Model
     {
         $number = config('perizinan.musyrif_wa.' . $this->whatsapp_category);
 
-        $typeLabel = $this->type_label;
-        if ($this->type === 'pengajian' && !empty($this->covered_sessions)) {
-            $typeLabel .= ' (' . $this->covered_sessions[0] . ')';
-        }
-
-        $message = "Assalamu'alaikum, saya *{$this->student->name}* mengajukan *{$typeLabel}*\n"
+        $message = "Assalamu'alaikum, saya *{$this->student->name}* mengajukan *{$this->type_label}*\n"
             . "📅 {$this->start_date->translatedFormat('d M Y')} s.d. {$this->end_date->translatedFormat('d M Y')}\n\n"
             . "Alasan: {$this->reason}\n\n"
             . "Mohon izinnya, terima kasih 🙏";
