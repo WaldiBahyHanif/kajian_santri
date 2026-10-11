@@ -45,10 +45,11 @@ class LeaveController extends Controller
             'end_date' => $endDate,
             'reason' => $request->reason,
             'covered_sessions' => $request->covered_sessions,
+            'status' => 'approved',
         ]);
 
         return redirect()->route('izin.index')
-            ->with('success', 'Pengajuan ' . $leave->type_label . ' berhasil dikirim dan menunggu persetujuan admin.')
+            ->with('success', 'Pengajuan ' . $leave->type_label . ' berhasil dikirim dan otomatis disetujui.')
             ->with('whatsapp_redirect', $leave->whatsapp_link);
     }
 
