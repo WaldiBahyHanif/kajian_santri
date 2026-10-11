@@ -31,12 +31,17 @@ class LeaveController extends Controller
             'start_date' => ['required', 'date', 'after_or_equal:today'],
             'duration' => ['required', 'integer', 'min:1', 'max:30'],
             'reason' => ['required', 'string', 'max:500'],
-            'covered_sessions' => ['required', 'array', 'min:1'],
+            'pengajian_jenis' => ['required_if:type,pengajian', 'nullable', 'in:Kajian,Tahsin'],
+            'covered_sessions' => ['required_unless:type,pengajian', 'array', 'min:1'],
             'covered_sessions.*' => ['in:Kajian,Sholat,Tahsin,Acara'],
         ]);
 
         $startDate = \Carbon\Carbon::parse($request->start_date);
         $endDate = $startDate->copy()->addDays($request->duration - 1);
+
+        $coveredSessions = $request->type === 'pengajian'
+            ? [$request->pengajian_jenis]
+            : $request->covered_sessions;
 
         $leave = LeaveRequest::create([
             'student_id' => $student->id,
@@ -44,7 +49,7 @@ class LeaveController extends Controller
             'start_date' => $startDate,
             'end_date' => $endDate,
             'reason' => $request->reason,
-            'covered_sessions' => $request->covered_sessions,
+            'covered_sessions' => $coveredSessions,
             'status' => 'approved',
         ]);
 

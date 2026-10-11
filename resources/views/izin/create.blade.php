@@ -45,8 +45,30 @@
                     @error('reason') <p class="text-red-500 text-xs font-bold mt-1">{{ $message }}</p> @enderror
                 </div>
 
-                <!-- Kegiatan Covered -->
-                <div class="mb-5">
+                <!-- Jenis Pengajian (hanya untuk tipe Izin Pengajian) -->
+                <div class="mb-5" id="pengajian-jenis-section">
+                    <label class="block font-black text-sm uppercase mb-2 text-black dark:text-white">Izin Tidak Ikut <span class="text-xs text-gray-500 dark:text-gray-400 font-normal block sm:inline sm:ml-1">(Pilih salah satu)</span></label>
+                    <div class="border-4 border-black rounded-lg p-4 bg-gray-50 dark:bg-zinc-700 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="radio" name="pengajian_jenis" value="Kajian" class="mt-1 border-2 border-black focus:ring-0 text-[#FF007F]" {{ old('pengajian_jenis', 'Kajian') === 'Kajian' ? 'checked' : '' }}>
+                            <div>
+                                <span class="font-bold text-sm text-black dark:text-white block">📖 Kajian</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400 font-bold">Kegiatan Daaru Hiraa Harian/Mingguan</span>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="radio" name="pengajian_jenis" value="Tahsin" class="mt-1 border-2 border-black focus:ring-0 text-[#FF007F]" {{ old('pengajian_jenis') === 'Tahsin' ? 'checked' : '' }}>
+                            <div>
+                                <span class="font-bold text-sm text-black dark:text-white block">🗣️ Tahsin</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400 font-bold">Kegiatan Belajar/Setor Quran & Tahsin</span>
+                            </div>
+                        </label>
+                    </div>
+                    @error('pengajian_jenis') <p class="text-red-500 text-xs font-bold mt-1">{{ $message }}</p> @enderror
+                </div>
+
+                <!-- Kegiatan Covered (untuk tipe selain Izin Pengajian) -->
+                <div class="mb-5" id="covered-sessions-section">
                     <label class="block font-black text-sm uppercase mb-2 text-black dark:text-white">Kegiatan yang Dilingkupi <span class="text-xs text-gray-500 dark:text-gray-400 font-normal block sm:inline sm:ml-1">(Pilih minimal satu)</span></label>
                     <div class="border-4 border-black rounded-lg p-4 bg-gray-50 dark:bg-zinc-700 grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <label class="flex items-start gap-3 cursor-pointer">
@@ -122,5 +144,19 @@
         document.getElementById('start_date').addEventListener('change', updateDurationPreview);
         document.getElementById('duration').addEventListener('input', updateDurationPreview);
         updateDurationPreview();
+
+        function toggleJenisSection() {
+            const type = document.getElementById('type').value;
+            const isPengajian = type === 'pengajian';
+
+            document.getElementById('pengajian-jenis-section').style.display = isPengajian ? 'block' : 'none';
+            document.getElementById('covered-sessions-section').style.display = isPengajian ? 'none' : 'block';
+
+            document.querySelectorAll('input[name="pengajian_jenis"]').forEach(el => el.disabled = !isPengajian);
+            document.querySelectorAll('input[name="covered_sessions[]"]').forEach(el => el.disabled = isPengajian);
+        }
+
+        document.getElementById('type').addEventListener('change', toggleJenisSection);
+        toggleJenisSection();
     </script>
 </x-app-layout>
