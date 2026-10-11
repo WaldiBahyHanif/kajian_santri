@@ -15,8 +15,6 @@
                         <select name="type" id="type" class="w-full border-4 border-black rounded-lg px-4 py-3 font-bold text-sm bg-white dark:bg-zinc-700 dark:text-white focus:border-[#FF007F] focus:ring-0" required>
                             <option value="pengajian" {{ old('type') === 'pengajian' ? 'selected' : '' }}>🕌 Izin Pengajian</option>
                             <option value="izin" {{ old('type') === 'izin' ? 'selected' : '' }}>📋 Izin</option>
-                            <option value="cuti" {{ old('type') === 'cuti' ? 'selected' : '' }}>🏖️ Cuti</option>
-                            <option value="sakit" {{ old('type') === 'sakit' ? 'selected' : '' }}>🤒 Sakit</option>
                         </select>
                         @error('type') <p class="text-red-500 text-xs font-bold mt-1">{{ $message }}</p> @enderror
                         <p class="text-xs text-gray-500 mt-1 font-bold">Pilih "Izin Pengajian" jika hanya tidak ikut kajian saja (bukan tidak di asrama).</p>
@@ -41,7 +39,7 @@
                 <!-- Reason -->
                 <div class="mb-5">
                     <label class="block font-black text-sm uppercase mb-2 text-black dark:text-white">Alasan</label>
-                    <textarea name="reason" rows="3" class="w-full border-4 border-black rounded-lg px-4 py-3 font-bold text-sm bg-white dark:bg-zinc-700 dark:text-white focus:border-[#FF007F] focus:ring-0" required placeholder="Tuliskan alasan pengajuan izin/cuti/sakit...">{{ old('reason') }}</textarea>
+                    <textarea name="reason" rows="3" class="w-full border-4 border-black rounded-lg px-4 py-3 font-bold text-sm bg-white dark:bg-zinc-700 dark:text-white focus:border-[#FF007F] focus:ring-0" required placeholder="Tuliskan alasan pengajuan izin...">{{ old('reason') }}</textarea>
                     @error('reason') <p class="text-red-500 text-xs font-bold mt-1">{{ $message }}</p> @enderror
                 </div>
 

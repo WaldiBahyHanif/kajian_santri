@@ -27,7 +27,7 @@ class LeaveController extends Controller
         $student = Auth::user();
 
         $request->validate([
-            'type' => ['required', 'in:pengajian,izin,cuti,sakit'],
+            'type' => ['required', 'in:pengajian,izin'],
             'start_date' => ['required', 'date', 'after_or_equal:today'],
             'duration' => ['required', 'integer', 'min:1', 'max:30'],
             'reason' => ['required', 'string', 'max:500'],
