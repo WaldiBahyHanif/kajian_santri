@@ -357,7 +357,7 @@
             </a>
             <a href="{{ route('admin.izin.index') }}" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold text-sm border-2 border-transparent {{ $active === 'izin' ? 'active' : 'text-black hover:bg-gray-100' }}">
                 <span class="material-symbols-outlined text-xl">assignment</span>
-                Izin & Cuti
+                Izin
             </a>
             <a href="{{ route('admin.pengumuman.index') }}" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold text-sm border-2 border-transparent {{ $active === 'pengumuman' ? 'active' : 'text-black hover:bg-gray-100' }}">
                 <span class="material-symbols-outlined text-xl">campaign</span>

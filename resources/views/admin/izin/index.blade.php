@@ -1,4 +1,4 @@
-<x-admin-layout title="Kelola Izin & Cuti" active="izin">
+<x-admin-layout title="Kelola Izin" active="izin">
 
     <!-- Filters -->
     <form method="GET" class="bg-white border-4 border-black p-4 rounded-lg shadow-[4px_4px_0_0_#000] mb-6">
@@ -18,8 +18,6 @@
                     <option value="">Semua</option>
                     <option value="pengajian" {{ request('type') === 'pengajian' ? 'selected' : '' }}>Izin Pengajian</option>
                     <option value="izin" {{ request('type') === 'izin' ? 'selected' : '' }}>Izin</option>
-                    <option value="cuti" {{ request('type') === 'cuti' ? 'selected' : '' }}>Cuti</option>
-                    <option value="sakit" {{ request('type') === 'sakit' ? 'selected' : '' }}>Sakit</option>
                 </select>
             </div>
             <div>
@@ -124,7 +122,7 @@
     @else
         <div class="bg-white border-4 border-black rounded-lg shadow-[6px_6px_0_0_#000] p-12 text-center">
             <span class="material-symbols-outlined text-5xl text-gray-300 mb-3">assignment</span>
-            <p class="text-gray-400 font-bold italic">Tidak ada data pengajuan izin/cuti.</p>
+            <p class="text-gray-400 font-bold italic">Tidak ada data pengajuan izin.</p>
         </div>
     @endif
 

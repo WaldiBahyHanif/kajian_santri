@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-black text-xl text-black dark:text-white uppercase tracking-tight">📝 Izin & Cuti Saya</h2>
+        <h2 class="font-black text-xl text-black dark:text-white uppercase tracking-tight">📝 Izin Saya</h2>
     </x-slot>
 
     <div class="py-6">
@@ -25,7 +25,7 @@
 
             <!-- Action Bar -->
             <div class="flex justify-between items-center mb-6">
-                <p class="text-sm font-bold text-gray-500">Riwayat pengajuan izin, cuti, dan sakit</p>
+                <p class="text-sm font-bold text-gray-500">Riwayat pengajuan izin</p>
                 <a href="{{ route('izin.create') }}" class="bg-[#FF007F] text-white border-4 border-black px-4 py-2 font-black shadow-[4px_4px_0_0_#000] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all text-sm flex items-center gap-2">
                     <span class="material-symbols-outlined">add</span> AJUKAN BARU
                 </a>
@@ -98,7 +98,7 @@
             @else
                 <div class="bg-white dark:bg-zinc-800 border-4 border-black rounded-lg shadow-[6px_6px_0_0_#000] p-12 text-center">
                     <span class="material-symbols-outlined text-5xl text-gray-300 mb-3">assignment</span>
-                    <p class="text-gray-400 font-bold italic">Belum ada pengajuan izin atau cuti.</p>
+                    <p class="text-gray-400 font-bold italic">Belum ada pengajuan izin.</p>
                     <a href="{{ route('izin.create') }}" class="inline-block mt-4 bg-[#FF007F] text-white border-4 border-black px-4 py-2 font-black shadow-[4px_4px_0_0_#000] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all text-sm">
                         AJUKAN SEKARANG
                     </a>
