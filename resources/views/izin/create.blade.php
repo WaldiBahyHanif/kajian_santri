@@ -1,6 +1,6 @@
 ﻿<x-app-layout>
     <x-slot name="header">
-        <h2 class="font-black text-xl text-black dark:text-white uppercase tracking-tight">📝 Ajukan Izin / Cuti</h2>
+        <h2 class="font-black text-xl text-black dark:text-white uppercase tracking-tight">📝 Ajukan Izin</h2>
     </x-slot>
 
     <div class="py-6">
