@@ -12,14 +12,6 @@
                         <span class="material-symbols-outlined">check_circle</span>
                         {{ session('success') }}
                     </div>
-                    @if(session('whatsapp_redirect'))
-                        <div class="mt-3">
-                            <a id="whatsapp-redirect-link" href="{{ session('whatsapp_redirect') }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 bg-black text-white border-4 border-black px-4 py-2 font-black text-sm shadow-[4px_4px_0_0_#39FF14] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all">
-                                <span class="material-symbols-outlined">chat</span> LANJUT KE WHATSAPP MUSYRIF
-                            </a>
-                            <p class="text-xs font-bold mt-2">Tab WhatsApp otomatis terbuka. Kalau tidak muncul, klik tombol di atas.</p>
-                        </div>
-                    @endif
                 </div>
             @endif
             @if(session('error'))
@@ -114,10 +106,4 @@
             @endif
         </div>
     </div>
-
-    @if(session('whatsapp_redirect'))
-        <script>
-            window.open(@json(session('whatsapp_redirect')), '_blank');
-        </script>
-    @endif
 </x-app-layout>

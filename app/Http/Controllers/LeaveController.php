@@ -48,9 +48,7 @@ class LeaveController extends Controller
             'status' => 'approved',
         ]);
 
-        return redirect()->route('izin.index')
-            ->with('success', 'Pengajuan ' . $leave->type_label . ' berhasil dikirim dan otomatis disetujui.')
-            ->with('whatsapp_redirect', $leave->whatsapp_link);
+        return redirect()->away($leave->whatsapp_link);
     }
 
     public function show($id)
