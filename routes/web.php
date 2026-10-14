@@ -27,6 +27,11 @@ Route::middleware(['liqo.access'])->prefix('liqo')->group(function () {
         ->name('liqo.store');
 });
 
+// Konfirmasi izin oleh musyrif via link WhatsApp (public, digerbang token, tanpa login)
+Route::get('/izin/{leave}/respond/{token}', [\App\Http\Controllers\LeaveApprovalController::class, 'show'])->name('izin.respond');
+Route::post('/izin/{leave}/respond/{token}/approve', [\App\Http\Controllers\LeaveApprovalController::class, 'approve'])->name('izin.respond.approve');
+Route::post('/izin/{leave}/respond/{token}/reject', [\App\Http\Controllers\LeaveApprovalController::class, 'reject'])->name('izin.respond.reject');
+
 // PWA Push Subscriptions routes
 Route::post('/push/subscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'store'])->name('push.subscribe');
 Route::post('/push/unsubscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');

@@ -45,7 +45,6 @@ class LeaveController extends Controller
             'end_date' => $endDate,
             'reason' => $request->reason,
             'covered_sessions' => $request->covered_sessions,
-            'status' => 'approved',
         ]);
 
         return redirect()->away($leave->whatsapp_link);

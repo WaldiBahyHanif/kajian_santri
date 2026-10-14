@@ -24,6 +24,7 @@ class LeaveRequest extends Model
         'rejection_reason',
         'covered_sessions',
         'created_at',
+        'approval_token',
     ];
 
     protected $casts = [
@@ -70,9 +71,18 @@ class LeaveRequest extends Model
         $message = "Assalamu'alaikum, saya *{$this->student->name}* mengajukan *{$this->type_label}*\n"
             . "📅 {$this->start_date->translatedFormat('d M Y')} s.d. {$this->end_date->translatedFormat('d M Y')}\n\n"
             . "Alasan: {$this->reason}\n\n"
-            . "Mohon izinnya, terima kasih 🙏";
+            . "Mohon konfirmasi izin ini lewat link berikut:\n{$this->approval_url}\n\n"
+            . "Jazakallahu khairan 🙏";
 
         return 'https://wa.me/' . $number . '?text=' . rawurlencode($message);
+    }
+
+    public function getApprovalUrlAttribute(): string
+    {
+        return route('izin.respond', [
+            'leave' => $this->id,
+            'token' => $this->approval_token,
+        ]);
     }
 
     public function scopePending($query)
@@ -160,6 +170,12 @@ class LeaveRequest extends Model
 
     protected static function booted()
     {
+        static::creating(function ($leave) {
+            if (empty($leave->approval_token)) {
+                $leave->approval_token = \Illuminate\Support\Str::random(40);
+            }
+        });
+
         static::saved(function ($leave) {
             if ($leave->status === 'approved') {
                 $leave->createAttendanceLogs();
