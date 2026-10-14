@@ -53,7 +53,7 @@ class LeaveController extends Controller
     public function show($id)
     {
         $student = Auth::user();
-        $leave = LeaveRequest::with(['student', 'approver'])
+        $leave = LeaveRequest::with(['student', 'approver', 'approverStudent'])
             ->where('student_id', $student->id)
             ->findOrFail($id);
         return view('izin.show', compact('leave'));

@@ -20,6 +20,7 @@ class LeaveRequest extends Model
         'notes',
         'status',
         'approved_by',
+        'approved_by_student_id',
         'approved_at',
         'rejection_reason',
         'covered_sessions',
@@ -43,6 +44,11 @@ class LeaveRequest extends Model
     public function approver()
     {
         return $this->belongsTo(Admin::class, 'approved_by');
+    }
+
+    public function approverStudent()
+    {
+        return $this->belongsTo(Student::class, 'approved_by_student_id');
     }
 
     /**
@@ -71,7 +77,7 @@ class LeaveRequest extends Model
         $message = "Assalamu'alaikum, saya *{$this->student->name}* mengajukan *{$this->type_label}*\n"
             . "📅 {$this->start_date->translatedFormat('d M Y')} s.d. {$this->end_date->translatedFormat('d M Y')}\n\n"
             . "Alasan: {$this->reason}\n\n"
-            . "Mohon konfirmasi izin ini lewat link berikut:\n{$this->approval_url}\n\n"
+            . "Mohon konfirmasi izin ini lewat link berikut (perlu login akun musyrif):\n{$this->approval_url}\n\n"
             . "Jazakallahu khairan 🙏";
 
         return 'https://wa.me/' . $number . '?text=' . rawurlencode($message);
@@ -122,6 +128,26 @@ class LeaveRequest extends Model
         $this->update([
             'status' => 'rejected',
             'approved_by' => $adminId,
+            'approved_at' => now(),
+            'rejection_reason' => $reason,
+        ]);
+    }
+
+    public function approveByMusyrif($studentId)
+    {
+        $this->update([
+            'status' => 'approved',
+            'approved_by_student_id' => $studentId,
+            'approved_at' => now(),
+            'rejection_reason' => null,
+        ]);
+    }
+
+    public function rejectByMusyrif($studentId, $reason = null)
+    {
+        $this->update([
+            'status' => 'rejected',
+            'approved_by_student_id' => $studentId,
             'approved_at' => now(),
             'rejection_reason' => $reason,
         ]);

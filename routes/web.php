@@ -27,17 +27,17 @@ Route::middleware(['liqo.access'])->prefix('liqo')->group(function () {
         ->name('liqo.store');
 });
 
-// Konfirmasi izin oleh musyrif via link WhatsApp (public, digerbang token, tanpa login)
-Route::get('/izin/{leave}/respond/{token}', [\App\Http\Controllers\LeaveApprovalController::class, 'show'])->name('izin.respond');
-Route::post('/izin/{leave}/respond/{token}/approve', [\App\Http\Controllers\LeaveApprovalController::class, 'approve'])->name('izin.respond.approve');
-Route::post('/izin/{leave}/respond/{token}/reject', [\App\Http\Controllers\LeaveApprovalController::class, 'reject'])->name('izin.respond.reject');
-
 // PWA Push Subscriptions routes
 Route::post('/push/subscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'store'])->name('push.subscribe');
 Route::post('/push/unsubscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
 Route::post('/push/test', [\App\Http\Controllers\PushSubscriptionController::class, 'sendTestPush'])->name('push.test');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    // Konfirmasi izin oleh musyrif via link WhatsApp (perlu login, khusus akun musyrif, lihat LeaveApprovalController)
+    Route::get('/izin/{leave}/respond/{token}', [\App\Http\Controllers\LeaveApprovalController::class, 'show'])->name('izin.respond');
+    Route::post('/izin/{leave}/respond/{token}/approve', [\App\Http\Controllers\LeaveApprovalController::class, 'approve'])->name('izin.respond.approve');
+    Route::post('/izin/{leave}/respond/{token}/reject', [\App\Http\Controllers\LeaveApprovalController::class, 'reject'])->name('izin.respond.reject');
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/ai/ask', [DashboardController::class, 'askAI'])->name('ai.ask');
     Route::get('/ai/history', [AIChatController::class, 'getHistory'])->name('ai.history');

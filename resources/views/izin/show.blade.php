@@ -67,12 +67,12 @@
                         </div>
                     </div>
 
-                    @if($leave->status === 'approved' && $leave->approver)
+                    @if($leave->status === 'approved' && ($leave->approver || $leave->approverStudent))
                     <div class="bg-[#39FF14] bg-opacity-20 border-2 border-black rounded-lg p-4">
                         <div class="flex items-center gap-2">
                             <span class="material-symbols-outlined text-[#39FF14]">check_circle</span>
                             <p class="font-black text-sm text-black dark:text-white">
-                                Disetujui oleh {{ $leave->approver->name }} pada {{ $leave->approved_at->translatedFormat('d M Y H:i') }}
+                                Disetujui oleh {{ $leave->approverStudent->name ?? $leave->approver->name }} pada {{ $leave->approved_at->translatedFormat('d M Y H:i') }}
                             </p>
                         </div>
                     </div>
