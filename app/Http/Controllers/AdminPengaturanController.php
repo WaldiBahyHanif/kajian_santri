@@ -46,8 +46,14 @@ class AdminPengaturanController extends Controller
             'garden_message' => ['nullable', 'string', 'max:500'],
             'tahsin_day_1' => ['required', 'integer', 'between:1,7'],
             'tahsin_day_2' => ['required', 'integer', 'between:1,7', 'different:tahsin_day_1'],
+            'wa_musyrif_pengajian' => ['nullable', 'string', 'max:20', 'regex:/^[0-9]+$/'],
+            'wa_musyrif_asrama_1_malam' => ['nullable', 'string', 'max:20', 'regex:/^[0-9]+$/'],
+            'wa_musyrif_asrama_lebih_1_malam' => ['nullable', 'string', 'max:20', 'regex:/^[0-9]+$/'],
         ], [
             'tahsin_day_2.different' => 'Hari Tahsin ke-2 tidak boleh sama dengan Hari ke-1.',
+            'wa_musyrif_pengajian.regex' => 'Nomor WA hanya boleh angka, format: 62xxxxxxxxxxx (tanpa + atau spasi).',
+            'wa_musyrif_asrama_1_malam.regex' => 'Nomor WA hanya boleh angka, format: 62xxxxxxxxxxx (tanpa + atau spasi).',
+            'wa_musyrif_asrama_lebih_1_malam.regex' => 'Nomor WA hanya boleh angka, format: 62xxxxxxxxxxx (tanpa + atau spasi).',
         ]);
 
         $setting = Setting::first();
@@ -56,6 +62,9 @@ class AdminPengaturanController extends Controller
         $setting->garden_mode = $request->garden_mode;
         $setting->garden_status = $request->garden_status;
         $setting->garden_message = $request->garden_message;
+        $setting->wa_musyrif_pengajian = $request->wa_musyrif_pengajian;
+        $setting->wa_musyrif_asrama_1_malam = $request->wa_musyrif_asrama_1_malam;
+        $setting->wa_musyrif_asrama_lebih_1_malam = $request->wa_musyrif_asrama_lebih_1_malam;
 
         $landingPage = $setting->landing_page ?? [];
         $landingPage['tahsin_days'] = [(int) $request->tahsin_day_1, (int) $request->tahsin_day_2];
@@ -63,7 +72,7 @@ class AdminPengaturanController extends Controller
 
         $setting->save();
 
-        AdminActivityLog::log('update_settings', "Memperbarui pengaturan pop-up, Kebun Kebaikan, dan jadwal 2 hari Tahsin");
+        AdminActivityLog::log('update_settings', "Memperbarui pengaturan pop-up, Kebun Kebaikan, jadwal 2 hari Tahsin, dan nomor WA musyrif");
 
         return redirect()->route('admin.pengaturan.index')->with('success', 'Pengaturan berhasil disimpan!');
     }

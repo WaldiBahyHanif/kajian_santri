@@ -112,6 +112,33 @@
                     <p class="text-xs text-gray-500 mt-1">Tulis kalimat penyemangat untuk memicu motivasi ibadah santri secara kolektif.</p>
                 </div>
 
+                <div class="border-t-4 border-black pt-4 bg-green-50 p-4 rounded-xl border-4 border-black">
+                    <label class="block font-black uppercase text-xs mb-1 text-green-950 flex items-center gap-1.5">
+                        <span class="text-base">📱</span> Nomor WhatsApp Musyrif (Konfirmasi Izin)
+                    </label>
+                    <p class="text-xs text-green-900 font-bold mb-3">
+                        Nomor musyrif yang dihubungi otomatis saat santri mengajukan izin. Kalau ada pergantian musyrif, cukup ganti nomornya di sini — tidak perlu ubah kode.
+                    </p>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block font-black uppercase text-[11px] mb-1 text-gray-700">Musyrif Izin Pengajian &amp; Sakit</label>
+                            <input type="text" name="wa_musyrif_pengajian" value="{{ old('wa_musyrif_pengajian', $setting->wa_musyrif_pengajian) }}" placeholder="misal: 6281234567890" class="w-full border-4 border-black p-2.5 rounded-lg font-bold bg-white text-sm focus:outline-none focus:bg-yellow-50">
+                            @error('wa_musyrif_pengajian') <p class="text-red-600 text-xs font-bold mt-1">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="block font-black uppercase text-[11px] mb-1 text-gray-700">Musyrif Izin Tidak di Asrama (1 Malam)</label>
+                            <input type="text" name="wa_musyrif_asrama_1_malam" value="{{ old('wa_musyrif_asrama_1_malam', $setting->wa_musyrif_asrama_1_malam) }}" placeholder="misal: 6281234567891" class="w-full border-4 border-black p-2.5 rounded-lg font-bold bg-white text-sm focus:outline-none focus:bg-yellow-50">
+                            @error('wa_musyrif_asrama_1_malam') <p class="text-red-600 text-xs font-bold mt-1">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="block font-black uppercase text-[11px] mb-1 text-gray-700">Musyrif Izin Tidak di Asrama (&gt;1 Malam) &amp; Cuti</label>
+                            <input type="text" name="wa_musyrif_asrama_lebih_1_malam" value="{{ old('wa_musyrif_asrama_lebih_1_malam', $setting->wa_musyrif_asrama_lebih_1_malam) }}" placeholder="misal: 6281234567892" class="w-full border-4 border-black p-2.5 rounded-lg font-bold bg-white text-sm focus:outline-none focus:bg-yellow-50">
+                            @error('wa_musyrif_asrama_lebih_1_malam') <p class="text-red-600 text-xs font-bold mt-1">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-3">Format: kode negara + nomor tanpa angka 0 di depan dan tanpa spasi/tanda apa pun. Contoh nomor 0812-3456-7890 ditulis <span class="font-mono">6281234567890</span>.</p>
+                </div>
+
                 <div class="pt-4 border-t-4 border-black">
                     <button type="submit" class="bg-[#FFDE00] text-black px-8 py-3 font-black rounded-lg border-4 border-black shadow-[4px_4px_0_0_#000] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all text-sm uppercase">
                         Simpan Pengaturan

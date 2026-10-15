@@ -18,6 +18,9 @@ class Setting extends Model
         'garden_message',
         'garden_mode',
         'liqo_access_code',
+        'wa_musyrif_pengajian',
+        'wa_musyrif_asrama_1_malam',
+        'wa_musyrif_asrama_lebih_1_malam',
     ];
 
     protected $casts = [
@@ -185,6 +188,25 @@ class Setting extends Model
             $days = [2, 5];
         }
         return array_values(array_unique(array_map('intval', $days)));
+    }
+
+    /**
+     * Nomor WhatsApp musyrif untuk kategori izin tertentu (1/2/3).
+     * Diisi admin lewat halaman Pengaturan; kalau belum diisi, jatuh ke
+     * config/perizinan.php (placeholder/.env) supaya sistem tidak pernah tanpa nomor sama sekali.
+     */
+    public static function getMusyrifWaNumber(int $category): ?string
+    {
+        $setting = static::first();
+
+        $fromSetting = match ($category) {
+            1 => $setting->wa_musyrif_pengajian ?? null,
+            2 => $setting->wa_musyrif_asrama_1_malam ?? null,
+            3 => $setting->wa_musyrif_asrama_lebih_1_malam ?? null,
+            default => null,
+        };
+
+        return $fromSetting ?: config('perizinan.musyrif_wa.' . $category);
     }
 
     /**

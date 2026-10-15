@@ -72,7 +72,7 @@ class LeaveRequest extends Model
 
     public function getWhatsappLinkAttribute(): string
     {
-        $number = config('perizinan.musyrif_wa.' . $this->whatsapp_category);
+        $number = Setting::getMusyrifWaNumber($this->whatsapp_category);
 
         $message = "Assalamu'alaikum, saya *{$this->student->name}* mengajukan *{$this->type_label}*\n"
             . "📅 {$this->start_date->translatedFormat('d M Y')} s.d. {$this->end_date->translatedFormat('d M Y')}\n\n"
