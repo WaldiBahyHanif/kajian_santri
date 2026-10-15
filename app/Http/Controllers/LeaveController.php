@@ -26,13 +26,15 @@ class LeaveController extends Controller
     {
         $student = Auth::user();
 
+        $allowedSessions = $request->type === 'pengajian' ? ['Kajian', 'Tahsin'] : ['Kajian', 'Sholat', 'Tahsin', 'Acara'];
+
         $request->validate([
-            'type' => ['required', 'in:pengajian,izin'],
+            'type' => ['required', 'in:pengajian,izin,cuti,sakit'],
             'start_date' => ['required', 'date', 'after_or_equal:today'],
             'duration' => ['required', 'integer', 'min:1', 'max:30'],
             'reason' => ['required', 'string', 'max:500'],
             'covered_sessions' => ['required', 'array', 'min:1'],
-            'covered_sessions.*' => ['in:Kajian,Sholat,Tahsin,Acara'],
+            'covered_sessions.*' => ['in:' . implode(',', $allowedSessions)],
         ]);
 
         $startDate = \Carbon\Carbon::parse($request->start_date);

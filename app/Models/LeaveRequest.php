@@ -53,11 +53,11 @@ class LeaveRequest extends Model
 
     /**
      * Kategori musyrif tujuan WhatsApp:
-     * 1 = Izin Pengajian, 2 = Izin tidak di asrama 1 malam, 3 = lebih dari 1 malam / cuti.
+     * 1 = Izin Pengajian & Sakit, 2 = Izin tidak di asrama 1 malam, 3 = lebih dari 1 malam / cuti.
      */
     public function getWhatsappCategoryAttribute(): int
     {
-        if ($this->type === 'pengajian') {
+        if ($this->type === 'pengajian' || $this->type === 'sakit') {
             return 1;
         }
 

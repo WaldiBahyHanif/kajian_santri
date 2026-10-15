@@ -15,6 +15,8 @@
                         <select name="type" id="type" class="w-full border-4 border-black rounded-lg px-4 py-3 font-bold text-sm bg-white dark:bg-zinc-700 dark:text-white focus:border-[#FF007F] focus:ring-0" required>
                             <option value="pengajian" {{ old('type') === 'pengajian' ? 'selected' : '' }}>🕌 Izin Pengajian</option>
                             <option value="izin" {{ old('type') === 'izin' ? 'selected' : '' }}>📋 Izin</option>
+                            <option value="cuti" {{ old('type') === 'cuti' ? 'selected' : '' }}>🏖️ Cuti</option>
+                            <option value="sakit" {{ old('type') === 'sakit' ? 'selected' : '' }}>🤒 Sakit</option>
                         </select>
                         @error('type') <p class="text-red-500 text-xs font-bold mt-1">{{ $message }}</p> @enderror
                         <p class="text-xs text-gray-500 mt-1 font-bold">Pilih "Izin Pengajian" jika hanya tidak ikut kajian saja (bukan tidak di asrama).</p>
@@ -54,7 +56,7 @@
                                 <span class="text-xs text-gray-500 dark:text-gray-400 font-bold">Kegiatan Daaru Hiraa Harian/Mingguan</span>
                             </div>
                         </label>
-                        <label class="flex items-start gap-3 cursor-pointer">
+                        <label class="flex items-start gap-3 cursor-pointer non-pengajian-session">
                             <input type="checkbox" name="covered_sessions[]" value="Sholat" class="mt-1 border-2 border-black focus:ring-0 text-[#FF007F] rounded" {{ is_array(old('covered_sessions')) && in_array('Sholat', old('covered_sessions')) ? 'checked' : (!old('covered_sessions') ? 'checked' : '') }}>
                             <div>
                                 <span class="font-bold text-sm text-black dark:text-white block">🕌 Shalat Jamaah</span>
@@ -68,7 +70,7 @@
                                 <span class="text-xs text-gray-500 dark:text-gray-400 font-bold">Kegiatan Belajar/Setor Quran & Tahsin</span>
                             </div>
                         </label>
-                        <label class="flex items-start gap-3 cursor-pointer">
+                        <label class="flex items-start gap-3 cursor-pointer non-pengajian-session">
                             <input type="checkbox" name="covered_sessions[]" value="Acara" class="mt-1 border-2 border-black focus:ring-0 text-[#FF007F] rounded" {{ is_array(old('covered_sessions')) && in_array('Acara', old('covered_sessions')) ? 'checked' : (!old('covered_sessions') ? 'checked' : '') }}>
                             <div>
                                 <span class="font-bold text-sm text-black dark:text-white block">🎉 Acara Lain</span>
@@ -120,5 +122,18 @@
         document.getElementById('start_date').addEventListener('change', updateDurationPreview);
         document.getElementById('duration').addEventListener('input', updateDurationPreview);
         updateDurationPreview();
+
+        function toggleSessionOptions() {
+            const isPengajian = document.getElementById('type').value === 'pengajian';
+            document.querySelectorAll('.non-pengajian-session').forEach(function (el) {
+                el.style.display = isPengajian ? 'none' : '';
+                const checkbox = el.querySelector('input[type="checkbox"]');
+                checkbox.disabled = isPengajian;
+                if (isPengajian) checkbox.checked = false;
+            });
+        }
+
+        document.getElementById('type').addEventListener('change', toggleSessionOptions);
+        toggleSessionOptions();
     </script>
 </x-app-layout>

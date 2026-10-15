@@ -18,6 +18,8 @@
                     <option value="">Semua</option>
                     <option value="pengajian" {{ request('type') === 'pengajian' ? 'selected' : '' }}>Izin Pengajian</option>
                     <option value="izin" {{ request('type') === 'izin' ? 'selected' : '' }}>Izin</option>
+                    <option value="cuti" {{ request('type') === 'cuti' ? 'selected' : '' }}>Cuti</option>
+                    <option value="sakit" {{ request('type') === 'sakit' ? 'selected' : '' }}>Sakit</option>
                 </select>
             </div>
             <div>
