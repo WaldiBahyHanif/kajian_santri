@@ -9,6 +9,7 @@
         ['route' => 'attendance.scan', 'icon' => 'qr_code_scanner', 'label' => 'Scan Absensi'],
         ['route' => 'mitsur',          'icon' => 'group',           'label' => 'Mitsur Duo'],
         ['route' => 'refleksi',        'icon' => 'edit_note',       'label' => 'Refleksi Harian'],
+        ['route' => 'kebun.index',     'icon' => 'park',            'label' => 'Kebun Pondok'],
         ['route' => 'zikir',           'icon' => 'auto_awesome',    'label' => 'Tasbih Digital'],
         ['route' => 'kajian',          'icon' => 'calendar_month',  'label' => 'Kajian'],
         ['route' => 'rekap',           'icon' => 'bar_chart',       'label' => 'Rekap'],

@@ -54,6 +54,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/refleksi', [\App\Http\Controllers\ReflectionController::class, 'index'])->name('refleksi');
     Route::post('/refleksi', [\App\Http\Controllers\ReflectionController::class, 'store'])->name('refleksi.store');
     Route::delete('/refleksi/{id}', [\App\Http\Controllers\ReflectionController::class, 'destroy'])->name('refleksi.destroy');
+    Route::get('/kebun-pondok', [\App\Http\Controllers\KebunController::class, 'index'])->name('kebun.index');
     Route::post('/saran', [DashboardController::class, 'storeSaran'])->name('saran.store');
     Route::get('/api/announcements/active', [\App\Http\Controllers\AnnouncementNotificationController::class, 'activeReminders'])->name('announcements.active-reminders');
 

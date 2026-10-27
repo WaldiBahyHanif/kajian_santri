@@ -96,6 +96,10 @@ Semua di-generate dengan kanvas kecil (native pixel-art resolution) lalu ditampi
 - `header_kebun.blade.php` dan `header.blade.php` (dead code) — tidak disentuh, di luar scope.
 - Tidak ada perubahan skema database baru (semua data yang dibutuhkan sudah ada di `attendance_logs` dan `students`).
 
+## Catatan Implementasi: Deviasi dari Rencana Aset
+
+Rencana awal (AI image generation untuk sprite pixel art) tidak bisa dijalankan karena akun inference.sh yang dipakai tidak memiliki saldo ($0.00) dan tidak bisa di-top up. Sebagai gantinya, keempat tahap pohon + tanah digambar langsung sebagai inline SVG pixel-block (`resources/views/components/pixel-tree.blade.php`), dirender dengan `shape-rendering="crispEdges"` agar tepinya tegas seperti pixel art, tanpa file gambar eksternal apapun. Petak rumput memakai warna flat (`#86EFAC` terang / `#065f46` dark mode) alih-alih tile bertekstur. Hasilnya lebih sederhana/kasar dibanding sprite AI-generated asli, tapi tetap memenuhi tujuan "pixel art 2D ala Harvest Moon" tanpa biaya maupun dependensi aset eksternal.
+
 ## Testing Manual
 
 1. Akses `/kebun-pondok` sebagai santri yang kehadiran Kajian 30 hari terakhirnya tinggi → pohonnya tampil tahap 4 (berbuah).
