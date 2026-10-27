@@ -915,16 +915,23 @@
                                     </p>
                                 </div>
                             </div>
+                            @if($reflection->topic)
+                                <span class="inline-flex items-center gap-1 bg-tertiary-fixed border-2 border-on-background text-tertiary px-2 py-0.5 rounded-md text-[10px] font-bold mb-2">
+                                    <span class="material-symbols-outlined text-xs">menu_book</span>
+                                    {{ $reflection->topic->title }}
+                                </span>
+                            @endif
                             <!-- Text -->
                             <p class="font-body-md text-sm text-on-background leading-relaxed whitespace-pre-wrap line-clamp-4">"{{ $reflection->content }}"</p>
                             @if(strlen($reflection->content) > 180)
                                 <button type="button"
-                                    class="reflection-see-more mt-1 text-xs font-bold text-primary underline hover:no-underline"
-                                    data-name="{{ $reflection->name }}"
-                                    data-time="{{ $reflection->created_at ? $reflection->created_at->diffForHumans() : '-' }}"
-                                    data-content="{{ $reflection->content }}">
+                                    class="reflection-see-more block mt-2 text-xs font-bold text-primary underline hover:no-underline"
+                                    data-index="{{ $loop->index }}">
                                     Lihat Selengkapnya
                                 </button>
+                                <template data-full-content="{{ $loop->index }}">{{ $reflection->content }}</template>
+                                <span data-full-name="{{ $loop->index }}" class="hidden">{{ $reflection->name }}</span>
+                                <span data-full-time="{{ $loop->index }}" class="hidden">{{ $reflection->created_at ? $reflection->created_at->diffForHumans() : '-' }}</span>
                             @endif
                         </div>
 
@@ -958,10 +965,16 @@
             </div>
 
             @if($reflections->count() > 5)
-                <div id="reflection-carousel-dots" class="flex items-center justify-center gap-2 mt-5">
+                <div id="reflection-carousel-nav" class="flex items-center justify-center gap-2 mt-5">
+                    <button type="button" id="reflection-carousel-prev" class="w-9 h-9 flex items-center justify-center bg-surface border-2 border-on-background rounded-lg font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-0 active:translate-y-0 active:shadow-none transition-all" aria-label="Halaman sebelumnya">
+                        <span class="material-symbols-outlined text-lg">chevron_left</span>
+                    </button>
                     @for($i = 0; $i < (int) ceil($reflections->count() / 5); $i++)
-                        <button type="button" data-reflection-dot="{{ $i }}" class="w-3 h-3 rounded-full border-2 border-on-background transition-all {{ $i === 0 ? 'bg-primary scale-110' : 'bg-surface' }}" aria-label="Halaman refleksi {{ $i + 1 }}"></button>
+                        <button type="button" data-reflection-page-btn="{{ $i }}" class="min-w-9 h-9 px-2 flex items-center justify-center border-2 border-on-background rounded-lg font-bold text-sm transition-all {{ $i === 0 ? 'bg-primary text-on-primary' : 'bg-surface text-on-background' }}" aria-label="Halaman refleksi {{ $i + 1 }}">{{ $i + 1 }}</button>
                     @endfor
+                    <button type="button" id="reflection-carousel-next" class="w-9 h-9 flex items-center justify-center bg-surface border-2 border-on-background rounded-lg font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-0 active:translate-y-0 active:shadow-none transition-all" aria-label="Halaman berikutnya">
+                        <span class="material-symbols-outlined text-lg">chevron_right</span>
+                    </button>
                 </div>
             @endif
         </section>
@@ -1659,26 +1672,26 @@
 <x-calendar-modal />
 
 <!-- Reflection "Lihat Selengkapnya" Modal -->
-<div id="reflection-modal" class="hidden fixed inset-0 z-[900] items-center justify-center p-4 bg-black/60">
-    <div class="bg-surface border-3 border-on-background rounded-xl p-6 max-w-lg w-full neobrutal-shadow max-h-[80vh] overflow-y-auto">
-        <div class="flex justify-between items-start mb-4">
-            <div>
-                <h4 id="reflection-modal-name" class="font-headline-md text-base font-black text-primary"></h4>
-                <p id="reflection-modal-time" class="text-xs text-on-surface-variant font-semibold"></p>
-            </div>
-            <button type="button" id="reflection-modal-close" class="text-on-surface-variant hover:bg-error-container p-1 rounded transition-colors">
-                <span class="material-symbols-outlined">close</span>
-            </button>
+<div id="reflection-modal" class="fixed inset-0 z-[900] hidden bg-on-background/50 flex items-center justify-center p-4">
+    <div class="bg-surface border-3 border-on-background rounded-xl p-6 max-w-lg w-full neobrutal-shadow max-h-[80vh] overflow-y-auto relative">
+        <button type="button" id="reflection-modal-close" class="absolute top-4 right-4 bg-error text-on-error w-8 h-8 rounded border-2 border-on-background hover:scale-105 active:scale-95 transition-transform flex items-center justify-center font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none cursor-pointer">
+            <span class="material-symbols-outlined text-lg">close</span>
+        </button>
+        <div class="mb-4 pr-10">
+            <h4 id="reflection-modal-name" class="font-headline-md text-base font-black text-primary"></h4>
+            <p id="reflection-modal-time" class="text-xs text-on-surface-variant font-semibold"></p>
         </div>
-        <p id="reflection-modal-content" class="font-body-md text-sm text-on-background leading-relaxed whitespace-pre-wrap"></p>
+        <p id="reflection-modal-content" class="font-body-md text-sm text-on-background leading-relaxed whitespace-pre-wrap break-words"></p>
     </div>
 </div>
 
 <script>
 (function () {
     var pages = document.querySelectorAll('.reflection-card');
-    var dots = document.querySelectorAll('[data-reflection-dot]');
-    var totalPages = dots.length;
+    var pageBtns = document.querySelectorAll('[data-reflection-page-btn]');
+    var prevBtn = document.getElementById('reflection-carousel-prev');
+    var nextBtn = document.getElementById('reflection-carousel-next');
+    var totalPages = pageBtns.length;
     var currentPage = 0;
     var autoTimer = null;
 
@@ -1688,33 +1701,36 @@
             var cardPage = parseInt(card.getAttribute('data-reflection-page'), 10);
             card.classList.toggle('hidden', cardPage !== page);
         });
-        dots.forEach(function (dot) {
-            var dotPage = parseInt(dot.getAttribute('data-reflection-dot'), 10);
-            dot.classList.toggle('bg-primary', dotPage === page);
-            dot.classList.toggle('scale-110', dotPage === page);
-            dot.classList.toggle('bg-surface', dotPage !== page);
+        pageBtns.forEach(function (btn) {
+            var btnPage = parseInt(btn.getAttribute('data-reflection-page-btn'), 10);
+            var active = btnPage === page;
+            btn.classList.toggle('bg-primary', active);
+            btn.classList.toggle('text-on-primary', active);
+            btn.classList.toggle('bg-surface', !active);
+            btn.classList.toggle('text-on-background', !active);
         });
     }
 
-    function nextPage() {
-        if (totalPages <= 1) return;
-        showPage((currentPage + 1) % totalPages);
+    function goToPage(page) {
+        showPage((page + totalPages) % totalPages);
     }
 
     function resetAutoTimer() {
         if (autoTimer) clearInterval(autoTimer);
         if (totalPages > 1) {
-            autoTimer = setInterval(nextPage, 5000);
+            autoTimer = setInterval(function () { goToPage(currentPage + 1); }, 5000);
         }
     }
 
     if (totalPages > 1) {
-        dots.forEach(function (dot) {
-            dot.addEventListener('click', function () {
-                showPage(parseInt(dot.getAttribute('data-reflection-dot'), 10));
+        pageBtns.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                goToPage(parseInt(btn.getAttribute('data-reflection-page-btn'), 10));
                 resetAutoTimer();
             });
         });
+        if (prevBtn) prevBtn.addEventListener('click', function () { goToPage(currentPage - 1); resetAutoTimer(); });
+        if (nextBtn) nextBtn.addEventListener('click', function () { goToPage(currentPage + 1); resetAutoTimer(); });
         resetAutoTimer();
     }
 
@@ -1725,22 +1741,23 @@
     var modalContent = document.getElementById('reflection-modal-content');
     var modalClose = document.getElementById('reflection-modal-close');
 
-    function openReflectionModal(btn) {
-        modalName.textContent = btn.getAttribute('data-name');
-        modalTime.textContent = btn.getAttribute('data-time');
-        modalContent.textContent = btn.getAttribute('data-content');
+    function openReflectionModal(index) {
+        var fullContent = document.querySelector('template[data-full-content="' + index + '"]');
+        var fullName = document.querySelector('[data-full-name="' + index + '"]');
+        var fullTime = document.querySelector('[data-full-time="' + index + '"]');
+        modalName.textContent = fullName ? fullName.textContent : '';
+        modalTime.textContent = fullTime ? fullTime.textContent : '';
+        modalContent.textContent = fullContent ? fullContent.content.textContent : '';
         modal.classList.remove('hidden');
-        modal.classList.add('flex');
     }
 
     function closeReflectionModal() {
         modal.classList.add('hidden');
-        modal.classList.remove('flex');
     }
 
     document.querySelectorAll('.reflection-see-more').forEach(function (btn) {
         btn.addEventListener('click', function () {
-            openReflectionModal(btn);
+            openReflectionModal(btn.getAttribute('data-index'));
         });
     });
 

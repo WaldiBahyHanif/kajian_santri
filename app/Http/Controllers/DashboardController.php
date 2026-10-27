@@ -37,7 +37,7 @@ class DashboardController extends Controller
             ->get();
 
         // Refleksi terbaru (diambil lebih banyak untuk carousel 5-per-halaman di home)
-        $reflections = \App\Models\Reflection::with('user')
+        $reflections = \App\Models\Reflection::with(['user', 'topic'])
             ->orderBy('created_at', 'desc')
             ->take(20)
             ->get();
