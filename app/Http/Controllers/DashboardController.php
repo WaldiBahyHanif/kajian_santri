@@ -36,10 +36,10 @@ class DashboardController extends Controller
             ->limit(50)
             ->get();
 
-        // Refleksi terbaru
+        // Refleksi terbaru (diambil lebih banyak untuk carousel 5-per-halaman di home)
         $reflections = \App\Models\Reflection::with('user')
             ->orderBy('created_at', 'desc')
-            ->take(6)
+            ->take(20)
             ->get();
 
         // Persentase Kehadiran Kajian Hari Ini

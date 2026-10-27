@@ -13,10 +13,16 @@ class Reflection extends Model
         'name',
         'content',
         'likes',
+        'topic_id',
     ];
 
     public function user()
     {
         return $this->belongsTo(Student::class, 'user_id');
+    }
+
+    public function topic()
+    {
+        return $this->belongsTo(Topic::class);
     }
 }

@@ -9,7 +9,7 @@ class AdminRefleksiController extends Controller
 {
     public function index()
     {
-        $reflections = Reflection::orderBy('created_at', 'desc')->get();
+        $reflections = Reflection::with('topic')->orderBy('created_at', 'desc')->get();
         return view('admin.refleksi.index', compact('reflections'));
     }
 

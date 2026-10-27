@@ -17,6 +17,9 @@
                             <h3 class="font-black text-sm">{{ $r->name }}</h3>
                             <p class="text-[10px] text-gray-400">{{ $r->created_at?->diffForHumans() }}</p>
                         </div>
+                        @if($r->topic)
+                            <span class="ml-1 bg-yellow-200 border-2 border-black rounded-md px-2 py-0.5 text-[10px] font-black uppercase">{{ $r->topic->title }}</span>
+                        @endif
                     </div>
                     <div class="bg-gray-50 border-2 border-black rounded-lg p-3 ml-10">
                         <p class="text-sm">{{ $r->content }}</p>

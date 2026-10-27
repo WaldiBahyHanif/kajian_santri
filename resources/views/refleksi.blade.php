@@ -226,6 +226,13 @@
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="bg-error-container border-3 border-on-background neobrutal-shadow-sm text-on-error-container p-4 rounded-xl font-bold flex items-center gap-3">
+                <span class="material-symbols-outlined">error</span>
+                {{ session('error') }}
+            </div>
+        @endif
+
         <!-- Write Reflection Form -->
         <section class="bg-white border-3 border-on-background rounded-xl p-6 neobrutal-shadow">
             <form action="{{ route('refleksi.store') }}" method="POST">
@@ -237,10 +244,33 @@
                         <p class="font-label-sm text-label-sm text-on-surface-variant">{{ \Carbon\Carbon::now()->isoFormat('dddd, D MMMM Y') }}</p>
                     </div>
                 </div>
-                <textarea name="content" rows="5" class="w-full bg-surface border-3 border-on-background px-4 py-3 rounded-lg focus:outline-none focus:ring-0 font-body-md resize-none" placeholder="Apa yang kamu syukuri hari ini? Apa yang ingin kamu perbaiki? Tulis refleksi singkatmu di sini..."></textarea>
+
+                @if($alreadyAttendedToday)
+                    <div class="flex items-center gap-2 bg-secondary-container border-2 border-on-background text-on-secondary-container px-3 py-2 rounded-lg text-xs font-bold mb-4">
+                        <span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1;">check_circle</span>
+                        Kamu sudah absen Kajian Pagi hari ini. Refleksi ini akan tersimpan sebagai jurnal tambahan.
+                    </div>
+                @endif
+
+                <div class="mb-4">
+                    <label class="font-label-sm text-label-sm text-on-surface-variant mb-1 block">Kitab yang dikaji hari ini</label>
+                    @if($todayTopic)
+                        <select disabled class="w-full bg-surface border-3 border-on-background px-4 py-3 rounded-lg font-bold text-on-background opacity-80">
+                            <option>{{ $todayTopic->title }}</option>
+                        </select>
+                        <input type="hidden" name="topic_id" value="{{ $todayTopic->id }}">
+                    @else
+                        <div class="flex items-center gap-2 bg-error-container border-2 border-on-background text-on-error-container px-3 py-2 rounded-lg text-xs font-bold">
+                            <span class="material-symbols-outlined text-base">info</span>
+                            Belum ada topic kajian pagi terjadwal untuk hari ini. Refleksi belum bisa disimpan — hubungi admin.
+                        </div>
+                    @endif
+                </div>
+
+                <textarea name="content" rows="5" @disabled(!$todayTopic) class="w-full bg-surface border-3 border-on-background px-4 py-3 rounded-lg focus:outline-none focus:ring-0 font-body-md resize-none disabled:opacity-60" placeholder="Apa yang kamu syukuri hari ini? Apa yang ingin kamu perbaiki? Tulis refleksi singkatmu di sini..."></textarea>
                 <div class="flex justify-between items-center mt-4">
-                    <span class="font-label-sm text-label-sm text-on-surface-variant" id="char-count">0 / 2000 karakter</span>
-                    <button type="submit" class="bg-primary text-on-primary border-3 border-on-background neobrutal-shadow-active px-6 py-3 rounded-lg font-bold transition-all">
+                    <span class="font-label-sm text-label-sm text-on-surface-variant" id="char-count">0 / 2000 karakter (minimal 1 kalimat, &plusmn;10 karakter)</span>
+                    <button type="submit" @disabled(!$todayTopic) class="bg-primary text-on-primary border-3 border-on-background neobrutal-shadow-active px-6 py-3 rounded-lg font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                         Simpan Refleksi
                     </button>
                 </div>
@@ -273,11 +303,17 @@
                 @forelse($reflections as $reflection)
                     <div class="bg-white border-3 border-on-background rounded-xl p-6 neobrutal-shadow-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all">
                         <div class="flex justify-between items-start mb-3">
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 flex-wrap">
                                 <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1;">event</span>
                                 <span class="font-label-sm text-label-sm text-on-surface-variant font-bold">
                                     {{ \Carbon\Carbon::parse($reflection->created_at)->isoFormat('dddd, D MMMM Y') }}
                                 </span>
+                                @if($reflection->topic)
+                                    <span class="inline-flex items-center gap-1 bg-tertiary-fixed border-2 border-on-background text-tertiary px-2 py-0.5 rounded-md text-[10px] font-bold">
+                                        <span class="material-symbols-outlined text-xs">menu_book</span>
+                                        {{ $reflection->topic->title }}
+                                    </span>
+                                @endif
                             </div>
                             <form method="POST" action="{{ route('refleksi.destroy', $reflection->id) }}" onsubmit="return confirm('Yakin ingin menghapus refleksi ini?')">
                                 @csrf

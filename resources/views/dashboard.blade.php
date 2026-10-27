@@ -846,9 +846,9 @@
                 ];
             @endphp
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div id="reflection-carousel" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @forelse($reflections as $reflection)
-                    <div class="relative overflow-hidden border-3 border-on-background rounded-xl p-5 neobrutal-shadow-sm flex flex-col justify-between min-h-[220px] transition-all hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] {{ $bgClasses[$loop->index % 6] }}">
+                    <div data-reflection-page="{{ intdiv($loop->index, 5) }}" class="reflection-card {{ $loop->index >= 5 ? 'hidden' : '' }} relative overflow-hidden border-3 border-on-background rounded-xl p-5 neobrutal-shadow-sm flex flex-col justify-between min-h-[220px] transition-all hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] {{ $bgClasses[$loop->index % 6] }}">
                         <!-- Cartoon Background Elements (Absolute) -->
                         @if($loop->index % 6 === 0)
                             <!-- Cloud -->
@@ -917,6 +917,15 @@
                             </div>
                             <!-- Text -->
                             <p class="font-body-md text-sm text-on-background leading-relaxed whitespace-pre-wrap line-clamp-4">"{{ $reflection->content }}"</p>
+                            @if(strlen($reflection->content) > 180)
+                                <button type="button"
+                                    class="reflection-see-more mt-1 text-xs font-bold text-primary underline hover:no-underline"
+                                    data-name="{{ $reflection->name }}"
+                                    data-time="{{ $reflection->created_at ? $reflection->created_at->diffForHumans() : '-' }}"
+                                    data-content="{{ $reflection->content }}">
+                                    Lihat Selengkapnya
+                                </button>
+                            @endif
                         </div>
 
                         <!-- Bottom Stats / Actions -->
@@ -947,6 +956,14 @@
                     </div>
                 @endforelse
             </div>
+
+            @if($reflections->count() > 5)
+                <div id="reflection-carousel-dots" class="flex items-center justify-center gap-2 mt-5">
+                    @for($i = 0; $i < (int) ceil($reflections->count() / 5); $i++)
+                        <button type="button" data-reflection-dot="{{ $i }}" class="w-3 h-3 rounded-full border-2 border-on-background transition-all {{ $i === 0 ? 'bg-primary scale-110' : 'bg-surface' }}" aria-label="Halaman refleksi {{ $i + 1 }}"></button>
+                    @endfor
+                </div>
+            @endif
         </section>
 
         <!-- Saran & Masukan Section (Neobrutalist Colorful Form) -->
@@ -1640,6 +1657,101 @@
 </div>
 
 <x-calendar-modal />
+
+<!-- Reflection "Lihat Selengkapnya" Modal -->
+<div id="reflection-modal" class="hidden fixed inset-0 z-[900] items-center justify-center p-4 bg-black/60">
+    <div class="bg-surface border-3 border-on-background rounded-xl p-6 max-w-lg w-full neobrutal-shadow max-h-[80vh] overflow-y-auto">
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <h4 id="reflection-modal-name" class="font-headline-md text-base font-black text-primary"></h4>
+                <p id="reflection-modal-time" class="text-xs text-on-surface-variant font-semibold"></p>
+            </div>
+            <button type="button" id="reflection-modal-close" class="text-on-surface-variant hover:bg-error-container p-1 rounded transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <p id="reflection-modal-content" class="font-body-md text-sm text-on-background leading-relaxed whitespace-pre-wrap"></p>
+    </div>
+</div>
+
+<script>
+(function () {
+    var pages = document.querySelectorAll('.reflection-card');
+    var dots = document.querySelectorAll('[data-reflection-dot]');
+    var totalPages = dots.length;
+    var currentPage = 0;
+    var autoTimer = null;
+
+    function showPage(page) {
+        currentPage = page;
+        pages.forEach(function (card) {
+            var cardPage = parseInt(card.getAttribute('data-reflection-page'), 10);
+            card.classList.toggle('hidden', cardPage !== page);
+        });
+        dots.forEach(function (dot) {
+            var dotPage = parseInt(dot.getAttribute('data-reflection-dot'), 10);
+            dot.classList.toggle('bg-primary', dotPage === page);
+            dot.classList.toggle('scale-110', dotPage === page);
+            dot.classList.toggle('bg-surface', dotPage !== page);
+        });
+    }
+
+    function nextPage() {
+        if (totalPages <= 1) return;
+        showPage((currentPage + 1) % totalPages);
+    }
+
+    function resetAutoTimer() {
+        if (autoTimer) clearInterval(autoTimer);
+        if (totalPages > 1) {
+            autoTimer = setInterval(nextPage, 5000);
+        }
+    }
+
+    if (totalPages > 1) {
+        dots.forEach(function (dot) {
+            dot.addEventListener('click', function () {
+                showPage(parseInt(dot.getAttribute('data-reflection-dot'), 10));
+                resetAutoTimer();
+            });
+        });
+        resetAutoTimer();
+    }
+
+    // Lihat Selengkapnya modal
+    var modal = document.getElementById('reflection-modal');
+    var modalName = document.getElementById('reflection-modal-name');
+    var modalTime = document.getElementById('reflection-modal-time');
+    var modalContent = document.getElementById('reflection-modal-content');
+    var modalClose = document.getElementById('reflection-modal-close');
+
+    function openReflectionModal(btn) {
+        modalName.textContent = btn.getAttribute('data-name');
+        modalTime.textContent = btn.getAttribute('data-time');
+        modalContent.textContent = btn.getAttribute('data-content');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeReflectionModal() {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    document.querySelectorAll('.reflection-see-more').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            openReflectionModal(btn);
+        });
+    });
+
+    if (modalClose) modalClose.addEventListener('click', closeReflectionModal);
+    if (modal) {
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) closeReflectionModal();
+        });
+    }
+})();
+</script>
 
 
 <!-- ========================= -->
