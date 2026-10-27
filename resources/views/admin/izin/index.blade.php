@@ -1,4 +1,4 @@
-<x-admin-layout title="Kelola Izin & Cuti" active="izin">
+<x-admin-layout title="Kelola Izin" active="izin">
 
     <!-- Filters -->
     <form method="GET" class="bg-white border-4 border-black p-4 rounded-lg shadow-[4px_4px_0_0_#000] mb-6">
@@ -16,9 +16,8 @@
                 <label class="text-xs font-black uppercase block mb-1">Tipe</label>
                 <select name="type" class="w-full border-2 border-black rounded-lg px-3 py-2 font-bold text-sm">
                     <option value="">Semua</option>
+                    <option value="pengajian" {{ request('type') === 'pengajian' ? 'selected' : '' }}>Izin Pengajian</option>
                     <option value="izin" {{ request('type') === 'izin' ? 'selected' : '' }}>Izin</option>
-                    <option value="cuti" {{ request('type') === 'cuti' ? 'selected' : '' }}>Cuti</option>
-                    <option value="sakit" {{ request('type') === 'sakit' ? 'selected' : '' }}>Sakit</option>
                 </select>
             </div>
             <div>
@@ -64,7 +63,7 @@
                             <tr class="hover:bg-gray-50">
                                 <td class="px-4 py-3 font-bold text-black">{{ $leave->student->name }}</td>
                                 <td class="px-4 py-3">
-                                    <span class="font-black uppercase text-xs border-2 border-black px-2 py-0.5 rounded {{ $leave->type === 'sakit' ? 'bg-red-100 text-red-700' : ($leave->type === 'cuti' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700') }}">
+                                    <span class="font-black uppercase text-xs border-2 border-black px-2 py-0.5 rounded {{ $leave->type === 'sakit' ? 'bg-red-100 text-red-700' : ($leave->type === 'cuti' ? 'bg-purple-100 text-purple-700' : ($leave->type === 'pengajian' ? 'bg-teal-100 text-teal-700' : 'bg-blue-100 text-blue-700')) }}">
                                         {{ $leave->type_label }}
                                     </span>
                                 </td>
@@ -123,7 +122,7 @@
     @else
         <div class="bg-white border-4 border-black rounded-lg shadow-[6px_6px_0_0_#000] p-12 text-center">
             <span class="material-symbols-outlined text-5xl text-gray-300 mb-3">assignment</span>
-            <p class="text-gray-400 font-bold italic">Tidak ada data pengajuan izin/cuti.</p>
+            <p class="text-gray-400 font-bold italic">Tidak ada data pengajuan izin.</p>
         </div>
     @endif
 

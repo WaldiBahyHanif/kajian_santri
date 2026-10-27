@@ -27,27 +27,28 @@ class LeaveController extends Controller
         $student = Auth::user();
 
         $request->validate([
-            'type' => ['required', 'in:izin,cuti,sakit'],
+            'type' => ['required', 'in:pengajian,izin'],
             'start_date' => ['required', 'date', 'after_or_equal:today'],
-            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+            'duration' => ['required', 'integer', 'min:1', 'max:30'],
             'reason' => ['required', 'string', 'max:500'],
-            'notes' => ['nullable', 'string', 'max:1000'],
             'covered_sessions' => ['required', 'array', 'min:1'],
             'covered_sessions.*' => ['in:Kajian,Sholat,Tahsin,Acara'],
         ]);
 
-        LeaveRequest::create([
+        $startDate = \Carbon\Carbon::parse($request->start_date);
+        $endDate = $startDate->copy()->addDays($request->duration - 1);
+
+        $leave = LeaveRequest::create([
             'student_id' => $student->id,
             'type' => $request->type,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
             'reason' => $request->reason,
-            'notes' => $request->notes,
             'covered_sessions' => $request->covered_sessions,
+            'status' => 'approved',
         ]);
 
-        return redirect()->route('izin.index')
-            ->with('success', 'Pengajuan ' . $request->type . ' berhasil dikirim dan menunggu persetujuan admin.');
+        return redirect()->away($leave->whatsapp_link);
     }
 
     public function show($id)

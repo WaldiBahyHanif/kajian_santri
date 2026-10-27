@@ -13,7 +13,7 @@
         ['route' => 'kajian',          'icon' => 'calendar_month',  'label' => 'Kajian'],
         ['route' => 'rekap',           'icon' => 'bar_chart',       'label' => 'Rekap'],
         ['route' => 'rapor',           'icon' => 'analytics',       'label' => 'Rapor'],
-        ['route' => 'izin.index',      'icon' => 'assignment',      'label' => 'Izin & Cuti'],
+        ['route' => 'izin.index',      'icon' => 'assignment',      'label' => 'Izin'],
         ['route' => 'kalender.index',  'icon' => 'calendar_today',  'label' => 'Kalender'],
         ['route' => 'alumni.index',    'icon' => 'info',            'label' => 'Info'],
     ];

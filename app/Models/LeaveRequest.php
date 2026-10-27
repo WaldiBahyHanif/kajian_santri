@@ -44,6 +44,37 @@ class LeaveRequest extends Model
         return $this->belongsTo(Admin::class, 'approved_by');
     }
 
+    /**
+     * Kategori musyrif tujuan WhatsApp:
+     * 1 = Izin Pengajian, 2 = Izin tidak di asrama 1 malam, 3 = lebih dari 1 malam / cuti.
+     */
+    public function getWhatsappCategoryAttribute(): int
+    {
+        if ($this->type === 'pengajian') {
+            return 1;
+        }
+
+        if ($this->type === 'cuti') {
+            return 3;
+        }
+
+        $days = $this->start_date->diffInDays($this->end_date) + 1;
+
+        return $days > 1 ? 3 : 2;
+    }
+
+    public function getWhatsappLinkAttribute(): string
+    {
+        $number = config('perizinan.musyrif_wa.' . $this->whatsapp_category);
+
+        $message = "Assalamu'alaikum, saya *{$this->student->name}* mengajukan *{$this->type_label}*\n"
+            . "📅 {$this->start_date->translatedFormat('d M Y')} s.d. {$this->end_date->translatedFormat('d M Y')}\n\n"
+            . "Alasan: {$this->reason}\n\n"
+            . "Mohon izinnya, terima kasih 🙏";
+
+        return 'https://wa.me/' . $number . '?text=' . rawurlencode($message);
+    }
+
     public function scopePending($query)
     {
         return $query->where('status', 'pending');
@@ -89,6 +120,7 @@ class LeaveRequest extends Model
     public function getTypeLabelAttribute()
     {
         return match($this->type) {
+            'pengajian' => 'Izin Pengajian',
             'izin' => 'Izin',
             'cuti' => 'Cuti',
             'sakit' => 'Sakit',
