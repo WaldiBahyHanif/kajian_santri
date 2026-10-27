@@ -198,43 +198,25 @@
             animation: drift 8s ease-in-out infinite;
         }
 
-        @keyframes sway {
-            0%, 100% { transform: rotate(0deg); }
-            50% { transform: rotate(2.5deg); }
-        }
-        .animate-sway {
-            transform-origin: bottom center;
-            animation: sway 6s ease-in-out infinite;
+        .font-pixel {
+            font-family: 'Press Start 2P', monospace;
         }
 
-        @keyframes cloud-move {
-            0% { transform: translateX(-20px); }
-            50% { transform: translateX(20px); }
-            100% { transform: translateX(-20px); }
+        #village-viewport {
+            touch-action: none;
+            cursor: grab;
         }
-        .animate-cloud-1 {
-            animation: cloud-move 12s ease-in-out infinite;
+        #village-viewport.dragging {
+            cursor: grabbing;
         }
-        .animate-cloud-2 {
-            animation: cloud-move 18s ease-in-out infinite;
-        }
-
-        @keyframes leaf-fall {
-            0% { transform: translateY(-10px) translateX(0) rotate(0deg); opacity: 0; }
-            20% { opacity: 1; }
-            80% { opacity: 1; }
-            100% { transform: translateY(90px) translateX(25px) rotate(120deg); opacity: 0; }
-        }
-        .animate-leaf-1 {
-            animation: leaf-fall 6s linear infinite;
-        }
-        .animate-leaf-2 {
-            animation: leaf-fall 8s linear infinite 3s;
+        #village-world {
+            transform-origin: 0 0;
+            will-change: transform;
         }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700&family=Press+Start+2P&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet"/>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-background text-on-background font-body-md min-h-screen">
@@ -339,219 +321,60 @@
             </section>
         @endif
 
-        <!-- 🌱 KEBUN KEBAIKAN PONDOK (Virtual Shared Garden) -->
+        <!-- 🌱 KEBUN PONDOK (Village Map 2D Per-Santri, ala Harvest Moon) -->
         @php
             $status = $setting->garden_status ?? 'subur';
             $message = $setting->garden_message ?? 'Mari hiasi hari kita dengan zikir dan kajian berilmu di pondok Daaru Hiraa.';
-            
-            // Konfigurasi warna langsung via Hex untuk bypass JIT compile
-            $skyColorHex = '#bae6fd'; // default: cyan-200 / sky-200
-            $soilColorHex = '#34d399'; // default: emerald-400
-            $sunClass = 'text-yellow-400';
-            
+
+            $skyColorHex = '#bae6fd';
             if ($status === 'subur_sekali') {
-                $skyColorHex = '#7dd3fc'; // sky-300
+                $skyColorHex = '#7dd3fc';
             } elseif ($status === 'biasa') {
-                $skyColorHex = '#fed7aa'; // orange-200 (sore)
-                $sunClass = 'text-orange-400 translate-y-6';
+                $skyColorHex = '#fed7aa';
             } elseif ($status === 'kering') {
-                $skyColorHex = '#fef3c7'; // amber-100 (kering)
-                $sunClass = 'text-amber-500 translate-y-12';
-                $soilColorHex = '#ca8a04'; // yellow-600 (tanah kering)
+                $skyColorHex = '#fef3c7';
             }
+
+            $villageCols = 7;
+            $plotSize = 92;
+            $villageWidth = $villageCols * $plotSize;
+            $villageRows = (int) ceil(max($villageStudents->count(), 1) / $villageCols);
+            $villageHeight = $villageRows * $plotSize;
         @endphp
         <section class="bg-white border-3 border-on-background rounded-xl neobrutal-shadow overflow-hidden">
             <!-- Header Kebun -->
-            <div class="p-4 border-b-3 border-on-background bg-emerald-300 text-black font-black uppercase text-xs tracking-widest flex items-center justify-between">
-                <span class="flex items-center gap-2">🌱 Kebun Kebaikan Daaru Hiraa</span>
+            <div class="p-4 border-b-3 border-on-background bg-emerald-300 text-black font-black uppercase text-xs tracking-widest flex items-center justify-between flex-wrap gap-2">
+                <span class="flex items-center gap-2">🌱 Kebun Pondok Daaru Hiraa</span>
                 <span class="text-[10px] bg-white px-2 py-0.5 border border-black rounded shadow-[1px_1px_0_0_#000] dark:text-black">
-                    Kondisi: 
-                    @if($status === 'subur_sekali') 🌳 Sangat Subur
-                    @elseif($status === 'subur') 🌿 Subur
-                    @elseif($status === 'biasa') 🍃 Kurang Subur
-                    @else 🍂 Layu / Kering
-                    @endif
+                    {{ $villageStudents->count() }} Pohon Santri · Scroll/Pinch untuk Zoom
                 </span>
             </div>
 
-            <!-- Canvas Kebun (Menggunakan inline style height & background agar selalu tampil) -->
-            <div class="relative overflow-hidden border-b-3 border-on-background transition-colors duration-500" style="height: 180px; background-color: {{ $skyColorHex }};">
-                <!-- Awan-awan (Bergerak lambat) -->
-                @if($status !== 'kering')
-                    <div class="absolute top-4 left-6 text-white/70 animate-cloud-1">
-                        <svg class="w-12 h-8 fill-current" viewBox="0 0 100 100"><path d="M20,50 C20,35 40,30 50,40 C55,30 75,35 75,50 C85,50 85,65 75,70 C70,80 30,80 25,70 C15,65 15,50 20,50 Z"/></svg>
-                    </div>
-                    <div class="absolute top-8 right-12 text-white/50 animate-cloud-2">
-                        <svg class="w-16 h-10 fill-current" viewBox="0 0 100 100"><path d="M20,50 C20,35 40,30 50,40 C55,30 75,35 75,50 C85,50 85,65 75,70 C70,80 30,80 25,70 C15,65 15,50 20,50 Z"/></svg>
-                    </div>
-                @else
-                    <!-- Awan Mendung / Abu-abu -->
-                    <div class="absolute top-4 left-6 text-gray-400/80 animate-cloud-1">
-                        <svg class="w-14 h-9 fill-current" viewBox="0 0 100 100"><path d="M20,50 C20,35 40,30 50,40 C55,30 75,35 75,50 C85,50 85,65 75,70 C70,80 30,80 25,70 C15,65 15,50 20,50 Z"/></svg>
-                    </div>
-                @endif
-
-                <!-- Matahari -->
-                <div class="absolute top-4 right-6 w-12 h-12 {{ $sunClass }} transition-transform duration-700">
-                    <svg class="w-full h-full fill-current stroke-black stroke-[3px] {{ $status === 'subur_sekali' ? 'animate-spin-slow' : '' }}" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="22" />
-                        @if($status === 'subur_sekali' || $status === 'subur')
-                            <path d="M50,15 L50,5 M50,85 L50,95 M15,50 L5,50 M85,50 L95,50 M25,25 L18,18 M75,75 L82,82 M25,75 L18,82 M75,25 L82,18" stroke="#000" stroke-width="4" stroke-linecap="round" />
-                        @endif
-                    </svg>
+            <!-- Viewport Map (bisa di-zoom & digeser) -->
+            <div id="village-viewport" class="relative overflow-hidden border-b-3 border-on-background" style="height: 260px; background-color: {{ $skyColorHex }};">
+                <div id="village-world" style="width: {{ $villageWidth }}px; height: {{ $villageHeight }}px; position: relative;">
+                    @foreach($villageStudents as $villageStudent)
+                        @php
+                            $vCol = $loop->index % $villageCols;
+                            $vRow = intdiv($loop->index, $villageCols);
+                        @endphp
+                        <div class="absolute flex flex-col items-center justify-center" style="left: {{ $vCol * $plotSize }}px; top: {{ $vRow * $plotSize }}px; width: {{ $plotSize }}px; height: {{ $plotSize }}px;">
+                            <div class="w-[70px] h-[70px] bg-[#86EFAC] border-2 border-black rounded-md flex items-center justify-center p-1 shrink-0">
+                                <x-pixel-tree :stage="$villageStudent->garden_stage" class="w-full h-full" />
+                            </div>
+                            <p class="font-pixel text-[6px] leading-tight text-black mt-0.5 text-center truncate w-full" title="{{ $villageStudent->name }}">{{ $villageStudent->name }}</p>
+                        </div>
+                    @endforeach
                 </div>
 
-                <!-- Gambar Kebun SVG (Pohon Organik Detil Neobrutalisme) -->
-                <svg viewBox="0 0 500 200" preserveAspectRatio="none" style="width: 100%; height: 100%; position: absolute; bottom: 0; left: 0;">
-                    <!-- Bukit Belakang (Shadow) -->
-                    <path d="M-20,155 Q150,105 320,145 T520,125 L520,220 L-20,220 Z" fill="#047857" opacity="0.35" class="stroke-black" stroke-width="4" />
-
-                    <!-- Bukit Depan (Tanah/Gundukan rumput utama) -->
-                    <path d="M-20,165 Q120,140 250,160 T520,145 L520,220 L-20,220 Z" fill="{{ $soilColorHex }}" class="stroke-black" stroke-width="4" />
-
-                    <!-- Pagar Kayu Neobrutalist Kiri -->
-                    <g transform="translate(20, 135)">
-                        <rect x="0" y="5" width="6" height="28" fill="#fef08a" stroke="black" stroke-width="2.5"/>
-                        <rect x="15" y="2" width="6" height="31" fill="#fef08a" stroke="black" stroke-width="2.5"/>
-                        <rect x="30" y="5" width="6" height="28" fill="#fef08a" stroke="black" stroke-width="2.5"/>
-                        <line x1="-5" y1="12" x2="40" y2="12" stroke="black" stroke-width="3"/>
-                        <line x1="-5" y1="22" x2="40" y2="22" stroke="black" stroke-width="3"/>
-                    </g>
-
-                    <!-- Pagar Kayu Neobrutalist Kanan -->
-                    <g transform="translate(430, 125)">
-                        <rect x="0" y="5" width="6" height="28" fill="#fef08a" stroke="black" stroke-width="2.5"/>
-                        <rect x="15" y="2" width="6" height="31" fill="#fef08a" stroke="black" stroke-width="2.5"/>
-                        <rect x="30" y="5" width="6" height="28" fill="#fef08a" stroke="black" stroke-width="2.5"/>
-                        <line x1="-5" y1="12" x2="40" y2="12" stroke="black" stroke-width="3"/>
-                        <line x1="-5" y1="22" x2="40" y2="22" stroke="black" stroke-width="3"/>
-                    </g>
-
-                    <!-- Tanaman Hias & Bunga Neobrutalist -->
-                    @if($status === 'subur_sekali' || $status === 'subur')
-                        <!-- Bunga Merah Mekar Kiri -->
-                        <g transform="translate(85, 142)">
-                            <path d="M0,25 Q-3,10 0,0" stroke="black" stroke-width="3.5" fill="none" />
-                            <path d="M0,15 Q-10,12 -8,5 Z" fill="#22c55e" stroke="black" stroke-width="2" />
-                            <circle cx="0" cy="0" r="8" fill="#fde047" stroke="black" stroke-width="2.5" />
-                            <circle cx="-9" cy="-4" r="6" fill="#f43f5e" stroke="black" stroke-width="2" />
-                            <circle cx="9" cy="-4" r="6" fill="#f43f5e" stroke="black" stroke-width="2" />
-                            <circle cx="0" cy="-10" r="6" fill="#f43f5e" stroke="black" stroke-width="2" />
-                            <circle cx="-6" cy="7" r="6" fill="#f43f5e" stroke="black" stroke-width="2" />
-                            <circle cx="6" cy="7" r="6" fill="#f43f5e" stroke="black" stroke-width="2" />
-                        </g>
-
-                        <!-- Bunga Ungu Mekar Kanan -->
-                        <g transform="translate(385, 138)">
-                            <path d="M0,28 Q4,12 0,0" stroke="black" stroke-width="3.5" fill="none" />
-                            <path d="M0,18 Q10,14 8,7 Z" fill="#22c55e" stroke="black" stroke-width="2" />
-                            <circle cx="0" cy="0" r="7" fill="#fde047" stroke="black" stroke-width="2.5" />
-                            <circle cx="-8" cy="-5" r="5.5" fill="#a855f7" stroke="black" stroke-width="2" />
-                            <circle cx="8" cy="-5" r="5.5" fill="#a855f7" stroke="black" stroke-width="2" />
-                            <circle cx="0" cy="-9" r="5.5" fill="#a855f7" stroke="black" stroke-width="2" />
-                            <circle cx="-5" cy="6" r="5.5" fill="#a855f7" stroke="black" stroke-width="2" />
-                            <circle cx="5" cy="6" r="5.5" fill="#a855f7" stroke="black" stroke-width="2" />
-                        </g>
-                    @endif
-
-                    @if($status === 'subur_sekali')
-                        <!-- Bunga Oranye Kiri Tambahan -->
-                        <g transform="translate(145, 148)">
-                            <path d="M0,18 L0,0" stroke="black" stroke-width="2.5" />
-                            <circle cx="0" cy="0" r="6" fill="#fb923c" stroke="black" stroke-width="2" />
-                        </g>
-                        <!-- Bunga Kuning Kanan Tambahan -->
-                        <g transform="translate(335, 145)">
-                            <path d="M0,20 L0,0" stroke="black" stroke-width="2.5" />
-                            <circle cx="0" cy="0" r="7" fill="#facc15" stroke="black" stroke-width="2" />
-                        </g>
-                    @endif
-
-                    <!-- POHON UTAMA ORGANIK DETIL NEOBRUTALISME -->
-                    <g transform="translate(250, 175)">
-                        <g class="animate-sway">
-                            <!-- Batang Utama Berakar & Bertekstur -->
-                            <!-- Akar & Dasar Batang -->
-                            <path d="M-18,0 C-22,-20 -14,-40 -12,-70 Q-10,-95 -4,-115 Q4,-95 10,-70 C12,-40 20,-20 18,0 Z" fill="#8B4513" stroke="black" stroke-width="4" />
-                            <!-- Serat Kayu Batang -->
-                            <path d="M-5,-20 Q-8,-45 -4,-70 M3,-15 Q6,-40 2,-65" stroke="#5c2c06" stroke-width="2.5" stroke-linecap="round" fill="none" />
-
-                            <!-- Dahan/Cabang Organik Kiri & Kanan -->
-                            <path d="M-8,-65 Q-25,-80 -38,-95 M-25,-80 Q-35,-65 -45,-75" stroke="#8B4513" stroke-width="5" stroke-linecap="round" fill="none" />
-                            <path d="M-8,-65 Q-25,-80 -38,-95 M-25,-80 Q-35,-65 -45,-75" stroke="black" stroke-width="5.5" stroke-linecap="round" fill="none" class="opacity-30" />
-                            <path d="M6,-75 Q28,-90 42,-105 M22,-88 Q32,-75 45,-82" stroke="#8B4513" stroke-width="5" stroke-linecap="round" fill="none" />
-
-                            <!-- CANOPY DEDAUNAN ORGANIK BERLAYAR (Bukan sekadar lingkaran kaku) -->
-                            @if($status === 'subur_sekali')
-                                <!-- Layer 1: Daun Belakang (Gelap) -->
-                                <path d="M-60,-130 C-85,-155 -60,-195 -25,-195 C0,-215 45,-205 60,-180 C80,-180 90,-145 70,-130 C85,-105 55,-85 30,-95 C10,-80 -35,-90 -45,-110 Z" fill="#047857" stroke="black" stroke-width="4.5" />
-                                
-                                <!-- Layer 2: Daun Tengah (Hijau Segar) -->
-                                <path d="M-50,-135 C-70,-155 -45,-185 -15,-185 C5,-200 40,-195 50,-170 C68,-170 75,-140 58,-125 C70,-105 45,-90 22,-98 C5,-85 -30,-95 -40,-115 Z" fill="#10B981" stroke="black" stroke-width="4" />
-                                
-                                <!-- Layer 3: Daun Depan (Terang Highlight) -->
-                                <path d="M-35,-140 C-50,-155 -30,-175 -5,-175 C10,-188 32,-182 40,-162 C55,-162 60,-138 46,-125 C55,-110 35,-98 18,-105 C5,-92 -20,-102 -28,-118 Z" fill="#34D399" stroke="black" stroke-width="3.5" />
-
-                                <!-- Buah Apel Merah & Buah Emas Kartun -->
-                                <g transform="translate(-32, -150)">
-                                    <circle cx="0" cy="0" r="7.5" fill="#EF4444" stroke="black" stroke-width="2" />
-                                    <path d="M0,-7 Q2,-10 4,-11" stroke="black" stroke-width="1.5" />
-                                </g>
-                                <g transform="translate(25, -165)">
-                                    <circle cx="0" cy="0" r="7.5" fill="#EF4444" stroke="black" stroke-width="2" />
-                                    <path d="M0,-7 Q2,-10 4,-11" stroke="black" stroke-width="1.5" />
-                                </g>
-                                <g transform="translate(45, -128)">
-                                    <circle cx="0" cy="0" r="7" fill="#FACC15" stroke="black" stroke-width="2" />
-                                    <path d="M0,-6 Q2,-9 4,-10" stroke="black" stroke-width="1.5" />
-                                </g>
-                                <g transform="translate(-40, -118)">
-                                    <circle cx="0" cy="0" r="7" fill="#FACC15" stroke="black" stroke-width="2" />
-                                    <path d="M0,-6 Q2,-9 4,-10" stroke="black" stroke-width="1.5" />
-                                </g>
-                                <g transform="translate(0, -125)">
-                                    <circle cx="0" cy="0" r="8" fill="#EF4444" stroke="black" stroke-width="2" />
-                                    <path d="M0,-7 Q2,-10 4,-11" stroke="black" stroke-width="1.5" />
-                                </g>
-
-                            @elseif($status === 'subur')
-                                <!-- Layer 1: Daun Belakang -->
-                                <path d="M-52,-120 C-72,-142 -50,-175 -20,-175 C0,-192 38,-185 50,-162 C68,-162 76,-132 58,-118 C70,-98 42,-80 20,-88 C2,-75 -32,-85 -40,-102 Z" fill="#059669" stroke="black" stroke-width="4.5" />
-                                
-                                <!-- Layer 2: Daun Depan -->
-                                <path d="M-40,-125 C-58,-142 -35,-168 -10,-168 C8,-182 32,-175 42,-155 C56,-155 62,-130 48,-118 C58,-102 34,-88 15,-95 C0,-82 -25,-92 -32,-108 Z" fill="#10B981" stroke="black" stroke-width="3.5" />
-
-                                <!-- Buah Apel Merah -->
-                                <g transform="translate(-20, -140)">
-                                    <circle cx="0" cy="0" r="7" fill="#EF4444" stroke="black" stroke-width="2" />
-                                    <path d="M0,-6 Q2,-9 4,-10" stroke="black" stroke-width="1.5" />
-                                </g>
-                                <g transform="translate(22, -125)">
-                                    <circle cx="0" cy="0" r="7" fill="#EF4444" stroke="black" stroke-width="2" />
-                                    <path d="M0,-6 Q2,-9 4,-10" stroke="black" stroke-width="1.5" />
-                                </g>
-
-                            @elseif($status === 'biasa')
-                                <!-- Daun Sedang -->
-                                <path d="M-40,-110 C-55,-128 -35,-150 -8,-150 C8,-162 28,-156 38,-138 C50,-138 55,-115 42,-105 C50,-90 30,-78 12,-84 C0,-72 -22,-80 -28,-95 Z" fill="#84CC16" stroke="black" stroke-width="4" />
-
-                            @else
-                                <!-- Kering / Layu (Pohon Ranting Tanpa Daun / Daun Kecokelatan) -->
-                                <path d="M-25,-95 C-35,-110 -20,-125 -5,-125 C5,-135 20,-130 28,-115 C38,-115 40,-98 30,-90 Z" fill="#D97706" stroke="black" stroke-width="3.5" />
-                            @endif
-                        </g>
-                    </g>
-
-                    <!-- Animasi Daun Berguguran (Khusus status Layu/Kering/Biasa) -->
-                    @if($status === 'kering' || $status === 'biasa')
-                        <g class="animate-leaf-1" transform="translate(230, 80)">
-                            <path d="M0,0 Q10,-10 20,0 Q10,10 0,0" fill="#D97706" stroke="black" stroke-width="1.5"/>
-                        </g>
-                        <g class="animate-leaf-2" transform="translate(260, 95)">
-                            <path d="M0,0 Q10,-10 20,0 Q10,10 0,0" fill="#B45309" stroke="black" stroke-width="1.5"/>
-                        </g>
-                    @endif
-                </svg>
+                <!-- Kontrol Zoom -->
+                <div class="absolute bottom-2 right-2 flex flex-col gap-1 z-10">
+                    <button type="button" id="village-zoom-in" class="w-8 h-8 bg-white border-2 border-black rounded-md font-black text-lg leading-none shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">+</button>
+                    <button type="button" id="village-zoom-out" class="w-8 h-8 bg-white border-2 border-black rounded-md font-black text-lg leading-none shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">−</button>
+                    <button type="button" id="village-zoom-reset" class="w-8 h-8 bg-white border-2 border-black rounded-md flex items-center justify-center shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
+                        <span class="material-symbols-outlined text-base">center_focus_weak</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Papan Motivasi (Neobrutalist Board) -->
@@ -567,6 +390,131 @@
                 </div>
             </div>
         </section>
+
+        <script>
+        (function () {
+            var viewport = document.getElementById('village-viewport');
+            var world = document.getElementById('village-world');
+            if (!viewport || !world) return;
+
+            var worldW = parseFloat(world.style.width);
+            var worldH = parseFloat(world.style.height);
+            var minScale = 0.4, maxScale = 2.5;
+            var scale = 1, originX = 0, originY = 0;
+            var dragging = false, lastX = 0, lastY = 0;
+
+            function clampScale(s) {
+                return Math.max(minScale, Math.min(maxScale, s));
+            }
+
+            function applyTransform() {
+                world.style.transform = 'translate(' + originX + 'px, ' + originY + 'px) scale(' + scale + ')';
+            }
+
+            function fitView() {
+                var vw = viewport.clientWidth, vh = viewport.clientHeight;
+                scale = clampScale(Math.min(vw / worldW, vh / worldH) * 0.95);
+                originX = (vw - worldW * scale) / 2;
+                originY = (vh - worldH * scale) / 2;
+                minScale = scale * 0.8;
+                applyTransform();
+            }
+
+            function zoomAt(cx, cy, newScale) {
+                newScale = clampScale(newScale);
+                var worldX = (cx - originX) / scale;
+                var worldY = (cy - originY) / scale;
+                scale = newScale;
+                originX = cx - worldX * scale;
+                originY = cy - worldY * scale;
+                applyTransform();
+            }
+
+            fitView();
+            window.addEventListener('resize', fitView);
+
+            // Scroll wheel zoom
+            viewport.addEventListener('wheel', function (e) {
+                e.preventDefault();
+                var rect = viewport.getBoundingClientRect();
+                var cx = e.clientX - rect.left, cy = e.clientY - rect.top;
+                var delta = e.deltaY < 0 ? 1.1 : 0.9;
+                zoomAt(cx, cy, scale * delta);
+            }, { passive: false });
+
+            // Drag to pan (mouse & touch via pointer events)
+            var activePointers = {};
+            var pinchStartDist = null, pinchStartScale = null;
+
+            function getDistance(p1, p2) {
+                return Math.hypot(p1.x - p2.x, p1.y - p2.y);
+            }
+
+            viewport.addEventListener('pointerdown', function (e) {
+                viewport.setPointerCapture(e.pointerId);
+                activePointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+                var ids = Object.keys(activePointers);
+                if (ids.length === 1) {
+                    dragging = true;
+                    lastX = e.clientX;
+                    lastY = e.clientY;
+                    viewport.classList.add('dragging');
+                } else if (ids.length === 2) {
+                    dragging = false;
+                    var pts = ids.map(function (id) { return activePointers[id]; });
+                    pinchStartDist = getDistance(pts[0], pts[1]);
+                    pinchStartScale = scale;
+                }
+            });
+
+            viewport.addEventListener('pointermove', function (e) {
+                if (!activePointers[e.pointerId]) return;
+                activePointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+                var ids = Object.keys(activePointers);
+
+                if (ids.length === 2 && pinchStartDist) {
+                    var pts = ids.map(function (id) { return activePointers[id]; });
+                    var newDist = getDistance(pts[0], pts[1]);
+                    var rect = viewport.getBoundingClientRect();
+                    var midX = (pts[0].x + pts[1].x) / 2 - rect.left;
+                    var midY = (pts[0].y + pts[1].y) / 2 - rect.top;
+                    zoomAt(midX, midY, pinchStartScale * (newDist / pinchStartDist));
+                } else if (dragging && ids.length === 1) {
+                    originX += e.clientX - lastX;
+                    originY += e.clientY - lastY;
+                    lastX = e.clientX;
+                    lastY = e.clientY;
+                    applyTransform();
+                }
+            });
+
+            function endPointer(e) {
+                delete activePointers[e.pointerId];
+                if (Object.keys(activePointers).length < 2) {
+                    pinchStartDist = null;
+                }
+                if (Object.keys(activePointers).length === 0) {
+                    dragging = false;
+                    viewport.classList.remove('dragging');
+                }
+            }
+            viewport.addEventListener('pointerup', endPointer);
+            viewport.addEventListener('pointercancel', endPointer);
+            viewport.addEventListener('pointerleave', endPointer);
+
+            // Zoom buttons
+            var zoomInBtn = document.getElementById('village-zoom-in');
+            var zoomOutBtn = document.getElementById('village-zoom-out');
+            var zoomResetBtn = document.getElementById('village-zoom-reset');
+            if (zoomInBtn) zoomInBtn.addEventListener('click', function () {
+                zoomAt(viewport.clientWidth / 2, viewport.clientHeight / 2, scale * 1.3);
+            });
+            if (zoomOutBtn) zoomOutBtn.addEventListener('click', function () {
+                zoomAt(viewport.clientWidth / 2, viewport.clientHeight / 2, scale / 1.3);
+            });
+            if (zoomResetBtn) zoomResetBtn.addEventListener('click', fitView);
+        })();
+        </script>
 
         <!-- Card Persentase Kehadiran Kajian & Card Jadwal Sholat Maguwoharjo Sleman -->
         <section class="space-y-6">

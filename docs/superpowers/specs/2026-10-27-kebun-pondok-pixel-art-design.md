@@ -1,6 +1,6 @@
 # Kebun Pondok — Pohon Pixel Art Per-Santri (ala Harvest Moon)
 
-**Status:** Approved
+**Status:** Superseded — digantikan oleh [2026-10-27-kebun-pondok-village-map-design.md](./2026-10-27-kebun-pondok-village-map-design.md). Setelah fitur ini dibuat, user minta diubah: bukan halaman menu terpisah, tapi satu map 2D di Home yang bisa di-zoom/digeser (ala Harvest Moon: Back to Nature). Dokumen ini dibiarkan sebagai riwayat keputusan, bukan rencana aktif.
 **Tanggal:** 2026-10-27
 
 ## Latar Belakang

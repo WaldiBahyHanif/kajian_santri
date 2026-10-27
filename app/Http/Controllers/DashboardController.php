@@ -225,6 +225,40 @@ class DashboardController extends Controller
             ]);
         }
 
+        // Kebun Pondok: pohon pixel art per-santri (persentase kehadiran Kajian 30 hari terakhir)
+        $villageStudents = Student::where('status_aktif', 'Aktif')
+            ->where('title', '!=', 'Admin')
+            ->orderBy('name', 'asc')
+            ->get(['id', 'name', 'avatar']);
+
+        $villageStartDate = now()->subDays(29)->toDateString();
+        $villageEndDate = now()->toDateString();
+
+        $villageHadirCounts = AttendanceLog::selectRaw('student_id, COUNT(*) as c')
+            ->where('session_type', 'Kajian')
+            ->where('status', 'H')
+            ->where('attendance_date', '>=', $villageStartDate)
+            ->where('attendance_date', '<=', $villageEndDate)
+            ->groupBy('student_id')
+            ->pluck('c', 'student_id');
+
+        $villageStudents = $villageStudents->map(function ($student) use ($villageHadirCounts) {
+            $count = (int) ($villageHadirCounts[$student->id] ?? 0);
+            $villagePercentage = ($count / 30) * 100;
+
+            if ($villagePercentage >= 85) {
+                $student->garden_stage = 4;
+            } elseif ($villagePercentage >= 60) {
+                $student->garden_stage = 3;
+            } elseif ($villagePercentage >= 30) {
+                $student->garden_stage = 2;
+            } else {
+                $student->garden_stage = 1;
+            }
+
+            return $student;
+        });
+
         // Santri yang butuh perhatian (untuk Musyrif)
         $flaggedSantri = collect();
         if ($user->title === 'Musyrif') {
@@ -244,6 +278,7 @@ class DashboardController extends Controller
             'tahsinStats',
             'prayerTimes',
             'gardenStage',
+            'villageStudents',
             'nextKajians',
             'setting',
             'flaggedSantri'
