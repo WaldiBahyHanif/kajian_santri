@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html class="light" lang="id">
 <head>
     <meta charset="utf-8"/>
@@ -249,6 +249,16 @@
                     <div class="flex items-center gap-2 bg-secondary-container border-2 border-on-background text-on-secondary-container px-3 py-2 rounded-lg text-xs font-bold mb-4">
                         <span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1;">check_circle</span>
                         Kamu sudah absen Kajian Pagi hari ini. Refleksi ini akan tersimpan sebagai jurnal tambahan.
+                    </div>
+                @elseif($isWithinAttendanceWindow ?? false)
+                    <div class="flex items-center gap-2 bg-secondary-container border-2 border-on-background text-on-secondary-container px-3 py-2 rounded-lg text-xs font-bold mb-4">
+                        <span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1;">schedule</span>
+                        Absen Kajian Pagi via refleksi aktif sampai pukul 07:00 WIB. Isi refleksi sekarang untuk otomatis tercatat Hadir!
+                    </div>
+                @else
+                    <div class="flex items-center gap-2 bg-tertiary-fixed border-2 border-on-background text-on-tertiary-fixed px-3 py-2 rounded-lg text-xs font-bold mb-4">
+                        <span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1;">info</span>
+                        Batas absen via refleksi (07:00 WIB) telah lewat. Kamu tetap bisa menulis refleksi harian, namun tidak dihitung sebagai absen kehadiran.
                     </div>
                 @endif
 

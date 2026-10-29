@@ -19,14 +19,19 @@ class ReflectionController extends Controller
         $user = Auth::user();
         $reflections = $user->reflections()->with('topic')->latest()->get();
 
-        $todayTopic = Topic::where('day_index', Carbon::today()->dayOfWeekIso)->first();
+        $now = Carbon::now('Asia/Jakarta');
+        $today = Carbon::today('Asia/Jakarta');
+        $todayTopic = Topic::where('day_index', $today->dayOfWeekIso)->first();
 
         $alreadyAttendedToday = AttendanceLog::where('student_id', $user->id)
-            ->where('attendance_date', Carbon::today()->toDateString())
+            ->where('attendance_date', $today->toDateString())
             ->where('session_type', 'Kajian')
             ->exists();
 
-        return view('refleksi', compact('user', 'reflections', 'todayTopic', 'alreadyAttendedToday'));
+        $cutoffTime = $today->copy()->setTime(7, 0, 0);
+        $isWithinAttendanceWindow = $now->lte($cutoffTime);
+
+        return view('refleksi', compact('user', 'reflections', 'todayTopic', 'alreadyAttendedToday', 'isWithinAttendanceWindow'));
     }
 
     /**
@@ -39,7 +44,9 @@ class ReflectionController extends Controller
             'topic_id' => 'required|integer',
         ]);
 
-        $todayTopic = Topic::where('day_index', Carbon::today()->dayOfWeekIso)->first();
+        $now = Carbon::now('Asia/Jakarta');
+        $today = Carbon::today('Asia/Jakarta');
+        $todayTopic = Topic::where('day_index', $today->dayOfWeekIso)->first();
 
         if (!$todayTopic || (int) $request->topic_id !== $todayTopic->id) {
             return redirect()->back()->with('error', 'Topic kajian hari ini tidak ditemukan atau sudah tidak valid. Silakan muat ulang halaman.');
@@ -54,18 +61,23 @@ class ReflectionController extends Controller
             'topic_id' => $todayTopic->id,
         ]);
 
-        $today = Carbon::today();
+        $cutoffTime = $today->copy()->setTime(7, 0, 0);
+        $isWithinAttendanceWindow = $now->lte($cutoffTime);
 
         $existingAttendance = AttendanceLog::where('student_id', $user->id)
             ->where('attendance_date', $today->toDateString())
             ->where('session_type', 'Kajian')
             ->first();
 
-        if (!$existingAttendance) {
+        if ($existingAttendance) {
+            return redirect()->back()->with('success', 'Refleksi berhasil disimpan! (Absen Kajian Pagi hari ini sudah tercatat sebelumnya)');
+        }
+
+        if ($isWithinAttendanceWindow) {
             AttendanceLog::create([
                 'student_id' => $user->id,
                 'attendance_date' => $today->toDateString(),
-                'attendance_time' => Carbon::now()->toTimeString(),
+                'attendance_time' => $now->toTimeString(),
                 'status' => 'H',
                 'session_type' => 'Kajian',
                 'kajian_topic' => $todayTopic->title,
@@ -76,7 +88,7 @@ class ReflectionController extends Controller
             return redirect()->back()->with('success', 'Refleksi berhasil disimpan & kamu otomatis tercatat Hadir Kajian Pagi hari ini! 🎉');
         }
 
-        return redirect()->back()->with('success', 'Refleksi berhasil disimpan! (Absen Kajian Pagi hari ini sudah tercatat sebelumnya)');
+        return redirect()->back()->with('success', 'Refleksi berhasil disimpan! (Tidak dihitung absen karena pengisian melewati batas waktu pukul 07:00 WIB)');
     }
 
     /**

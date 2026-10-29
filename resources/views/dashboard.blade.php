@@ -321,69 +321,352 @@
             </section>
         @endif
 
-        <!-- 🌱 KEBUN PONDOK (Village Map 2D Per-Santri, ala Harvest Moon) -->
+        <!-- 🌾 KEBUN BUAH PONDOK (2D Top-Down Pixel Art Farm ala Harvest Moon: Back to Nature) -->
         @php
             $status = $setting->garden_status ?? 'subur';
             $message = $setting->garden_message ?? 'Mari hiasi hari kita dengan zikir dan kajian berilmu di pondok Daaru Hiraa.';
 
-            $skyColorHex = '#bae6fd';
+            // Tema rumput & musim berdasarkan status kebun
+            $grassBase = '#569826';
+            $grassDark = '#46801C';
+            $grassLight = '#6AB034';
+            $seasonLabel = 'SPRING · MUSIM SEMI';
+            $seasonBadgeBg = '#86EFAC';
             if ($status === 'subur_sekali') {
-                $skyColorHex = '#7dd3fc';
+                $grassBase = '#4E9424';
+                $grassDark = '#3E7A18';
+                $grassLight = '#64B432';
+                $seasonLabel = 'PANEN RAYA · SUBUR';
+                $seasonBadgeBg = '#FDE047';
             } elseif ($status === 'biasa') {
-                $skyColorHex = '#fed7aa';
+                $grassBase = '#689A28';
+                $grassDark = '#56821E';
+                $grassLight = '#80B238';
+                $seasonLabel = 'SUMMER · MUSIM PANAS';
+                $seasonBadgeBg = '#FDBA74';
             } elseif ($status === 'kering') {
-                $skyColorHex = '#fef3c7';
+                $grassBase = '#8C8830';
+                $grassDark = '#747022';
+                $grassLight = '#A49E3E';
+                $seasonLabel = 'AUTUMN · MUSIM GUGUR';
+                $seasonBadgeBg = '#FCA5A5';
             }
 
-            $villageCols = 7;
-            $plotSize = 92;
-            $villageWidth = $villageCols * $plotSize;
-            $villageRows = (int) ceil(max($villageStudents->count(), 1) / $villageCols);
-            $villageHeight = $villageRows * $plotSize;
-        @endphp
-        <section class="bg-white border-3 border-on-background rounded-xl neobrutal-shadow overflow-hidden">
-            <!-- Header Kebun -->
-            <div class="p-4 border-b-3 border-on-background bg-emerald-300 text-black font-black uppercase text-xs tracking-widest flex items-center justify-between flex-wrap gap-2">
-                <span class="flex items-center gap-2">🌱 Kebun Pondok Daaru Hiraa</span>
-                <span class="text-[10px] bg-white px-2 py-0.5 border border-black rounded shadow-[1px_1px_0_0_#000] dark:text-black">
-                    {{ $villageStudents->count() }} Pohon Santri · Scroll/Pinch untuk Zoom
-                </span>
-            </div>
+            // Layout Grid Ladang 2D (6 kolom: 3 kiri jalan utama, 3 kanan jalan utama)
+            $villageCols = 6;
+            $plotW = 108;
+            $plotH = 114;
+            $aisleWidth = 44; // Jalan setapak batu di tengah ladang
+            $padX = 36;       // Margin pagar kayu kiri/kanan
+            $plazaHeight = 112; // Area bangunan Farmhouse, Shipping Bin & Kolam di utara ladang
+            $padBottom = 36;
 
-            <!-- Viewport Map (bisa di-zoom & digeser) -->
-            <div id="village-viewport" class="relative overflow-hidden border-b-3 border-on-background" style="height: 260px; background-color: {{ $skyColorHex }};">
-                <div id="village-world" style="width: {{ $villageWidth }}px; height: {{ $villageHeight }}px; position: relative;">
-                    @foreach($villageStudents as $villageStudent)
-                        @php
-                            $vCol = $loop->index % $villageCols;
-                            $vRow = intdiv($loop->index, $villageCols);
-                        @endphp
-                        <div class="absolute flex flex-col items-center justify-center" style="left: {{ $vCol * $plotSize }}px; top: {{ $vRow * $plotSize }}px; width: {{ $plotSize }}px; height: {{ $plotSize }}px;">
-                            <div class="w-[70px] h-[70px] bg-[#86EFAC] border-2 border-black rounded-md flex items-center justify-center p-1 shrink-0">
-                                <x-pixel-tree :stage="$villageStudent->garden_stage" class="w-full h-full" />
-                            </div>
-                            <p class="font-pixel text-[6px] leading-tight text-black mt-0.5 text-center truncate w-full" title="{{ $villageStudent->name }}">{{ $villageStudent->name }}</p>
-                        </div>
-                    @endforeach
+            $villageRows = (int) ceil(max($villageStudents->count(), 1) / $villageCols);
+            $villageWidth = ($padX * 2) + ($villageCols * $plotW) + $aisleWidth;
+            $villageHeight = $plazaHeight + ($villageRows * $plotH) + $padBottom;
+
+            $stageNames = [
+                1 => 'Tahap 1 · Benih Sawah (0-29%)',
+                2 => 'Tahap 2 · Tunas Muda (30-59%)',
+                3 => 'Tahap 3 · Pohon Berbunga (60-84%)',
+                4 => 'Tahap 4 · Pohon Berbuah Lebat (85-100%)',
+            ];
+            $fruitNames = [
+                0 => 'Kebun Apel Merah',
+                1 => 'Kebun Jeruk Mandarin',
+                2 => 'Kebun Anggur Ungu',
+                3 => 'Kebun Mangga Emas',
+            ];
+
+            $stageCounts = [
+                4 => $villageStudents->where('garden_stage', 4)->count(),
+                3 => $villageStudents->where('garden_stage', 3)->count(),
+                2 => $villageStudents->where('garden_stage', 2)->count(),
+                1 => $villageStudents->where('garden_stage', 1)->count(),
+            ];
+
+            $myPlotStudent = $villageStudents->firstWhere('id', auth()->id()) ?? $villageStudents->first();
+        @endphp
+        <section class="border-3 border-on-background rounded-xl neobrutal-shadow overflow-hidden bg-[#2B1708]">
+            <!-- Harvest Moon Retro Top HUD Bar -->
+            <div class="p-3 sm:px-4 border-b-3 border-black bg-[#3B200E] text-[#FEF3C7] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div class="flex items-center gap-2.5 flex-wrap">
+                    <!-- Pixel Season & Clock Box -->
+                    <div class="inline-flex items-center gap-2 bg-[#1F1006] border-2 border-[#A16207] px-2.5 py-1 rounded shadow-[2px_2px_0_0_#000]">
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 16 16" shape-rendering="crispEdges">
+                            <rect x="5" y="5" width="6" height="6" fill="#FACC15"/>
+                            <rect x="7" y="1" width="2" height="3" fill="#FDE047"/>
+                            <rect x="7" y="12" width="2" height="3" fill="#FDE047"/>
+                            <rect x="1" y="7" width="3" height="2" fill="#FDE047"/>
+                            <rect x="12" y="7" width="3" height="2" fill="#FDE047"/>
+                            <rect x="3" y="3" width="2" height="2" fill="#F59E0B"/>
+                            <rect x="11" y="3" width="2" height="2" fill="#F59E0B"/>
+                            <rect x="3" y="11" width="2" height="2" fill="#F59E0B"/>
+                            <rect x="11" y="11" width="2" height="2" fill="#F59E0B"/>
+                        </svg>
+                        <span class="font-pixel text-[8px] sm:text-[9px] text-[#FDE047] tracking-wider">{{ $seasonLabel }}</span>
+                    </div>
+
+                    <div class="flex items-center gap-1.5">
+                        <span class="font-pixel text-[9px] sm:text-[10px] text-white tracking-wide uppercase">Ladang Daaru Hiraa</span>
+                        <span class="text-[10px] font-bold bg-[#D97706] text-black px-2 py-0.5 border border-black rounded shadow-[1px_1px_0_0_#000]">
+                            {{ $villageStudents->count() }} Petak
+                        </span>
+                    </div>
                 </div>
 
-                <!-- Kontrol Zoom -->
-                <div class="absolute bottom-2 right-2 flex flex-col gap-1 z-10">
-                    <button type="button" id="village-zoom-in" class="w-8 h-8 bg-white border-2 border-black rounded-md font-black text-lg leading-none shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">+</button>
-                    <button type="button" id="village-zoom-out" class="w-8 h-8 bg-white border-2 border-black rounded-md font-black text-lg leading-none shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">−</button>
-                    <button type="button" id="village-zoom-reset" class="w-8 h-8 bg-white border-2 border-black rounded-md flex items-center justify-center shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
-                        <span class="material-symbols-outlined text-base">center_focus_weak</span>
+                <!-- Statistik Panen & Lompat ke Petak Santri -->
+                <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-between sm:justify-end">
+                    <div class="hidden sm:flex items-center gap-1.5 text-[10px] font-black bg-[#1F1006] border border-[#78350F] px-2.5 py-1 rounded text-[#FDE68A]">
+                        <span title="Pohon Berbuah (85%+)">🍎 {{ $stageCounts[4] }}</span>
+                        <span class="opacity-40">|</span>
+                        <span title="Pohon Rimbun (60-84%)">🌳 {{ $stageCounts[3] }}</span>
+                        <span class="opacity-40">|</span>
+                        <span title="Tunas Muda (30-59%)">🌱 {{ $stageCounts[2] }}</span>
+                        <span class="opacity-40">|</span>
+                        <span title="Benih (0-29%)">🌰 {{ $stageCounts[1] }}</span>
+                    </div>
+
+                    <select id="village-jump-select" aria-label="Cari Petak Santri" class="bg-[#FEF3C7] text-black border-2 border-black rounded px-2 py-1 text-[11px] font-black shadow-[2px_2px_0_0_#000] focus:outline-none cursor-pointer flex-1 sm:flex-initial sm:max-w-[190px] truncate">
+                        <option value="">🔍 Cari Petak Santri...</option>
+                        @foreach($villageStudents as $vs)
+                            <option value="{{ $vs->id }}" @selected($vs->id === auth()->id())>
+                                {{ $vs->name }} (Tahap {{ $vs->garden_stage }})
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <button type="button" id="village-focus-mine" class="bg-[#86EFAC] hover:bg-[#4ADE80] text-black border-2 border-black rounded px-2.5 py-1 text-[10px] font-black uppercase shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer shrink-0">
+                        Petakku
                     </button>
                 </div>
             </div>
 
-            <!-- Papan Motivasi (Neobrutalist Board) -->
-            <div class="p-4 bg-yellow-50 dark:bg-yellow-950/20 border-t-3 border-on-background flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div class="flex items-start gap-3">
-                    <span class="text-2xl shrink-0 select-none">💬</span>
-                    <div>
-                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Pesan Pengasuh & Admin</p>
-                        <p class="text-xs font-bold text-black dark:text-white leading-relaxed mt-0.5">
+            <!-- Viewport Map 2D Top-Down (Drag & Zoomable) -->
+            <div id="village-viewport" class="relative overflow-hidden border-b-3 border-black select-none h-[340px] sm:h-[400px] md:h-[460px]" style="background-color: {{ $grassDark }};">
+                <div id="village-world" style="width: {{ $villageWidth }}px; height: {{ $villageHeight }}px; position: relative; image-rendering: pixelated;">
+
+                    <!-- Layer 0: Seamless 16-bit Pixel Grass & Farm Paths SVG -->
+                    <svg width="{{ $villageWidth }}" height="{{ $villageHeight }}" viewBox="0 0 {{ $villageWidth }} {{ $villageHeight }}" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg" class="absolute inset-0 pointer-events-none">
+                        <defs>
+                            <!-- Tile Rumput Piksel 32x32 -->
+                            <pattern id="hm-grass-tile" width="32" height="32" patternUnits="userSpaceOnUse">
+                                <rect width="32" height="32" fill="{{ $grassBase }}"/>
+                                <!-- Detail rumput piksel -->
+                                <rect x="4" y="6" width="2" height="2" fill="{{ $grassDark }}"/>
+                                <rect x="6" y="4" width="2" height="2" fill="{{ $grassLight }}"/>
+                                <rect x="20" y="12" width="2" height="4" fill="{{ $grassDark }}"/>
+                                <rect x="22" y="10" width="2" height="4" fill="{{ $grassLight }}"/>
+                                <rect x="10" y="24" width="4" height="2" fill="{{ $grassDark }}"/>
+                                <rect x="12" y="22" width="2" height="2" fill="{{ $grassLight }}"/>
+                                <rect x="26" y="26" width="2" height="2" fill="#FEF08A"/>
+                                <rect x="26" y="28" width="2" height="2" fill="{{ $grassDark }}"/>
+                            </pattern>
+
+                            <!-- Tile Jalan Tanah & Batu Piksel 24x24 -->
+                            <pattern id="hm-path-tile" width="24" height="24" patternUnits="userSpaceOnUse">
+                                <rect width="24" height="24" fill="#C29B61"/>
+                                <rect x="0" y="0" width="24" height="2" fill="#A47E46"/>
+                                <rect x="0" y="22" width="24" height="2" fill="#8C6732"/>
+                                <rect x="4" y="6" width="6" height="4" fill="#D6B47C"/>
+                                <rect x="14" y="14" width="6" height="4" fill="#B0894F"/>
+                                <rect x="16" y="5" width="3" height="3" fill="#9E7B46"/>
+                                <rect x="5" y="16" width="4" height="3" fill="#D6B47C"/>
+                            </pattern>
+
+                            <!-- Pagar Kayu Horizontal 16x16 -->
+                            <pattern id="hm-fence-h" width="16" height="16" patternUnits="userSpaceOnUse">
+                                <rect x="0" y="6" width="16" height="3" fill="#78350F"/>
+                                <rect x="0" y="11" width="16" height="3" fill="#5C2808"/>
+                                <rect x="5" y="2" width="6" height="14" fill="#451A03"/>
+                                <rect x="6" y="3" width="4" height="12" fill="#92400E"/>
+                                <rect x="6" y="3" width="4" height="2" fill="#B45309"/>
+                            </pattern>
+
+                            <!-- Pagar Kayu Vertikal 16x16 -->
+                            <pattern id="hm-fence-v" width="16" height="16" patternUnits="userSpaceOnUse">
+                                <rect x="4" y="0" width="8" height="16" fill="#451A03"/>
+                                <rect x="5" y="0" width="6" height="16" fill="#78350F"/>
+                                <rect x="5" y="2" width="6" height="6" fill="#92400E"/>
+                                <rect x="6" y="2" width="4" height="2" fill="#B45309"/>
+                            </pattern>
+                        </defs>
+
+                        <!-- Hamparan Rumput -->
+                        <rect width="{{ $villageWidth }}" height="{{ $villageHeight }}" fill="url(#hm-grass-tile)"/>
+
+                        <!-- Pagar Kayu Keliling Ladang -->
+                        <rect x="8" y="8" width="{{ $villageWidth - 16 }}" height="16" fill="url(#hm-fence-h)"/>
+                        <rect x="8" y="{{ $villageHeight - 24 }}" width="{{ $villageWidth - 16 }}" height="16" fill="url(#hm-fence-h)"/>
+                        <rect x="8" y="8" width="16" height="{{ $villageHeight - 16 }}" fill="url(#hm-fence-v)"/>
+                        <rect x="{{ $villageWidth - 24 }}" y="8" width="16" height="{{ $villageHeight - 16 }}" fill="url(#hm-fence-v)"/>
+
+                        <!-- Jalan Setapak Tengah (Dari Pendopo Farmhouse ke Gerbang Bawah) -->
+                        @php
+                            $centerAisleX = $padX + (3 * $plotW);
+                        @endphp
+                        <rect x="{{ $centerAisleX }}" y="76" width="{{ $aisleWidth }}" height="{{ $villageHeight - 84 }}" fill="url(#hm-path-tile)"/>
+                        <!-- Bingkai jalan setapak tengah -->
+                        <rect x="{{ $centerAisleX }}" y="76" width="3" height="{{ $villageHeight - 84 }}" fill="#78350F"/>
+                        <rect x="{{ $centerAisleX + $aisleWidth - 3 }}" y="76" width="3" height="{{ $villageHeight - 84 }}" fill="#78350F"/>
+
+                        <!-- Jalan Setapak Horizontal Antar Baris Kebun -->
+                        @for($r = 0; $r < $villageRows; $r++)
+                            @php
+                                $rowWalkwayY = $plazaHeight + ($r * $plotH) + 84;
+                            @endphp
+                            <rect x="{{ $padX }}" y="{{ $rowWalkwayY }}" width="{{ $villageWidth - ($padX * 2) }}" height="18" fill="url(#hm-path-tile)"/>
+                            <rect x="{{ $padX }}" y="{{ $rowWalkwayY }}" width="{{ $villageWidth - ($padX * 2) }}" height="2" fill="#8C6732"/>
+                            <rect x="{{ $padX }}" y="{{ $rowWalkwayY + 16 }}" width="{{ $villageWidth - ($padX * 2) }}" height="2" fill="#6E4E22"/>
+                        @endfor
+
+                        <!-- Plaza Atas: Farmhouse Pondok, Shipping Bin, dan Kolam Irigasi -->
+                        <rect x="{{ $centerAisleX - 110 }}" y="68" width="264" height="26" fill="url(#hm-path-tile)"/>
+
+                        <!-- BANGUNAN 1: Pendopo / Farmhouse Kebun Pondok (Kiri-Tengah Plaza) -->
+                        <g transform="translate({{ $centerAisleX - 96 }}, 16)">
+                            <!-- Bayangan bangunan -->
+                            <rect x="4" y="56" width="104" height="8" fill="#2E5612"/>
+                            <!-- Dinding Kayu -->
+                            <rect x="8" y="28" width="96" height="32" fill="#451A03"/>
+                            <rect x="12" y="30" width="88" height="28" fill="#FDE68A"/>
+                            <rect x="12" y="50" width="88" height="8" fill="#D97706"/>
+                            <!-- Atap Merah Bata Harvest Moon -->
+                            <rect x="2" y="20" width="108" height="10" fill="#7F1D1D"/>
+                            <rect x="6" y="12" width="100" height="10" fill="#991B1B"/>
+                            <rect x="12" y="6" width="88" height="8" fill="#B91C1C"/>
+                            <rect x="16" y="8" width="80" height="4" fill="#DC2626"/>
+                            <!-- Pintu & Jendela Piksel -->
+                            <rect x="48" y="36" width="16" height="22" fill="#451A03"/>
+                            <rect x="50" y="38" width="12" height="20" fill="#92400E"/>
+                            <rect x="58" y="47" width="2" height="2" fill="#FACC15"/>
+                            <rect x="20" y="36" width="16" height="12" fill="#451A03"/>
+                            <rect x="22" y="38" width="12" height="8" fill="#7DD3FC"/>
+                            <rect x="76" y="36" width="16" height="12" fill="#451A03"/>
+                            <rect x="78" y="38" width="12" height="8" fill="#7DD3FC"/>
+                            <!-- Papan Nama Pondok -->
+                            <rect x="30" y="22" width="52" height="10" fill="#451A03"/>
+                            <rect x="32" y="24" width="48" height="6" fill="#FEF08A"/>
+                        </g>
+
+                        <!-- BANGUNAN 2: Shipping Bin (Kotak Hasil Panen Kayu di Sebelah Jalan Tengah) -->
+                        <g transform="translate({{ $centerAisleX + 16 }}, 38)">
+                            <rect x="0" y="24" width="44" height="6" fill="#2E5612"/>
+                            <rect x="2" y="4" width="40" height="24" fill="#451A03"/>
+                            <rect x="4" y="6" width="36" height="8" fill="#D97706"/>
+                            <rect x="4" y="14" width="36" height="12" fill="#92400E"/>
+                            <rect x="4" y="12" width="36" height="2" fill="#451A03"/>
+                            <rect x="18" y="10" width="8" height="6" fill="#FACC15"/>
+                        </g>
+
+                        <!-- BANGUNAN 3: Kolam Air / Sumur Irigasi Piksel (Kanan Plaza) -->
+                        <g transform="translate({{ $centerAisleX + 78 }}, 26)">
+                            <!-- Bingkai Batu Kolam -->
+                            <rect x="4" y="4" width="76" height="44" fill="#374151"/>
+                            <rect x="8" y="0" width="68" height="52" fill="#4B5563"/>
+                            <rect x="8" y="4" width="68" height="44" fill="#9CA3AF"/>
+                            <!-- Air Kolam Piksel -->
+                            <rect x="12" y="8" width="60" height="36" fill="#0284C7"/>
+                            <rect x="16" y="12" width="52" height="28" fill="#38BDF8"/>
+                            <!-- Riak Air Putih -->
+                            <rect x="22" y="18" width="10" height="2" fill="#E0F2FE"/>
+                            <rect x="44" y="28" width="14" height="2" fill="#E0F2FE"/>
+                            <rect x="28" y="32" width="8" height="2" fill="#BAE6FD"/>
+                        </g>
+                    </svg>
+
+                    <!-- Layer 1: Petak Kebun Tiap Santri -->
+                    @foreach($villageStudents as $villageStudent)
+                        @php
+                            $vCol = $loop->index % $villageCols;
+                            $vRow = intdiv($loop->index, $villageCols);
+                            $aisleOffset = $vCol >= 3 ? $aisleWidth : 0;
+                            $plotLeft = $padX + ($vCol * $plotW) + $aisleOffset;
+                            $plotTop = $plazaHeight + ($vRow * $plotH);
+                            $isMe = $villageStudent->id === auth()->id();
+                            $fruitVariant = $villageStudent->id % 4;
+                        @endphp
+                        <div
+                            class="village-plot-item absolute flex flex-col items-center cursor-pointer group"
+                            data-student-id="{{ $villageStudent->id }}"
+                            data-student-name="{{ $villageStudent->name }}"
+                            data-stage="{{ $villageStudent->garden_stage }}"
+                            data-stage-label="{{ $stageNames[$villageStudent->garden_stage] ?? '' }}"
+                            data-fruit-label="{{ $fruitNames[$fruitVariant] ?? 'Kebun Buah' }}"
+                            data-hadir="{{ $villageStudent->hadir_count ?? 0 }}"
+                            data-pct="{{ $villageStudent->attendance_pct ?? 0 }}"
+                            data-plot-x="{{ $plotLeft + ($plotW / 2) }}"
+                            data-plot-y="{{ $plotTop + ($plotH / 2) }}"
+                            style="left: {{ $plotLeft }}px; top: {{ $plotTop }}px; width: {{ $plotW }}px; height: {{ $plotH }}px;"
+                        >
+                            <!-- Kursor Seleksi Harvest Moon (muncul saat dipilih/hover) -->
+                            <div class="plot-cursor pointer-events-none absolute inset-x-2 top-1 bottom-4 border-2 border-dashed {{ $isMe ? 'border-[#FDE047] opacity-100' : 'border-white opacity-0 group-hover:opacity-80' }} rounded transition-opacity z-20"></div>
+
+                            <!-- Sprite Pohon & Tanah Cangkulan 3x3 -->
+                            <div class="w-[82px] h-[82px] relative flex items-center justify-center shrink-0 transition-transform group-hover:-translate-y-0.5">
+                                <x-pixel-tree :stage="$villageStudent->garden_stage" :variant="$fruitVariant" class="w-full h-full" />
+                            </div>
+
+                            <!-- Papan Nama Kayu Piksel (Signboard) -->
+                            <div class="relative z-10 -mt-1 px-2 py-0.5 max-w-[100px] border-2 border-[#271204] {{ $isMe ? 'bg-[#FDE047] text-black' : 'bg-[#D9A066] text-[#1F1006]' }} shadow-[2px_2px_0_0_#1F1006] flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 shrink-0 border border-black {{ $villageStudent->garden_stage == 4 ? 'bg-red-500' : ($villageStudent->garden_stage == 3 ? 'bg-emerald-500' : ($villageStudent->garden_stage == 2 ? 'bg-lime-400' : 'bg-amber-300')) }}"></span>
+                                <p class="font-pixel text-[6px] leading-tight truncate" title="{{ $villageStudent->name }}">
+                                    {{ \Illuminate\Support\Str::limit($villageStudent->name, 12, '') }}
+                                </p>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- Kontrol Kamera 2D (Kanan Bawah) -->
+                <div class="absolute bottom-3 right-3 flex flex-col gap-1.5 z-20">
+                    <button type="button" id="village-zoom-in" title="Perbesar" class="w-8 h-8 bg-[#FEF3C7] text-black border-2 border-black rounded font-black text-lg leading-none shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none cursor-pointer">+</button>
+                    <button type="button" id="village-zoom-out" title="Perkecil" class="w-8 h-8 bg-[#FEF3C7] text-black border-2 border-black rounded font-black text-lg leading-none shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none cursor-pointer">−</button>
+                    <button type="button" id="village-zoom-reset" title="Lihat Seluruh Ladang" class="w-8 h-8 bg-[#FEF3C7] text-black border-2 border-black rounded flex items-center justify-center shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none cursor-pointer">
+                        <span class="material-symbols-outlined text-base">center_focus_weak</span>
+                    </button>
+                </div>
+
+                <!-- Petunjuk Geser (Kiri Bawah) -->
+                <div class="absolute bottom-3 left-3 z-20 pointer-events-none hidden sm:flex items-center gap-1.5 bg-[#1F1006]/90 text-[#FEF3C7] border border-[#92400E] px-2.5 py-1 rounded text-[10px] font-bold">
+                    <span>🖐️ Geser peta · Klik petak santri untuk detail tanaman</span>
+                </div>
+            </div>
+
+            <!-- Harvest Moon RPG Dialogue & Inspector Box -->
+            <div class="p-4 bg-[#F5E6C8] dark:bg-[#24160B] border-t-3 border-black grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                <!-- Inspector Petak Terpilih -->
+                <div class="md:col-span-6 bg-[#FFF8E7] dark:bg-[#1A0F07] border-2 border-[#451A03] dark:border-[#92400E] rounded-lg p-3 shadow-[3px_3px_0_0_#271204] flex items-center justify-between gap-3">
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                            <span class="px-1.5 py-0.5 bg-[#86EFAC] text-black border border-black font-pixel text-[7px] uppercase">Petak Kebun</span>
+                            <span id="hm-inspector-fruit" class="text-[11px] font-black text-[#92400E] dark:text-[#FBBF24] truncate">
+                                {{ $fruitNames[($myPlotStudent->id ?? 0) % 4] }}
+                            </span>
+                        </div>
+                        <p id="hm-inspector-name" class="text-sm font-black text-black dark:text-white truncate mt-1">
+                            {{ $myPlotStudent->name ?? auth()->user()->name }}
+                        </p>
+                        <p id="hm-inspector-stage" class="text-xs font-bold text-[#15803D] dark:text-[#4ADE80]">
+                            {{ $stageNames[$myPlotStudent->garden_stage ?? 1] }}
+                        </p>
+                    </div>
+                    <div class="text-right shrink-0 bg-[#FEF08A] text-black border-2 border-black px-2.5 py-1.5 rounded shadow-[2px_2px_0_0_#000]">
+                        <p class="text-[9px] font-black uppercase tracking-wider">Hadir 30 Hari</p>
+                        <p id="hm-inspector-stats" class="text-base font-black leading-tight">
+                            {{ $myPlotStudent->hadir_count ?? 0 }}x ({{ $myPlotStudent->attendance_pct ?? 0 }}%)
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Pesan Pengasuh & Admin -->
+                <div class="md:col-span-6 flex items-start gap-3 px-1">
+                    <div class="w-9 h-9 bg-[#D97706] border-2 border-black rounded flex items-center justify-center shrink-0 shadow-[2px_2px_0_0_#000] text-white font-pixel text-xs">
+                        !
+                    </div>
+                    <div class="min-w-0">
+                        <p class="font-pixel text-[8px] text-[#78350F] dark:text-[#FCD34D] uppercase tracking-wider">Papan Pengumuman Kebun</p>
+                        <p class="text-xs font-bold text-[#1F1006] dark:text-[#FEF3C7] leading-relaxed mt-1">
                             "{{ $message }}"
                         </p>
                     </div>
@@ -399,35 +682,124 @@
 
             var worldW = parseFloat(world.style.width);
             var worldH = parseFloat(world.style.height);
-            var minScale = 0.4, maxScale = 2.5;
+            var minScale = 0.45, maxScale = 2.4;
             var scale = 1, originX = 0, originY = 0;
-            var dragging = false, lastX = 0, lastY = 0;
+            var dragging = false, pointerMoved = false, startX = 0, startY = 0, lastX = 0, lastY = 0;
 
             function clampScale(s) {
                 return Math.max(minScale, Math.min(maxScale, s));
             }
 
+            function clampBounds() {
+                var vw = viewport.clientWidth, vh = viewport.clientHeight;
+                var scaledW = worldW * scale;
+                var scaledH = worldH * scale;
+
+                if (scaledW <= vw) {
+                    originX = (vw - scaledW) / 2;
+                } else {
+                    var minX = vw - scaledW - 12;
+                    var maxX = 12;
+                    originX = Math.max(minX, Math.min(maxX, originX));
+                }
+
+                if (scaledH <= vh) {
+                    originY = Math.max(0, (vh - scaledH) / 2);
+                } else {
+                    var minY = vh - scaledH - 16;
+                    var maxY = 12;
+                    originY = Math.max(minY, Math.min(maxY, originY));
+                }
+            }
+
+            function updateZoomButtons() {
+                var zoomInBtn = document.getElementById('village-zoom-in');
+                var zoomOutBtn = document.getElementById('village-zoom-out');
+                if (zoomOutBtn) {
+                    if (scale <= minScale + 0.005) {
+                        zoomOutBtn.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+                    } else {
+                        zoomOutBtn.classList.remove('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+                    }
+                }
+                if (zoomInBtn) {
+                    if (scale >= maxScale - 0.005) {
+                        zoomInBtn.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+                    } else {
+                        zoomInBtn.classList.remove('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+                    }
+                }
+            }
+
             function applyTransform() {
+                clampBounds();
                 world.style.transform = 'translate(' + originX + 'px, ' + originY + 'px) scale(' + scale + ')';
+                updateZoomButtons();
             }
 
             function fitView() {
                 var vw = viewport.clientWidth, vh = viewport.clientHeight;
-                scale = clampScale(Math.min(vw / worldW, vh / worldH) * 0.95);
+                // Pas layar: di mobile (portrait/lebar sempit) pas selebar layar (seperti screenshot 2)
+                var fitW = (vw - 8) / worldW;
+                var fitH = (vh - 12) / worldH;
+                var defaultScale = (vw < 640) ? fitW : Math.min(fitW, fitH);
+
+                // Default adalah skala paling kecil: tidak bisa dikecilkan lagi dari batas pas ini
+                minScale = defaultScale;
+                maxScale = Math.max(minScale * 3.5, 2.5);
+                scale = defaultScale;
+
                 originX = (vw - worldW * scale) / 2;
-                originY = (vh - worldH * scale) / 2;
-                minScale = scale * 0.8;
+                originY = 0;
                 applyTransform();
             }
 
             function zoomAt(cx, cy, newScale) {
                 newScale = clampScale(newScale);
+                if (Math.abs(newScale - scale) < 0.001) return;
                 var worldX = (cx - originX) / scale;
                 var worldY = (cy - originY) / scale;
                 scale = newScale;
                 originX = cx - worldX * scale;
                 originY = cy - worldY * scale;
                 applyTransform();
+            }
+
+            function focusPlotElement(plotEl) {
+                if (!plotEl) return;
+                var px = parseFloat(plotEl.getAttribute('data-plot-x') || '0');
+                var py = parseFloat(plotEl.getAttribute('data-plot-y') || '0');
+                var vw = viewport.clientWidth, vh = viewport.clientHeight;
+                scale = clampScale(Math.max(scale, minScale * 1.8));
+                originX = (vw / 2) - (px * scale);
+                originY = (vh / 2) - (py * scale);
+                applyTransform();
+                selectPlotElement(plotEl);
+            }
+
+            function selectPlotElement(plotEl) {
+                if (!plotEl) return;
+                document.querySelectorAll('.village-plot-item .plot-cursor').forEach(function (el) {
+                    el.classList.remove('border-[#FDE047]', 'opacity-100');
+                    el.classList.add('border-white', 'opacity-0');
+                });
+                var cursor = plotEl.querySelector('.plot-cursor');
+                if (cursor) {
+                    cursor.classList.remove('border-white', 'opacity-0');
+                    cursor.classList.add('border-[#FDE047]', 'opacity-100');
+                }
+
+                var nameEl = document.getElementById('hm-inspector-name');
+                var stageEl = document.getElementById('hm-inspector-stage');
+                var fruitEl = document.getElementById('hm-inspector-fruit');
+                var statsEl = document.getElementById('hm-inspector-stats');
+
+                if (nameEl) nameEl.textContent = plotEl.getAttribute('data-student-name') || '';
+                if (stageEl) stageEl.textContent = plotEl.getAttribute('data-stage-label') || '';
+                if (fruitEl) fruitEl.textContent = plotEl.getAttribute('data-fruit-label') || '';
+                if (statsEl) {
+                    statsEl.textContent = (plotEl.getAttribute('data-hadir') || '0') + 'x (' + (plotEl.getAttribute('data-pct') || '0') + '%)';
+                }
             }
 
             fitView();
@@ -438,11 +810,11 @@
                 e.preventDefault();
                 var rect = viewport.getBoundingClientRect();
                 var cx = e.clientX - rect.left, cy = e.clientY - rect.top;
-                var delta = e.deltaY < 0 ? 1.1 : 0.9;
+                var delta = e.deltaY < 0 ? 1.12 : 0.89;
                 zoomAt(cx, cy, scale * delta);
             }, { passive: false });
 
-            // Drag to pan (mouse & touch via pointer events)
+            // Drag to pan & tap to inspect plot
             var activePointers = {};
             var pinchStartDist = null, pinchStartScale = null;
 
@@ -451,16 +823,19 @@
             }
 
             viewport.addEventListener('pointerdown', function (e) {
+                if (e.target.closest('button')) return;
                 viewport.setPointerCapture(e.pointerId);
                 activePointers[e.pointerId] = { x: e.clientX, y: e.clientY };
                 var ids = Object.keys(activePointers);
                 if (ids.length === 1) {
                     dragging = true;
-                    lastX = e.clientX;
-                    lastY = e.clientY;
+                    pointerMoved = false;
+                    startX = lastX = e.clientX;
+                    startY = lastY = e.clientY;
                     viewport.classList.add('dragging');
                 } else if (ids.length === 2) {
                     dragging = false;
+                    pointerMoved = true;
                     var pts = ids.map(function (id) { return activePointers[id]; });
                     pinchStartDist = getDistance(pts[0], pts[1]);
                     pinchStartScale = scale;
@@ -480,6 +855,9 @@
                     var midY = (pts[0].y + pts[1].y) / 2 - rect.top;
                     zoomAt(midX, midY, pinchStartScale * (newDist / pinchStartDist));
                 } else if (dragging && ids.length === 1) {
+                    if (Math.hypot(e.clientX - startX, e.clientY - startY) > 5) {
+                        pointerMoved = true;
+                    }
                     originX += e.clientX - lastX;
                     originY += e.clientY - lastY;
                     lastX = e.clientX;
@@ -489,6 +867,12 @@
             });
 
             function endPointer(e) {
+                if (!pointerMoved && e.type === 'pointerup') {
+                    var plotItem = e.target.closest('.village-plot-item');
+                    if (plotItem) {
+                        selectPlotElement(plotItem);
+                    }
+                }
                 delete activePointers[e.pointerId];
                 if (Object.keys(activePointers).length < 2) {
                     pinchStartDist = null;
@@ -502,17 +886,35 @@
             viewport.addEventListener('pointercancel', endPointer);
             viewport.addEventListener('pointerleave', endPointer);
 
-            // Zoom buttons
+            // Zoom & Focus controls
             var zoomInBtn = document.getElementById('village-zoom-in');
             var zoomOutBtn = document.getElementById('village-zoom-out');
             var zoomResetBtn = document.getElementById('village-zoom-reset');
+            var focusMineBtn = document.getElementById('village-focus-mine');
+            var jumpSelect = document.getElementById('village-jump-select');
+
             if (zoomInBtn) zoomInBtn.addEventListener('click', function () {
-                zoomAt(viewport.clientWidth / 2, viewport.clientHeight / 2, scale * 1.3);
+                zoomAt(viewport.clientWidth / 2, viewport.clientHeight / 2, scale * 1.25);
             });
             if (zoomOutBtn) zoomOutBtn.addEventListener('click', function () {
-                zoomAt(viewport.clientWidth / 2, viewport.clientHeight / 2, scale / 1.3);
+                zoomAt(viewport.clientWidth / 2, viewport.clientHeight / 2, scale / 1.25);
             });
             if (zoomResetBtn) zoomResetBtn.addEventListener('click', fitView);
+
+            if (focusMineBtn) {
+                focusMineBtn.addEventListener('click', function () {
+                    var myPlot = document.querySelector('.village-plot-item[data-student-id="{{ auth()->id() }}"]');
+                    if (myPlot) focusPlotElement(myPlot);
+                });
+            }
+
+            if (jumpSelect) {
+                jumpSelect.addEventListener('change', function () {
+                    if (!this.value) return;
+                    var targetPlot = document.querySelector('.village-plot-item[data-student-id="' + this.value + '"]');
+                    if (targetPlot) focusPlotElement(targetPlot);
+                });
+            }
         })();
         </script>
 
@@ -637,21 +1039,66 @@
                 </div>
             </div>
 
-            <!-- Mitsur Duo Widget -->
-            <div class="md:col-span-5 bg-secondary-container border-3 border-on-background neobrutal-shadow p-6 rounded-xl">
-                <div class="flex items-center gap-3 mb-4">
-                    <span class="material-symbols-outlined text-on-secondary-container text-3xl p-2 bg-white border-2 border-on-background rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">diversity_3</span>
-                    <h3 class="font-headline-md text-headline-md text-on-secondary-container">Mitsur Duo</h3>
+            <!-- Mitsur Duo & Setoran Hafalan Widgets -->
+            @php
+                $simakanCfg = \App\Models\Setting::getSimakanConfig();
+                $myLastSetoran = \App\Models\TahfizhSetoran::where('student_id', auth()->id())
+                    ->latest('tanggal_setor')
+                    ->latest('id')
+                    ->first();
+                $myTotalBaris = (int) \App\Models\TahfizhSetoran::where('student_id', auth()->id())
+                    ->where('predikat', '!=', 'Mengulang')
+                    ->sum('jumlah_baris');
+            @endphp
+            <div class="md:col-span-5 flex flex-col gap-6">
+                <div class="bg-secondary-container border-3 border-on-background neobrutal-shadow p-6 rounded-xl">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="material-symbols-outlined text-on-secondary-container text-3xl p-2 bg-white border-2 border-on-background rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">diversity_3</span>
+                        <h3 class="font-headline-md text-headline-md text-on-secondary-container">Mitsur Duo</h3>
+                    </div>
+                    <a href="{{ route('mitsur') }}" class="flex items-center gap-4 bg-white border-3 border-on-background p-4 rounded-lg neobrutal-shadow-sm mt-4 hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all">
+                        <div class="w-12 h-12 rounded-lg border-2 border-on-background overflow-hidden flex items-center justify-center bg-surface-variant shrink-0">
+                            <span class="material-symbols-outlined text-3xl text-on-surface-variant">person_search</span>
+                        </div>
+                        <div>
+                            <div class="font-headline-md text-[16px] font-bold text-on-surface leading-tight">Cari Partner</div>
+                            <div class="text-xs font-bold text-on-surface-variant mt-0.5">Mulai Muroja'ah Bersama!</div>
+                        </div>
+                    </a>
                 </div>
-                <a href="{{ route('mitsur') }}" class="flex items-center gap-4 bg-white border-3 border-on-background p-4 rounded-lg neobrutal-shadow-sm mt-6 hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all">
-                    <div class="w-14 h-14 rounded-lg border-2 border-on-background overflow-hidden flex items-center justify-center bg-surface-variant">
-                        <span class="material-symbols-outlined text-4xl text-on-surface-variant">person_search</span>
+
+                <!-- Kartu Kendali Setoran Hafalan Widget -->
+                <div class="bg-amber-100 dark:bg-amber-950/30 border-3 border-on-background neobrutal-shadow p-5 rounded-xl flex flex-col justify-between">
+                    <div class="flex items-center justify-between gap-2 mb-3">
+                        <div class="flex items-center gap-2.5">
+                            <span class="material-symbols-outlined text-amber-900 text-2xl p-1.5 bg-[#FFDE00] border-2 border-black rounded-lg shadow-[2px_2px_0_0_#000]">menu_book</span>
+                            <div>
+                                <h3 class="font-headline-md text-base font-black text-on-background leading-tight">Setoran Hafalan</h3>
+                                <p class="text-[10px] font-bold text-on-surface-variant">Min Baru: {{ $simakanCfg['min_baris_ziyadah'] ?? 2 }} Brs · Muroja'ah: {{ $simakanCfg['min_baris_murojaah'] ?? 6 }} Brs</p>
+                            </div>
+                        </div>
+                        <span class="bg-white dark:bg-zinc-800 border-2 border-on-background px-2.5 py-1 rounded-lg text-xs font-black">
+                            {{ $myTotalBaris }} Baris
+                        </span>
                     </div>
-                    <div>
-                        <div class="font-headline-md text-[18px] font-bold text-on-surface leading-tight">Cari Partner</div>
-                        <div class="text-xs font-bold text-on-surface-variant mt-1">Mulai Muroja'ah!</div>
-                    </div>
-                </a>
+
+                    @if($myLastSetoran)
+                        <div class="bg-white dark:bg-zinc-900 border-2 border-on-background rounded-lg p-3 mb-3 text-xs font-bold">
+                            <div class="flex items-center justify-between">
+                                <span class="font-black text-primary">Terakhir: QS. {{ $myLastSetoran->surah }}</span>
+                                <span class="bg-[#86EFAC] text-black px-1.5 py-0.5 rounded border border-black text-[10px] font-black">{{ $myLastSetoran->jumlah_baris }} Brs</span>
+                            </div>
+                            <p class="text-[11px] text-on-surface-variant mt-1">
+                                {{ $myLastSetoran->jenis_label }} · {{ $myLastSetoran->predikat }} · Ust. {{ $myLastSetoran->penyimak_nama }}
+                            </p>
+                        </div>
+                    @endif
+
+                    <a href="{{ route('setoran.index') }}" class="w-full bg-primary text-on-primary border-2 border-on-background py-2.5 px-4 rounded-lg font-black text-xs uppercase flex items-center justify-center gap-1.5 shadow-[2px_2px_0_0_#000] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all">
+                        <span>Lihat Kartu Kendali Setoran</span>
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </a>
+                </div>
             </div>
 
 
@@ -714,70 +1161,28 @@
             </div>
         </section>
 
-        <!-- Tanya Ustadz AI Section -->
-        <section class="mt-8 bg-amber-50 dark:bg-yellow-950/10 border-3 border-on-background rounded-xl p-6 neobrutal-shadow">
-            <div class="flex items-center gap-3 mb-6">
-                <span class="material-symbols-outlined text-amber-600 text-3xl p-2 bg-white dark:bg-zinc-800 border-2 border-on-background rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">psychology</span>
-                <div>
-                    <h3 class="font-headline-md text-headline-md text-primary font-black">Tanya Ustadz AI</h3>
-                    <p class="text-xs text-on-surface-variant font-semibold mt-0.5">Asisten rohani virtual untuk menjawab seputar ibadah, ilmu, dan nasihat bijak.</p>
-                </div>
-            </div>
-
-            <!-- Avatar & Speech Bubble Layout -->
-            <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
-                <!-- Cartoon Avatar Backdrop -->
-                <div class="w-32 h-32 md:w-40 md:h-40 rounded-2xl border-3 border-on-background bg-gradient-to-b from-sky-300 via-sky-200 to-amber-100 dark:from-indigo-950 dark:via-purple-900 dark:to-indigo-900 shadow-[6px_6px_0px_0px_rgba(var(--neobrutal-shadow-color),1)] relative overflow-hidden flex items-center justify-center shrink-0">
-                    <!-- Spinning Sun -->
-                    <svg class="absolute top-2 right-2 w-8 h-8 text-amber-400 dark:text-amber-300 animate-spin-slow pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
-                        <circle cx="12" cy="12" r="5" />
-                        <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.31 11.31l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41m14.14-14.14l-1.41 1.41" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-                    </svg>
-                    <!-- Drifting Clouds -->
-                    <svg class="absolute top-6 left-2 w-12 h-8 text-white opacity-85 dark:opacity-40 animate-drift-slow pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
-                    </svg>
-                    <svg class="absolute top-10 right-4 w-8 h-6 text-white opacity-60 dark:opacity-30 animate-drift-slow pointer-events-none" style="animation-delay: -3s; animation-duration: 12s;" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
-                    </svg>
-                    <!-- Hills -->
-                    <div class="absolute bottom-0 left-0 right-0 h-6 bg-emerald-400 dark:bg-emerald-800 rounded-b-xl border-t-2 border-on-background"></div>
-                    <!-- Ustadz Micah Avatar -->
-                    <img id="ustadz-ai-avatar" onclick="openAIChat('tanya')" src="https://api.dicebear.com/9.x/micah/svg?seed=UstadzAI&hair=turban&facialHair=beard&facialHairProbability=100&eyebrows=up&eyes=smiling&mouth=smile&backgroundColor=transparent" class="w-24 h-24 object-contain relative z-10 drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-transform duration-300 cursor-pointer hover:scale-105" alt="Ustadz AI" title="Klik untuk mengobrol langsung" />
-                </div>
-
-                <!-- Speech Bubble Container -->
-                <div class="relative bg-white dark:bg-zinc-800 border-3 border-on-background p-5 rounded-2xl shadow-[6px_6px_0px_0px_rgba(var(--neobrutal-shadow-color),1)] flex-grow flex flex-col justify-between w-full">
-                    <!-- Triangle Arrow pointers -->
-                    <!-- Mobile top arrow (visible on mobile, hidden on desktop) -->
-                    <div class="absolute -top-[11px] left-12 w-5 h-5 bg-white dark:bg-zinc-800 border-t-3 border-l-3 border-on-background rotate-45 md:hidden z-20"></div>
-                    <!-- Desktop left arrow (hidden on mobile, visible on desktop) -->
-                    <div class="absolute top-8 -left-[11px] w-5 h-5 bg-white dark:bg-zinc-800 border-b-3 border-l-3 border-on-background rotate-45 hidden md:block z-20"></div>
-
-                    <!-- Conversation Message Bubble -->
-                    <div class="min-w-0 mb-4">
-                        <p class="font-body-md text-sm text-on-background leading-relaxed font-bold">Wa'alaikumussalam. Selamat datang di Tanya Ustadz AI! Silakan tanyakan apa saja seputar ibadah, ilmu syar'i, adab, presensi, atau curhat spiritual langsung di bawah ini:</p>
-                    </div>
-
-                    <!-- Unified Input Form -->
-                    <form onsubmit="handleUnifiedAISubmit(event)" class="w-full flex flex-col sm:flex-row gap-3">
-                        <input type="text" id="unified-ai-input" placeholder="Tulis pertanyaan Anda di sini..." class="flex-grow border-3 border-on-background p-3 rounded-xl font-bold text-sm focus:outline-none focus:bg-yellow-50 text-black dark:text-white placeholder-gray-500 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)] focus:shadow-none transition-all bg-white dark:bg-zinc-800" required>
-                        <button type="submit" class="bg-primary text-on-primary font-black px-6 py-3 rounded-xl border-3 border-on-background shadow-[3px_3px_0px_0px_rgba(var(--neobrutal-shadow-color),1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all cursor-pointer text-sm uppercase flex items-center justify-center gap-2">
-                            Tanyakan <span class="material-symbols-outlined text-sm font-black">send</span>
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </section>
-
         <!-- Refleksi Harian Section -->
+        @php
+            $nowWib = \Carbon\Carbon::now('Asia/Jakarta');
+            $reflectionCutoff = \Carbon\Carbon::today('Asia/Jakarta')->setTime(7, 0, 0);
+            $canAttendViaReflection = $nowWib->lte($reflectionCutoff);
+        @endphp
         <section class="mt-8">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="font-headline-md text-headline-md text-primary flex items-center gap-2">
-                    <span class="material-symbols-outlined text-3xl text-primary" style="font-variation-settings: 'FILL' 1;">psychology</span>
-                    Refleksi Harian Santri
-                </h3>
-                <a href="{{ route('refleksi') }}" class="bg-primary text-on-primary border-3 border-on-background px-4 py-2 rounded-lg font-bold shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all text-xs md:text-sm flex items-center gap-1.5">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
+                <div>
+                    <h3 class="font-headline-md text-headline-md text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-3xl text-primary" style="font-variation-settings: 'FILL' 1;">psychology</span>
+                        Refleksi Harian Santri
+                    </h3>
+                    <p class="text-xs font-bold mt-1 {{ $canAttendViaReflection ? 'text-secondary' : 'text-on-surface-variant' }}">
+                        @if($canAttendViaReflection)
+                            🟢 Absen Kajian Pagi via refleksi dibuka s/d 07:00 WIB.
+                        @else
+                            🕒 Batas absen via refleksi (07:00 WIB) telah tutup — pengisian saat ini tercatat sebagai jurnal harian.
+                        @endif
+                    </p>
+                </div>
+                <a href="{{ route('refleksi') }}" class="bg-primary text-on-primary border-3 border-on-background px-4 py-2 rounded-lg font-bold shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all text-xs md:text-sm flex items-center justify-center gap-1.5 shrink-0">
                     <span class="material-symbols-outlined text-base">edit_note</span>
                     Tulis Refleksi Saya
                 </a>
@@ -1135,487 +1540,7 @@
     if (sidebarOverlay) {
         sidebarOverlay.addEventListener('click', closeSidebar);
     }
-
-    // Helper function for changing Ustadz avatar states
-    function setUstadzState(state) {
-        const avatarEl = document.getElementById('ustadz-ai-avatar');
-        if (!avatarEl) return;
-        
-        if (state === 'thinking') {
-            avatarEl.src = "https://api.dicebear.com/9.x/micah/svg?seed=UstadzAI&hair=turban&facialHair=beard&facialHairProbability=100&eyebrows=down&eyes=eyes&mouth=nervous&backgroundColor=transparent";
-            avatarEl.classList.add('animate-bounce');
-        } else if (state === 'smiling') {
-            avatarEl.src = "https://api.dicebear.com/9.x/micah/svg?seed=UstadzAI&hair=turban&facialHair=beard&facialHairProbability=100&eyebrows=up&eyes=smiling&mouth=smile&backgroundColor=transparent";
-            avatarEl.classList.remove('animate-bounce');
-        } else if (state === 'talking') {
-            avatarEl.src = "https://api.dicebear.com/9.x/micah/svg?seed=UstadzAI&hair=turban&facialHair=beard&facialHairProbability=100&eyebrows=up&eyes=smiling&mouth=laughing&backgroundColor=transparent";
-            avatarEl.classList.remove('animate-bounce');
-        }
-    }
-
-    // Typewriter effect to display answers character-by-character
-    function typeWriter(text, elementId, callback) {
-        const element = document.getElementById(elementId);
-        if (!element) return;
-        
-        element.innerHTML = '';
-        let i = 0;
-        const speed = 15; // ms per character
-        let currentText = '';
-        
-        function type() {
-            if (i < text.length) {
-                currentText += text.charAt(i);
-                element.innerText = currentText;
-                i++;
-                setTimeout(type, speed);
-            } else {
-                // Parse markdown bold (* or **) and newlines
-                let formatted = currentText
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                    .replace(/\n/g, '<br>');
-                element.innerHTML = formatted;
-                if (callback) callback();
-            }
-        }
-        type();
-    }
-
-    // New Interactive Ustadz AI Chat functions
-    let currentChatTopic = '';
-
-    function getAIChatElements() {
-        return {
-            modal: document.getElementById('ai-chat-modal'),
-            messagesPane: document.getElementById('chat-messages-pane'),
-            messageInput: document.getElementById('chat-message-input'),
-            sendBtn: document.getElementById('chat-send-btn'),
-            title: document.getElementById('chat-modal-title'),
-            icon: document.getElementById('chat-modal-icon'),
-            header: document.getElementById('chat-modal-header'),
-            backdrop: document.getElementById('ai-chat-modal-backdrop')
-        };
-    }
-
-    const topicConfigs = {
-        tanya: {
-            title: 'Tanya Ustadz AI',
-            icon: '💬',
-            bgClass: 'bg-amber-200 text-amber-900',
-            welcome: 'Assalamualaikum. Selamat datang di Tanya Ustadz AI! Silakan tanyakan apa saja seputar ibadah, ilmu syar\'i, adab pesantren, motivasi belajar, presensi kehadiran, atau keluh kesah harianmu.'
-        },
-        materi: {
-            title: 'Tanya Materi Kajian',
-            icon: '📖',
-            bgClass: 'bg-cyan-200 text-cyan-900',
-            welcome: 'Marhaban! Silakan tanyakan materi kajian, hukum fiqih, tafsir, atau syarah hadits yang ingin kamu pelajari hari ini.'
-        },
-        spiritual: {
-            title: 'Konsultasi Spiritual',
-            icon: '🌱',
-            bgClass: 'bg-rose-200 text-rose-900',
-            welcome: 'Assalamualaikum. Ustadz di sini siap mendengarkan keluh kesahmu. Jika kamu merasa futur, lelah, jenuh, atau butuh teman cerita, jangan sungkan berbagi.'
-        },
-        istiqomah: {
-            title: 'Tips Istiqomah',
-            icon: '🏅',
-            bgClass: 'bg-amber-200 text-amber-900',
-            welcome: 'Ahlan wa sahlan! Bagaimana Ustadz bisa membantumu hari ini? Mari diskusikan kiat agar kamu tetap istiqomah menuntut ilmu dan beribadah.'
-        },
-        adab: {
-            title: 'Adab & Akhlak',
-            icon: '📿',
-            bgClass: 'bg-emerald-200 text-emerald-900',
-            welcome: 'MasyaAllah. Mari kita pelajari bersama tentang adab menuntut ilmu dan akhlak mulia penuntut ilmu di dalam kehidupan pesantren.'
-        },
-        absen: {
-            title: 'Presensi & Perizinan',
-            icon: '📋',
-            bgClass: 'bg-violet-200 text-violet-900',
-            welcome: 'Assalamualaikum. Ustadz AI khusus absensi siap membantumu. Kamu bisa mengecek status kehadiran/alpha-mu, bertanya tentang sisa izin, atau mengajukan permohonan izin/sakit/cuti baru dengan mengobrol langsung di sini.'
-        }
-    };
-
-    function handleUnifiedAISubmit(event) {
-        event.preventDefault();
-        const input = document.getElementById('unified-ai-input');
-        if (!input) return;
-        const msg = input.value.trim();
-        if (!msg) return;
-        input.value = '';
-        openAIChat('tanya', msg);
-    }
-
-    function openAIChat(topic, initialMessage = '') {
-        currentChatTopic = topic;
-        const config = topicConfigs[topic];
-        const els = getAIChatElements();
-        
-        if (!els.modal) return;
-        
-        els.title.innerText = config.title;
-        els.icon.innerText = config.icon;
-        
-        // Remove existing theme bg classes and apply new one
-        els.header.className = `p-4 border-b-3 border-on-background flex justify-between items-center text-black ${config.bgClass}`;
-        
-        els.modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        
-        // Load History
-        els.messagesPane.innerHTML = `
-            <div class="flex items-center justify-center py-12 flex-col gap-2">
-                <span class="material-symbols-outlined text-3xl animate-spin text-primary">sync</span>
-                <span class="text-xs font-bold text-on-surface-variant">Memuat riwayat obrolan...</span>
-            </div>
-        `;
-        
-        setUstadzState('smiling');
-        
-        fetch(`/ai/history?topic=${topic}`)
-            .then(res => res.json())
-            .then(data => {
-                els.messagesPane.innerHTML = '';
-                
-                // Add Welcome Message first
-                appendMessageBubble('assistant', config.welcome);
-                
-                if (data.success && data.history.length > 0) {
-                    data.history.forEach(msg => {
-                        appendMessageBubble(msg.role, msg.message);
-                    });
-                }
-                
-                scrollChatToBottom();
-
-                if (initialMessage) {
-                    els.messageInput.value = initialMessage;
-                    sendAIChatMessage();
-                }
-            })
-            .catch(err => {
-                els.messagesPane.innerHTML = '';
-                appendMessageBubble('assistant', config.welcome);
-                appendMessageBubble('assistant', 'Gagal memuat riwayat chat dari server. Namun kamu tetap bisa mengirim pesan baru.');
-                scrollChatToBottom();
-                if (initialMessage) {
-                    els.messageInput.value = initialMessage;
-                    sendAIChatMessage();
-                }
-            });
-    }
-
-    function closeAIChat() {
-        const els = getAIChatElements();
-        if (els.modal) els.modal.classList.add('hidden');
-        document.body.style.overflow = '';
-        currentChatTopic = '';
-        setUstadzState('smiling');
-    }
-
-    function appendMessageBubble(role, message) {
-        const els = getAIChatElements();
-        if (!els.messagesPane) return;
-        
-        const bubble = document.createElement('div');
-        bubble.className = `flex gap-3 max-w-[85%] ${role === 'user' ? 'self-end flex-row-reverse' : 'self-start'}`;
-        
-        const avatarUrl = role === 'user' 
-            ? "{{ auth()->user()->avatar ? 'https://api.dicebear.com/9.x/micah/svg?seed=' . auth()->user()->avatar . '&backgroundColor=transparent' : '' }}"
-            : "https://api.dicebear.com/9.x/micah/svg?seed=UstadzAI&hair=turban&facialHair=beard&facialHairProbability=100&eyebrows=up&eyes=smiling&mouth=smile&backgroundColor=transparent";
-            
-        const avatarFallback = role === 'user' 
-            ? "{{ substr(auth()->user()->name, 0, 1) }}"
-            : "U";
-            
-        const avatarHtml = avatarUrl 
-            ? `<img src="${avatarUrl}" class="w-8 h-8 rounded-full border-2 border-on-background object-cover bg-secondary-container" alt="Avatar"/>`
-            : `<div class="w-8 h-8 rounded-full border-2 border-on-background flex items-center justify-center bg-secondary-container text-xs font-bold">${avatarFallback}</div>`;
-
-        // Extract reasoning/thinking if present
-        let thinkingHtml = '';
-        if (message.includes('<thinking>') && message.includes('</thinking>')) {
-            const startIdx = message.indexOf('<thinking>') + 10;
-            const endIdx = message.indexOf('</thinking>');
-            const thinkingText = message.substring(startIdx, endIdx).trim();
-            message = message.substring(endIdx + 11).trim();
-
-            if (thinkingText) {
-                let formattedThinking = thinkingText
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                    .replace(/\n/g, '<br>');
-
-                thinkingHtml = `
-                    <details class="mb-3 border-2 border-black rounded-lg overflow-hidden bg-zinc-50 dark:bg-zinc-900 group">
-                        <summary class="flex justify-between items-center px-3 py-2 text-[10px] font-black uppercase bg-zinc-200 dark:bg-zinc-800 cursor-pointer select-none border-b-2 border-black">
-                            <span class="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400">
-                                <span class="material-symbols-outlined text-xs animate-pulse">psychology</span>
-                                Analisis Pemikiran AI
-                            </span>
-                            <span class="material-symbols-outlined text-xs transition-transform duration-200 group-open:rotate-180">expand_more</span>
-                        </summary>
-                        <div class="p-3 text-[10px] text-zinc-500 dark:text-zinc-400 leading-relaxed font-mono max-h-40 overflow-y-auto select-text break-words">
-                            ${formattedThinking}
-                        </div>
-                    </details>
-                `;
-            }
-        }
-
-        // Format code / markdown newlines
-        let formattedText = message
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')
-            .replace(/\n/g, '<br>');
-
-        const contentClass = role === 'user'
-            ? 'bg-secondary text-white border-2 border-on-background rounded-2xl rounded-tr-none px-3.5 py-2 text-sm font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
-            : 'bg-white dark:bg-zinc-800 text-on-background border-2 border-on-background rounded-2xl rounded-tl-none px-3.5 py-2 text-sm font-bold shadow-[2px_2px_0px_0px_rgba(var(--neobrutal-shadow-color),1)]';
-
-        bubble.innerHTML = `
-            <div class="shrink-0 flex items-start">
-                ${avatarHtml}
-            </div>
-            <div class="${contentClass} min-w-0">
-                ${thinkingHtml}
-                <p class="leading-relaxed text-xs md:text-sm text-left break-words font-bold select-text">${formattedText}</p>
-            </div>
-        `;
-        
-        els.messagesPane.appendChild(bubble);
-    }
-
-    function scrollChatToBottom() {
-        const els = getAIChatElements();
-        if (els.messagesPane) {
-            els.messagesPane.scrollTop = els.messagesPane.scrollHeight;
-        }
-    }
-
-    function sendAIChatMessage() {
-        const els = getAIChatElements();
-        if (!els.modal || !currentChatTopic) return;
-
-        const msg = els.messageInput.value.trim();
-        if (!msg) return;
-        
-        // Clear input and disable elements
-        els.messageInput.value = '';
-        els.messageInput.disabled = true;
-        els.sendBtn.disabled = true;
-        
-        // Append user bubble
-        appendMessageBubble('user', msg);
-        scrollChatToBottom();
-        
-        // Append placeholder typing indicator
-        const typingIndicator = document.createElement('div');
-        typingIndicator.id = 'ai-typing-indicator';
-        typingIndicator.className = 'flex gap-3 max-w-[85%] self-start';
-        typingIndicator.innerHTML = `
-            <div class="shrink-0">
-                <img src="https://api.dicebear.com/9.x/micah/svg?seed=UstadzAI&hair=turban&facialHair=beard&facialHairProbability=100&eyebrows=up&eyes=smiling&mouth=smile&backgroundColor=transparent" class="w-8 h-8 rounded-full border-2 border-on-background object-cover bg-secondary-container" alt="Avatar"/>
-            </div>
-            <div class="bg-white dark:bg-zinc-800 text-on-background border-2 border-on-background rounded-2xl rounded-tl-none px-3.5 py-2 text-sm font-bold shadow-[2px_2px_0px_0px_rgba(var(--neobrutal-shadow-color),1)] animate-pulse">
-                <span>Memikirkan jawaban...</span>
-            </div>
-        `;
-        els.messagesPane.appendChild(typingIndicator);
-        scrollChatToBottom();
-        
-        setUstadzState('thinking');
-        
-        fetch('/ai/chat', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({
-                topic: currentChatTopic,
-                message: msg
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            // Remove typing indicator
-            const indicator = document.getElementById('ai-typing-indicator');
-            if (indicator) indicator.remove();
-            
-            els.messageInput.disabled = false;
-            els.sendBtn.disabled = false;
-            els.messageInput.focus();
-            
-            setUstadzState('talking');
-            
-            if (data.success) {
-                appendMessageBubble('assistant', data.message);
-                setTimeout(() => setUstadzState('smiling'), 1000);
-            } else {
-                appendMessageBubble('assistant', 'Terjadi kesalahan sistem. Silakan coba kirim ulang pesan Anda.');
-                setUstadzState('smiling');
-            }
-            scrollChatToBottom();
-        })
-        .catch(err => {
-            const indicator = document.getElementById('ai-typing-indicator');
-            if (indicator) indicator.remove();
-            
-            els.messageInput.disabled = false;
-            els.sendBtn.disabled = false;
-            
-            setUstadzState('smiling');
-            
-            appendMessageBubble('assistant', 'Koneksi gagal. Periksa jaringan internet Anda.');
-            scrollChatToBottom();
-        });
-    }
-
-    // Speech Recognition for Student AI Chat
-    let studentRecognition = null;
-    let isStudentListening = false;
-
-    function initStudentSpeechRecognition() {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            console.warn('Speech recognition not supported in this browser.');
-            const micBtn = document.getElementById('student-mic-btn');
-            if (micBtn) micBtn.style.display = 'none';
-            return null;
-        }
-
-        const rec = new SpeechRecognition();
-        rec.lang = 'id-ID';
-        rec.continuous = false;
-        rec.interimResults = false;
-
-        rec.onstart = function() {
-            isStudentListening = true;
-            const micIcon = document.getElementById('student-mic-icon');
-            const micBtn = document.getElementById('student-mic-btn');
-            if (micIcon) micIcon.innerText = 'settings_voice';
-            if (micBtn) {
-                micBtn.classList.remove('bg-yellow-300');
-                micBtn.classList.add('bg-red-400', 'animate-pulse');
-            }
-            const els = getAIChatElements();
-            if (els.messageInput) els.messageInput.placeholder = 'Mendengarkan suara Anda...';
-        };
-
-        rec.onend = function() {
-            isStudentListening = false;
-            const micIcon = document.getElementById('student-mic-icon');
-            const micBtn = document.getElementById('student-mic-btn');
-            if (micIcon) micIcon.innerText = 'mic';
-            if (micBtn) {
-                micBtn.classList.remove('bg-red-400', 'animate-pulse');
-                micBtn.classList.add('bg-yellow-300');
-            }
-            const els = getAIChatElements();
-            if (els.messageInput) els.messageInput.placeholder = 'Ketik pesan Anda di sini...';
-        };
-
-        rec.onresult = function(event) {
-            const text = event.results[0][0].transcript.trim();
-            const els = getAIChatElements();
-            if (els.messageInput && text) {
-                els.messageInput.value = text;
-                sendAIChatMessage();
-            }
-        };
-
-        rec.onerror = function(event) {
-            console.error('Speech recognition error:', event.error);
-        };
-
-        return rec;
-    }
-
-    function toggleStudentSpeechRecognition() {
-        if (!studentRecognition) {
-            studentRecognition = initStudentSpeechRecognition();
-        }
-        if (!studentRecognition) return;
-
-        if (isStudentListening) {
-            studentRecognition.stop();
-        } else {
-            try {
-                studentRecognition.start();
-            } catch (e) {
-                console.error(e);
-            }
-        }
-    }
-
-    // Initialize listeners when DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-        const els = getAIChatElements();
-        
-        if (els.messageInput) {
-            els.messageInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendAIChatMessage();
-                }
-            });
-        }
-        
-        if (els.backdrop) {
-            els.backdrop.addEventListener('click', closeAIChat);
-        }
-    });
-
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            const els = getAIChatElements();
-            if (els.modal && !els.modal.classList.contains('hidden')) {
-                closeAIChat();
-            }
-        }
-    });</script>
-
-<!-- Interactive Ustadz AI Chat Modal -->
-<div id="ai-chat-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" aria-labelledby="chat-modal-title" role="dialog" aria-modal="true">
-    <!-- Backdrop -->
-    <div id="ai-chat-modal-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
-
-    <!-- Modal Content -->
-    <div class="bg-white dark:bg-zinc-900 border-3 border-on-background rounded-xl neobrutal-shadow max-w-lg w-full mx-4 overflow-hidden relative z-50 max-h-[85vh] flex flex-col transition-all">
-        <!-- Modal Header -->
-        <div id="chat-modal-header" class="p-4 border-b-3 border-on-background flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <span id="chat-modal-icon" class="text-2xl select-none">📖</span>
-                <h3 class="font-headline-md text-lg font-black" id="chat-modal-title">
-                    Tanya Ustadz AI
-                </h3>
-            </div>
-            <button onclick="closeAIChat()" class="w-8 h-8 border-2 border-on-background rounded-lg flex items-center justify-center bg-white dark:bg-zinc-800 hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] cursor-pointer">
-                <span class="material-symbols-outlined text-lg font-black text-on-background">close</span>
-            </button>
-        </div>
-
-        <!-- Message Pane -->
-        <div id="chat-messages-pane" class="flex-1 overflow-y-auto p-4 space-y-4 max-h-[400px] min-h-[300px] bg-background dark:bg-zinc-950 flex flex-col">
-            <!-- Dynamic Messages Loaded Here -->
-        </div>
-
-        <!-- Input Area -->
-        <div class="p-4 border-t-3 border-on-background bg-surface dark:bg-zinc-900 flex gap-3 items-end">
-            <div class="flex-grow">
-                <textarea id="chat-message-input" rows="1" class="w-full bg-white dark:bg-zinc-800 border-3 border-on-background px-4 py-2.5 rounded-lg focus:outline-none focus:ring-0 text-sm font-bold resize-none text-black dark:text-white" placeholder="Ketik pesan Anda di sini..."></textarea>
-            </div>
-            <button id="student-mic-btn" onclick="toggleStudentSpeechRecognition()" class="bg-yellow-300 text-black border-3 border-on-background p-2.5 rounded-lg font-bold shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all flex items-center justify-center cursor-pointer shrink-0 h-[46px]" title="Input Suara (Speech to Text)">
-                <span id="student-mic-icon" class="material-symbols-outlined text-xl">mic</span>
-            </button>
-            <button id="chat-send-btn" onclick="sendAIChatMessage()" class="bg-primary text-on-primary border-3 border-on-background px-4 py-2.5 rounded-lg font-bold shadow-[3px_3px_0px_0px_rgba(var(--neobrutal-shadow-color),1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all flex items-center justify-center gap-1.5 h-[46px] shrink-0">
-                <span class="material-symbols-outlined text-lg">send</span>
-            </button>
-        </div>
-    </div>
-</div>
+</script>
 
 <x-calendar-modal />
 

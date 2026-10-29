@@ -124,9 +124,9 @@ class Student extends Authenticatable
         return $this->hasMany(DailyMood::class, 'student_id');
     }
 
-    public function aiChats()
+    public function tahfizhSetorans()
     {
-        return $this->hasMany(UstadzAIChat::class, 'student_id');
+        return $this->hasMany(TahfizhSetoran::class, 'student_id');
     }
 
 

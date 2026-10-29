@@ -216,6 +216,81 @@ class Setting extends Model
     }
 
     /**
+     * Default configuration for Pos Simakan & Setor Hafalan.
+     */
+    public static function defaultSimakanConfig(): array
+    {
+        return [
+            'access_code' => '',
+            'is_active' => true,
+            'global_pin' => '1234',
+            'min_baris_ziyadah' => 2,
+            'min_baris_murojaah' => 6,
+            'min_baris_tilawah' => 5,
+            'baris_per_halaman' => 15,
+            'target_mingguan' => 3,
+            'enable_ziyadah' => true,
+            'enable_murojaah' => true,
+            'enable_tilawah' => true,
+            'auto_attend_tahsin' => true,
+            'hitung_mengulang' => false,
+        ];
+    }
+
+    /**
+     * Get the current Simakan configuration merged with defaults.
+     */
+    public static function getSimakanConfig(): array
+    {
+        $setting = static::firstOrCreate([]);
+        $landingPage = is_array($setting->landing_page) ? $setting->landing_page : [];
+        $saved = $landingPage['simakan_config'] ?? [];
+
+        $config = array_merge(static::defaultSimakanConfig(), is_array($saved) ? $saved : []);
+
+        if (empty($config['access_code']) || !array_key_exists('auto_attend_tahsin_initialized', $config)) {
+            if (empty($config['access_code'])) {
+                $config['access_code'] = Str::random(32);
+            }
+            if (!array_key_exists('auto_attend_tahsin_initialized', $config)) {
+                $config['auto_attend_tahsin'] = true;
+                $config['auto_attend_tahsin_initialized'] = true;
+            }
+            $landingPage['simakan_config'] = $config;
+            $setting->landing_page = $landingPage;
+            $setting->save();
+        }
+
+        return $config;
+    }
+
+    /**
+     * Get or create the shared secret code used in the public Ustadz Simakan link.
+     */
+    public static function getOrCreateSimakanAccessCode(): string
+    {
+        $config = static::getSimakanConfig();
+        return (string) $config['access_code'];
+    }
+
+    /**
+     * Rotate the Simakan access code, invalidating the previous link.
+     */
+    public static function regenerateSimakanAccessCode(): string
+    {
+        $setting = static::firstOrCreate([]);
+        $landingPage = is_array($setting->landing_page) ? $setting->landing_page : [];
+        $config = array_merge(static::defaultSimakanConfig(), $landingPage['simakan_config'] ?? []);
+        $config['access_code'] = Str::random(32);
+
+        $landingPage['simakan_config'] = $config;
+        $setting->landing_page = $landingPage;
+        $setting->save();
+
+        return $config['access_code'];
+    }
+
+    /**
      * Helper to get Indonesian name for ISO day of week (1=Senin ... 7=Ahad).
      */
     public static function getDayName(int $isoDay, bool $short = false): string

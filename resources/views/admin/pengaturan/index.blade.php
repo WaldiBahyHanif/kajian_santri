@@ -147,6 +147,38 @@
             </form>
         </div>
 
+        <!-- Simakan & Setor Hafalan Access Link Card -->
+        <div class="bg-white p-6 rounded-lg border-4 border-black shadow-[4px_4px_0_0_#000] mt-6" x-data="{ copiedSimakan: false }">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <h3 class="font-black text-xl uppercase flex items-center gap-2">
+                    <span class="material-symbols-outlined text-emerald-700">menu_book</span> Link Pos Simakan Ustadz Penyimak
+                </h3>
+                <a href="{{ route('admin.simakan.index') }}" class="bg-[#FFDE00] text-black px-3 py-1 rounded border-2 border-black text-xs font-black shadow-[2px_2px_0_0_#000]">
+                    ⚙️ Atur Minimal Baris & Rekap
+                </a>
+            </div>
+            <p class="text-xs font-bold text-gray-500 mb-4 leading-relaxed">
+                Bagikan link khusus ini kepada Ustadz Penyimak Tahfizh. Dilindungi Kunci Ganda (Pilih Nama Ustadz + PIN Global: <strong>{{ $simakanConfig['global_pin'] ?? '1234' }}</strong>). Minimal Ziyadah: <strong>{{ $simakanConfig['min_baris_ziyadah'] ?? 2 }} baris</strong>, Minimal Muroja'ah: <strong>{{ $simakanConfig['min_baris_murojaah'] ?? 6 }} baris</strong>.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-3 mb-3">
+                <input type="text" readonly id="simakan-pengaturan-link-input" value="{{ $simakanLink }}"
+                       class="flex-1 border-4 border-black p-2.5 rounded-lg font-bold text-sm bg-gray-50 focus:outline-none">
+                <button type="button"
+                        @click="navigator.clipboard.writeText(document.getElementById('simakan-pengaturan-link-input').value); copiedSimakan = true; setTimeout(() => copiedSimakan = false, 2000)"
+                        class="shrink-0 bg-blue-200 text-black px-4 py-2.5 font-black rounded-lg border-4 border-black shadow-[4px_4px_0_0_#000] active:translate-y-1 active:shadow-none transition-all text-xs uppercase flex items-center justify-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm" x-text="copiedSimakan ? 'check' : 'content_copy'"></span>
+                    <span x-text="copiedSimakan ? 'Tersalin!' : 'Salin Link'"></span>
+                </button>
+            </div>
+            <form action="{{ route('admin.simakan.code.regenerate') }}" method="POST"
+                  onsubmit="return confirm('Yakin mau buat link simakan baru? Link lama akan langsung tidak berfungsi.');">
+                @csrf
+                <button type="submit" class="bg-red-400 text-black px-4 py-2 font-black rounded-lg border-4 border-black shadow-[4px_4px_0_0_#000] active:translate-y-1 active:shadow-none transition-all text-xs uppercase flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">autorenew</span> Regenerate Link Simakan
+                </button>
+            </form>
+        </div>
+
         <!-- Archiving Card -->
         <div class="bg-white p-6 rounded-lg border-4 border-black shadow-[4px_4px_0_0_#000] mt-6">
             <h3 class="font-black text-xl mb-4 uppercase flex items-center gap-2">

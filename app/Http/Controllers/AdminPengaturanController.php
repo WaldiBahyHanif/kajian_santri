@@ -23,7 +23,10 @@ class AdminPengaturanController extends Controller
         $liqoAccessCode = Setting::getOrCreateLiqoAccessCode();
         $liqoLink = url('/liqo/' . $liqoAccessCode);
 
-        return view('admin.pengaturan.index', compact('setting', 'admins', 'liqoLink'));
+        $simakanConfig = Setting::getSimakanConfig();
+        $simakanLink = url('/simakan/' . Setting::getOrCreateSimakanAccessCode());
+
+        return view('admin.pengaturan.index', compact('setting', 'admins', 'liqoLink', 'simakanConfig', 'simakanLink'));
     }
 
     public function regenerateLiqoCode()

@@ -3,7 +3,6 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\AIChatController;
 use App\Http\Controllers\AlumniController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +26,15 @@ Route::middleware(['liqo.access'])->prefix('liqo')->group(function () {
         ->name('liqo.store');
 });
 
+// Simakan & Setor Hafalan Ustadz Penyimak (public, gated by shared secret code + PIN Ustadz)
+Route::middleware(['simakan.access'])->prefix('simakan')->group(function () {
+    Route::get('/{code}', [\App\Http\Controllers\SimakanController::class, 'show'])->name('simakan.show');
+    Route::post('/{code}', [\App\Http\Controllers\SimakanController::class, 'store'])
+        ->middleware('throttle:25,1')
+        ->name('simakan.store');
+    Route::delete('/{code}/{id}', [\App\Http\Controllers\SimakanController::class, 'destroy'])->name('simakan.destroy');
+});
+
 // PWA Push Subscriptions routes
 Route::post('/push/subscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'store'])->name('push.subscribe');
 Route::post('/push/unsubscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
@@ -34,9 +42,6 @@ Route::post('/push/test', [\App\Http\Controllers\PushSubscriptionController::cla
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::post('/ai/ask', [DashboardController::class, 'askAI'])->name('ai.ask');
-    Route::get('/ai/history', [AIChatController::class, 'getHistory'])->name('ai.history');
-    Route::post('/ai/chat', [AIChatController::class, 'sendMessage'])->name('ai.chat');
     Route::post('/mood', [DashboardController::class, 'storeMood'])->name('mood.store');
     Route::post('/zikir/sync', [DashboardController::class, 'syncZikir'])->name('zikir.sync');
     Route::get('/scan', [AttendanceController::class, 'scan'])->name('attendance.scan');
@@ -54,6 +59,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/refleksi', [\App\Http\Controllers\ReflectionController::class, 'index'])->name('refleksi');
     Route::post('/refleksi', [\App\Http\Controllers\ReflectionController::class, 'store'])->name('refleksi.store');
     Route::delete('/refleksi/{id}', [\App\Http\Controllers\ReflectionController::class, 'destroy'])->name('refleksi.destroy');
+    Route::get('/setoran', [\App\Http\Controllers\TahfizhController::class, 'index'])->name('setoran.index');
     Route::post('/saran', [DashboardController::class, 'storeSaran'])->name('saran.store');
     Route::get('/api/announcements/active', [\App\Http\Controllers\AnnouncementNotificationController::class, 'activeReminders'])->name('announcements.active-reminders');
 
@@ -183,10 +189,14 @@ Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(functi
     Route::post('/izin/{id}/reject', [\App\Http\Controllers\AdminIzinController::class, 'reject'])->name('izin.reject');
     Route::delete('/izin/{id}', [\App\Http\Controllers\AdminIzinController::class, 'destroy'])->name('izin.destroy');
 
-    // Asisten AI Admin
-    Route::get('/ai-assistant', [\App\Http\Controllers\AdminAIChatController::class, 'index'])->name('ai.assistant');
-    Route::post('/ai-assistant/chat', [\App\Http\Controllers\AdminAIChatController::class, 'chat'])->name('ai.assistant.chat');
-    Route::post('/ai-assistant/clear', [\App\Http\Controllers\AdminAIChatController::class, 'clearHistory'])->name('ai.assistant.clear');
+    // Simakan & Setor Hafalan
+    Route::get('/simakan', [\App\Http\Controllers\AdminSimakanController::class, 'index'])->name('simakan.index');
+    Route::put('/simakan/config', [\App\Http\Controllers\AdminSimakanController::class, 'updateConfig'])->name('simakan.config.update');
+    Route::post('/simakan/code/regenerate', [\App\Http\Controllers\AdminSimakanController::class, 'regenerateCode'])->name('simakan.code.regenerate');
+    Route::post('/simakan/penyimak', [\App\Http\Controllers\AdminSimakanController::class, 'storePenyimak'])->name('simakan.penyimak.store');
+    Route::put('/simakan/penyimak/{id}', [\App\Http\Controllers\AdminSimakanController::class, 'updatePenyimak'])->name('simakan.penyimak.update');
+    Route::delete('/simakan/penyimak/{id}', [\App\Http\Controllers\AdminSimakanController::class, 'destroyPenyimak'])->name('simakan.penyimak.destroy');
+    Route::delete('/simakan/{id}', [\App\Http\Controllers\AdminSimakanController::class, 'destroy'])->name('simakan.destroy');
 
     // Clear Cache Route
     Route::get('/clear-cache', function () {

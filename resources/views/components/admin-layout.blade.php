@@ -291,10 +291,6 @@
                 <span class="material-symbols-outlined text-xl">dashboard</span>
                 Dashboard
             </a>
-            <a href="{{ route('admin.ai.assistant') }}" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold text-sm border-2 border-transparent {{ $active === 'ai-assistant' ? 'active' : 'text-black hover:bg-gray-100' }}">
-                <span class="material-symbols-outlined text-xl">smart_toy</span>
-                Asisten AI Admin
-            </a>
 
             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-3 pt-4 pb-1">Data Master</p>
 
@@ -320,6 +316,10 @@
             <a href="{{ route('admin.liqo.index') }}" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold text-sm border-2 border-transparent {{ $active === 'liqo' ? 'active' : 'text-black hover:bg-gray-100' }}">
                 <span class="material-symbols-outlined text-xl">diversity_3</span>
                 Kelola Liqo
+            </a>
+            <a href="{{ route('admin.simakan.index') }}" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold text-sm border-2 border-transparent {{ $active === 'simakan' ? 'active' : 'text-black hover:bg-gray-100' }}">
+                <span class="material-symbols-outlined text-xl">menu_book</span>
+                Simakan & Setoran
             </a>
             <a href="{{ route('admin.qr.index') }}" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold text-sm border-2 border-transparent {{ $active === 'qr' ? 'active' : 'text-black hover:bg-gray-100' }}">
                 <span class="material-symbols-outlined text-xl">qr_code</span>

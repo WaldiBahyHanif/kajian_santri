@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="utf-8"/>
@@ -158,30 +158,6 @@
         }
         .dark .shadow-\[-8px_0_0_0_rgba\(0\2c 0\2c 0\2c 1\)\] {
             box-shadow: -8px 0 0 0 rgba(var(--neobrutal-shadow-color), 1) !important;
-        }
-
-        /* Chatbot styles */
-        #chatbot-container { position: fixed; bottom: 80px; right: 20px; z-index: 999; }
-        #chatbot-toggle { width: 60px; height: 60px; border-radius: 50%; background: var(--primary-container); color: var(--on-primary); border: 3px solid var(--neobrutal-border-color); box-shadow: 4px 4px 0px 0px rgba(var(--neobrutal-shadow-color), 1); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-        #chatbot-toggle:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0px 0px rgba(var(--neobrutal-shadow-color), 1); }
-        #chatbot-window { display: none; position: absolute; bottom: 70px; right: 0; width: 360px; max-height: 500px; background: var(--surface); border: 3px solid var(--neobrutal-border-color); box-shadow: 8px 8px 0px 0px rgba(var(--neobrutal-shadow-color), 1); flex-direction: column; overflow: hidden; }
-        #chatbot-window.active { display: flex; }
-        #chatbot-header { background: var(--primary-container); color: var(--on-primary); padding: 12px 16px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--neobrutal-border-color); }
-        #chatbot-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; max-height: 340px; min-height: 200px; }
-        .chat-msg { max-width: 85%; padding: 10px 14px; font-size: 14px; line-height: 1.5; border: 2px solid var(--neobrutal-border-color); }
-        .chat-msg.bot { background: var(--secondary-container); color: var(--on-secondary-container); align-self: flex-start; border-radius: 0 12px 12px 12px; }
-        .chat-msg.user { background: var(--surface-container-lowest); color: var(--on-surface); align-self: flex-end; border-radius: 12px 0 12px 12px; }
-        #chatbot-input-area { display: flex; border-top: 3px solid var(--neobrutal-border-color); }
-        #chatbot-input { flex: 1; padding: 12px; border: none; outline: none; font-family: 'Inter', sans-serif; font-size: 14px; background: var(--surface-container-lowest); color: var(--on-surface); }
-        #chatbot-send { padding: 12px 16px; background: var(--secondary); color: var(--on-secondary); border: none; font-weight: 700; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: background 0.2s; }
-        #chatbot-send:hover { background: var(--primary); }
-        .chat-typing { display: flex; gap: 4px; padding: 10px 14px; }
-        .chat-typing span { width: 8px; height: 8px; background: var(--secondary); border-radius: 50%; animation: typing 1.2s infinite ease-in-out; }
-        .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
-        .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes typing { 0%,80%,100% { transform: scale(0.6); opacity:0.4; } 40% { transform: scale(1); opacity:1; } }
-        @media (max-width: 480px) {
-          #chatbot-window { width: calc(100vw - 32px); right: -4px; }
         }
       </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -477,33 +453,6 @@
 </div>
 </footer>
 
-<!-- AI Chatbot Widget -->
-<div id="chatbot-container">
-<div id="chatbot-window">
-    <div id="chatbot-header">
-        <span>🤖 Asisten Daaru Hiraa</span>
-        <button onclick="toggleChatbot()" style="background:none;border:none;color:white;font-size:20px;cursor:pointer;">✕</button>
-    </div>
-    <div id="chatbot-messages">
-        <div class="chat-msg bot">
-            Assalamu'alaikum! 👋 Saya asisten virtual Daaru Hiraa. Ada yang bisa saya bantu? Silakan tanya tentang:<br/><br/>
-            • Jadwal kajian<br/>
-            • Informasi pondok<br/>
-            • Pendaftaran santri<br/>
-            • Fasilitas pondok<br/>
-            • Lokasi & alamat
-        </div>
-    </div>
-    <div id="chatbot-input-area">
-        <input type="text" id="chatbot-input" placeholder="Ketik pertanyaan Anda..." onkeydown="if(event.key==='Enter')sendChat()"/>
-        <button id="chatbot-send" onclick="sendChat()">Kirim</button>
-    </div>
-</div>
-<button id="chatbot-toggle" onclick="toggleChatbot()" title="Tanya AI Asisten">
-    <span class="material-symbols-outlined" style="font-size:28px;">smart_toy</span>
-</button>
-</div>
-
 <script>
 // Drawer Menu Toggle
 const hamburgerToggle = document.getElementById('hamburger-toggle');
@@ -551,103 +500,6 @@ document.addEventListener('keydown', (e) => {
         closeDrawer();
     }
 });
-</script>
-
-<script>
-function toggleChatbot() {
-    document.getElementById('chatbot-window').classList.toggle('active');
-}
-
-const knowledgeBase = {
-    greetings: {
-        patterns: ['assalamualaikum', 'halo', 'hai', 'hi', 'selamat', 'pagi', 'siang', 'sore', 'malam', 'hey'],
-        response: "Wa'alaikumussalam warahmatullahi wabarakatuh! 😊 Selamat datang di Daaru Hiraa. Ada yang bisa saya bantu hari ini?"
-    },
-    jadwal: {
-        patterns: ['jadwal', 'kapan', 'waktu', 'jam', 'kajian', 'rutin', 'mingguan'],
-        response: "📅 <b>Jadwal Kajian Rutin:</b><br/><br/>" + 
-                  {!! json_encode(collect($landingPage['kajian']['items'])->map(function($item) {
-                      $sched = str_replace('📅 ', '', $item['schedule']);
-                      return "• <b>" . addslashes(e($item['title'])) . "</b>: " . addslashes(e($sched));
-                  })->implode("<br/>")) !!} + "<br/><br/>Semua kajian ba'da Maghrib dan terbuka untuk santri! 🕌"
-    },
-    pondok: {
-        patterns: ['pondok', 'pesantren', 'tentang', 'profil', 'sejarah', 'visi', 'misi'],
-        response: "🏫 <b>{!! addslashes(e($landingPage['pondok']['title'])) !!}</b><br/><br/>{!! addslashes(e($landingPage['pondok']['desc'])) !!}<br/><br/><b>Visi:</b> {!! addslashes(e($landingPage['pondok']['visi_desc'])) !!}<br/><br/><b>Misi:</b> {!! addslashes(e($landingPage['pondok']['misi_desc'])) !!}"
-    },
-    daftar: {
-        patterns: ['daftar', 'pendaftaran', 'gabung', 'bergabung', 'registrasi', 'cara daftar', 'syarat'],
-        response: "📝 <b>Informasi Pendaftaran:</b><br/><br/>Pendaftaran santri baru dibuka setiap awal tahun ajaran. Syarat umum:<br/>• Mengisi formulir pendaftaran<br/>• Fotokopi KTP/KK<br/>• Pas foto 3x4<br/>• Surat keterangan sehat<br/><br/>Hubungi kami via WhatsApp di <b>{!! addslashes(e(str_replace('https://wa.me/', '', $landingPage['kontak']['wa_link']))) !!}</b> untuk info lebih lanjut! 📱"
-    },
-    fasilitas: {
-        patterns: ['fasilitas', 'sarana', 'prasarana', 'kamar', 'asrama', 'masjid', 'perpustakaan'],
-        response: "🏠 <b>Fasilitas Pondok:</b><br/><br/>" + 
-                  {!! json_encode(collect($landingPage['pondok']['facilities'])->map(fn($f) => "• " . addslashes(e($f['label'])))->implode("<br/>")) !!} + "<br/><br/>Semua fasilitas terawat dengan baik untuk kenyamanan belajar santri!"
-    },
-    lokasi: {
-        patterns: ['lokasi', 'alamat', 'dimana', 'di mana', 'maps', 'peta', 'arah', 'jalan'],
-        response: "📍 <b>Lokasi Pondok:</b><br/><br/>{!! addslashes(e($landingPage['lokasi']['alamat_text'])) !!}<br/><br/>🗺️ <a href='{!! addslashes($landingPage['lokasi']['alamat_link']) !!}' target='_blank' style='color:#003527;font-weight:bold;'>Buka di Google Maps →</a>"
-    },
-    biaya: {
-        patterns: ['biaya', 'harga', 'bayar', 'spp', 'uang', 'mahal', 'murah', 'gratis'],
-        response: "💰 <b>Informasi Biaya:</b><br/><br/>Untuk informasi biaya pendidikan dan SPP, silakan hubungi langsung pihak pondok melalui:<br/>• 📱 WhatsApp: {!! addslashes(e(str_replace('https://wa.me/', '', $landingPage['kontak']['wa_link']))) !!}<br/>• 📧 Email: {!! addslashes(e(str_replace('mailto:', '', $landingPage['kontak']['email_link']))) !!}<br/><br/>Kami juga menyediakan program beasiswa untuk santri berprestasi dan kurang mampu! 🎓"
-    },
-    ustadz: {
-        patterns: ['ustadz', 'guru', 'pengajar', 'kyai', 'kiai', 'sanad'],
-        response: "👳 <b>Tenaga Pengajar:</b><br/><br/>Pondok kami memiliki pengajar berpengalaman untuk membimbing kajian rutinitas setiap harinya."
-    },
-    thanks: {
-        patterns: ['terima kasih', 'makasih', 'thanks', 'syukron', 'jazakallah', 'jazakallahu khairan'],
-        response: "Wa iyyakum! 😊 Sama-sama, semoga informasi yang saya berikan bermanfaat. Jangan ragu untuk bertanya lagi jika ada yang ingin diketahui. Barakallahu fiik! 🤲"
-    },
-    salam_penutup: {
-        patterns: ['bye', 'dadah', 'sampai jumpa', 'wassalamualaikum'],
-        response: "Wa'alaikumussalam warahmatullahi wabarakatuh! 👋 Terima kasih sudah berkunjung. Semoga Allah memudahkan langkah Anda dalam menuntut ilmu. Sampai jumpa! 🤲"
-    }
-};
-
-function findResponse(input) {
-    const lower = input.toLowerCase().trim();
-    for (const [key, data] of Object.entries(knowledgeBase)) {
-        for (const pattern of data.patterns) {
-            if (lower.includes(pattern)) {
-                return data.response;
-            }
-        }
-    }
-    return "Maaf, saya belum bisa menjawab pertanyaan tersebut secara spesifik. 😅<br/><br/>Cobalah bertanya tentang:<br/>• Jadwal kajian<br/>• Informasi pondok<br/>• Pendaftaran santri<br/>• Fasilitas pondok<br/>• Lokasi & alamat<br/>• Biaya pendidikan<br/><br/>Atau hubungi kami langsung via WhatsApp di <b>0812-3456-7890</b> untuk pertanyaan yang lebih detail! 📱";
-}
-
-function sendChat() {
-    const input = document.getElementById('chatbot-input');
-    const messages = document.getElementById('chatbot-messages');
-    const text = input.value.trim();
-    if (!text) return;
-
-    // Add user message
-    const userMsg = document.createElement('div');
-    userMsg.className = 'chat-msg user';
-    userMsg.textContent = text;
-    messages.appendChild(userMsg);
-    input.value = '';
-
-    // Show typing indicator
-    const typing = document.createElement('div');
-    typing.className = 'chat-typing';
-    typing.innerHTML = '<span></span><span></span><span></span>';
-    messages.appendChild(typing);
-    messages.scrollTop = messages.scrollHeight;
-
-    // Simulate AI thinking delay
-    setTimeout(() => {
-        typing.remove();
-        const botMsg = document.createElement('div');
-        botMsg.className = 'chat-msg bot';
-        botMsg.innerHTML = findResponse(text);
-        messages.appendChild(botMsg);
-        messages.scrollTop = messages.scrollHeight;
-    }, 800 + Math.random() * 700);
-}
 
 // Theme toggle logic
 const themeToggleBtn = document.getElementById('theme-toggle');

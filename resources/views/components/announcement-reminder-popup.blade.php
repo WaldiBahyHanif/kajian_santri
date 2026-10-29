@@ -28,7 +28,7 @@
         <!-- Footer / Action -->
         <div class="mt-4 flex items-center justify-between pt-2 border-t border-emerald-800/80">
             <button id="popup-sound-btn" type="button" class="bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-black px-3 py-1.5 rounded-lg border-2 border-black flex items-center gap-1.5 transition-all shadow-[2px_2px_0_0_#000] cursor-pointer">
-                <span class="material-symbols-outlined text-sm">volume_up</span> Putar Suara AI
+                <span class="material-symbols-outlined text-sm">volume_up</span> Putar Suara
             </button>
 
             <button id="popup-dismiss-btn" type="button" class="bg-[#39FF14] text-black text-xs font-black px-4 py-1.5 rounded-lg border-2 border-black uppercase shadow-[2px_2px_0_0_#000] active:translate-y-0.5 active:shadow-none transition-all cursor-pointer">

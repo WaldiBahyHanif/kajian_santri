@@ -11,6 +11,7 @@ class Asatiz extends Model
 
     protected $fillable = [
         'name',
+        'simakan_pin',
     ];
 
     public function kajian()
@@ -21,5 +22,10 @@ class Asatiz extends Model
     public function attendances()
     {
         return $this->hasMany(AsatizAttendance::class, 'asatiz_id');
+    }
+
+    public function tahfizhSetorans()
+    {
+        return $this->hasMany(TahfizhSetoran::class, 'asatiz_id');
     }
 }

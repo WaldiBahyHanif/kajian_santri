@@ -7,6 +7,7 @@
     $navItems = [
         ['route' => 'dashboard',       'icon' => 'dashboard',       'label' => 'Dashboard'],
         ['route' => 'attendance.scan', 'icon' => 'qr_code_scanner', 'label' => 'Scan Absensi'],
+        ['route' => 'setoran.index',   'icon' => 'menu_book',       'label' => 'Setoran Hafalan'],
         ['route' => 'mitsur',          'icon' => 'group',           'label' => 'Mitsur Duo'],
         ['route' => 'refleksi',        'icon' => 'edit_note',       'label' => 'Refleksi Harian'],
         ['route' => 'zikir',           'icon' => 'auto_awesome',    'label' => 'Tasbih Digital'],

@@ -60,9 +60,13 @@ class AdminAsatizController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'simakan_pin' => ['nullable', 'string', 'max:20'],
         ]);
 
-        Asatiz::create(['name' => $request->name]);
+        Asatiz::create([
+            'name' => $request->name,
+            'simakan_pin' => $request->filled('simakan_pin') ? trim($request->simakan_pin) : null,
+        ]);
 
         return redirect()->route('admin.asatiz.index')->with('success', 'Ustadz berhasil ditambahkan!');
     }
@@ -71,9 +75,13 @@ class AdminAsatizController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'simakan_pin' => ['nullable', 'string', 'max:20'],
         ]);
 
-        $asatiz->update(['name' => $request->name]);
+        $asatiz->update([
+            'name' => $request->name,
+            'simakan_pin' => $request->filled('simakan_pin') ? trim($request->simakan_pin) : null,
+        ]);
 
         return redirect()->route('admin.asatiz.index')->with('success', 'Data ustadz berhasil diperbarui!');
     }
