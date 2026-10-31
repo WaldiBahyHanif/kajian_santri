@@ -68,6 +68,35 @@
                     </div>
                 </div>
 
+                @php
+                    $izinWa = \App\Models\Setting::getIzinWaNumbers();
+                @endphp
+                <div class="border-t-4 border-black pt-4 bg-emerald-50 p-4 rounded-xl border-4 border-black">
+                    <label class="block font-black uppercase text-xs mb-1 text-emerald-950 flex items-center gap-1.5">
+                        <span class="text-base">📱</span> Pengaturan Nomor WhatsApp Perizinan Santri
+                    </label>
+                    <p class="text-xs text-emerald-900 font-bold mb-3">
+                        Saat santri mengirim surat izin, pesan otomatis diarahkan ke nomor WhatsApp sesuai lama izin (gunakan format <code>628...</code> atau <code>08...</code>).
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block font-black uppercase text-[11px] mb-1 text-gray-700">1 Hari &rarr; Divisi Kajian</label>
+                            <input type="text" name="wa_1_hari" value="{{ $izinWa['wa_1_hari'] }}" placeholder="628123456789"
+                                   class="w-full border-4 border-black p-2.5 rounded-lg font-bold bg-white text-sm focus:outline-none focus:bg-yellow-50">
+                        </div>
+                        <div>
+                            <label class="block font-black uppercase text-[11px] mb-1 text-gray-700">2 Hari &rarr; Ketua Pengurus</label>
+                            <input type="text" name="wa_2_hari" value="{{ $izinWa['wa_2_hari'] }}" placeholder="628123456789"
+                                   class="w-full border-4 border-black p-2.5 rounded-lg font-bold bg-white text-sm focus:outline-none focus:bg-yellow-50">
+                        </div>
+                        <div>
+                            <label class="block font-black uppercase text-[11px] mb-1 text-gray-700">&gt; 2 Hari &rarr; Musyrif</label>
+                            <input type="text" name="wa_lebih_2_hari" value="{{ $izinWa['wa_lebih_2_hari'] }}" placeholder="628123456789"
+                                   class="w-full border-4 border-black p-2.5 rounded-lg font-bold bg-white text-sm focus:outline-none focus:bg-yellow-50">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="border-t-4 border-black pt-4">
                     <label class="block font-black uppercase text-xs mb-2 text-primary">⚙️ Mode Status Kebun Kebaikan</label>
                     <div class="flex items-center gap-4">

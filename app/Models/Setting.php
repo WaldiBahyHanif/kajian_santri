@@ -32,6 +32,11 @@ class Setting extends Model
     {
         return [
             'tahsin_days' => [2, 5], // Default: 2 (Selasa) dan 5 (Jumat)
+            'izin_wa' => [
+                'wa_1_hari' => config('perizinan.musyrif_wa.1', '6280000000001'), // 1 Hari: Divisi Kajian
+                'wa_2_hari' => config('perizinan.musyrif_wa.2', '6280000000002'), // 2 Hari: Ketua Pengurus
+                'wa_lebih_2_hari' => config('perizinan.musyrif_wa.3', '6280000000003'), // > 2 Hari: Musyrif
+            ],
             'hero' => [
                 'badge' => '📖 Pusat Informasi Kajian Islam',
                 'title_1' => 'KAJIAN',
@@ -185,6 +190,35 @@ class Setting extends Model
             $days = [2, 5];
         }
         return array_values(array_unique(array_map('intval', $days)));
+    }
+
+    /**
+     * Helper to get configured WhatsApp numbers for Leave Requests (Perizinan).
+     * 1 = 1 Hari (Divisi Kajian)
+     * 2 = 2 Hari (Ketua Pengurus)
+     * 3 = > 2 Hari (Musyrif)
+     */
+    public static function getIzinWaNumbers(): array
+    {
+        $setting = static::first();
+        $saved = $setting->landing_page['izin_wa'] ?? [];
+
+        $normalize = function (?string $num, string $fallback): string {
+            $clean = preg_replace('/[^0-9]/', '', (string) $num);
+            if ($clean === '') {
+                return $fallback;
+            }
+            if (str_starts_with($clean, '0')) {
+                $clean = '62' . substr($clean, 1);
+            }
+            return $clean;
+        };
+
+        return [
+            'wa_1_hari' => $normalize($saved['wa_1_hari'] ?? null, config('perizinan.musyrif_wa.1', '6280000000001')),
+            'wa_2_hari' => $normalize($saved['wa_2_hari'] ?? null, config('perizinan.musyrif_wa.2', '6280000000002')),
+            'wa_lebih_2_hari' => $normalize($saved['wa_lebih_2_hari'] ?? null, config('perizinan.musyrif_wa.3', '6280000000003')),
+        ];
     }
 
     /**

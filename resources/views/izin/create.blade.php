@@ -1,4 +1,4 @@
-﻿<x-app-layout>
+<x-app-layout>
     <x-slot name="header">
         <h2 class="font-black text-xl text-black dark:text-white uppercase tracking-tight">📝 Ajukan Izin</h2>
     </x-slot>
@@ -61,11 +61,14 @@
                                 <span class="text-xs text-gray-500 dark:text-gray-400 font-bold">Absensi Shalat Subuh / Shalat Berjamaah</span>
                             </div>
                         </label>
+                        @php
+                            $tahsinDayNames = array_map(fn($d) => \App\Models\Setting::getDayName($d), \App\Models\Setting::getTahsinDays());
+                        @endphp
                         <label class="flex items-start gap-3 cursor-pointer">
                             <input type="checkbox" name="covered_sessions[]" value="Tahsin" class="mt-1 border-2 border-black focus:ring-0 text-[#FF007F] rounded" {{ is_array(old('covered_sessions')) && in_array('Tahsin', old('covered_sessions')) ? 'checked' : (!old('covered_sessions') ? 'checked' : '') }}>
                             <div>
-                                <span class="font-bold text-sm text-black dark:text-white block">🗣️ Tahsin</span>
-                                <span class="text-xs text-gray-500 dark:text-gray-400 font-bold">Kegiatan Belajar/Setor Quran & Tahsin</span>
+                                <span class="font-bold text-sm text-black dark:text-white block">🗣️ Tahsin & Tahfidz</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400 font-bold">Otomatis hanya dihitung pada hari jadwal ({{ implode(' & ', $tahsinDayNames) }})</span>
                             </div>
                         </label>
                         <label class="flex items-start gap-3 cursor-pointer">
@@ -111,10 +114,13 @@
             end.setDate(end.getDate() + (duration - 1));
 
             const fmt = (d) => d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            const recipient = duration === 1
+                ? 'Divisi Kajian'
+                : (duration === 2 ? 'Ketua Pengurus' : 'Musyrif');
 
             preview.textContent = duration === 1
-                ? `📅 Izin tanggal ${fmt(start)}`
-                : `📅 Izin dari ${fmt(start)} sampai ${fmt(end)}`;
+                ? `📅 Izin 1 hari (${fmt(start)}) • Tujuan WA: ${recipient}`
+                : `📅 Izin ${duration} hari (${fmt(start)} s/d ${fmt(end)}) • Tujuan WA: ${recipient}`;
         }
 
         document.getElementById('start_date').addEventListener('change', updateDurationPreview);

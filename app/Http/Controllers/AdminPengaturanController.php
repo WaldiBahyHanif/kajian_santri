@@ -49,6 +49,9 @@ class AdminPengaturanController extends Controller
             'garden_message' => ['nullable', 'string', 'max:500'],
             'tahsin_day_1' => ['required', 'integer', 'between:1,7'],
             'tahsin_day_2' => ['required', 'integer', 'between:1,7', 'different:tahsin_day_1'],
+            'wa_1_hari' => ['nullable', 'string', 'max:30'],
+            'wa_2_hari' => ['nullable', 'string', 'max:30'],
+            'wa_lebih_2_hari' => ['nullable', 'string', 'max:30'],
         ], [
             'tahsin_day_2.different' => 'Hari Tahsin ke-2 tidak boleh sama dengan Hari ke-1.',
         ]);
@@ -62,6 +65,23 @@ class AdminPengaturanController extends Controller
 
         $landingPage = $setting->landing_page ?? [];
         $landingPage['tahsin_days'] = [(int) $request->tahsin_day_1, (int) $request->tahsin_day_2];
+
+        if ($request->filled('wa_1_hari') || $request->filled('wa_2_hari') || $request->filled('wa_lebih_2_hari')) {
+            $normalize = function (?string $num): string {
+                $clean = preg_replace('/[^0-9]/', '', (string) $num);
+                if (str_starts_with($clean, '0')) {
+                    $clean = '62' . substr($clean, 1);
+                }
+                return $clean;
+            };
+            $currentWa = Setting::getIzinWaNumbers();
+            $landingPage['izin_wa'] = [
+                'wa_1_hari' => $request->filled('wa_1_hari') ? $normalize($request->wa_1_hari) : $currentWa['wa_1_hari'],
+                'wa_2_hari' => $request->filled('wa_2_hari') ? $normalize($request->wa_2_hari) : $currentWa['wa_2_hari'],
+                'wa_lebih_2_hari' => $request->filled('wa_lebih_2_hari') ? $normalize($request->wa_lebih_2_hari) : $currentWa['wa_lebih_2_hari'],
+            ];
+        }
+
         $setting->landing_page = $landingPage;
 
         $setting->save();

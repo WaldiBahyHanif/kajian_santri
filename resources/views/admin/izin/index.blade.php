@@ -1,5 +1,46 @@
 <x-admin-layout title="Kelola Izin" active="izin">
 
+    <!-- Pengaturan Nomor WhatsApp Tujuan Perizinan -->
+    @php
+        $waConfig = $izinWa ?? \App\Models\Setting::getIzinWaNumbers();
+    @endphp
+    <div class="bg-emerald-50 border-4 border-black p-4 rounded-lg shadow-[4px_4px_0_0_#000] mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+            <div>
+                <h3 class="font-black text-sm uppercase flex items-center gap-1.5 text-emerald-950">
+                    <span>📱</span> Pengaturan Nomor WhatsApp Tujuan Perizinan
+                </h3>
+                <p class="text-xs font-bold text-emerald-900">
+                    Surat izin yang dikirim santri otomatis diteruskan ke WhatsApp sesuai durasi izin (1 Hari &rarr; Divisi Kajian, 2 Hari &rarr; Ketua Pengurus, &gt;2 Hari &rarr; Musyrif).
+                </p>
+            </div>
+        </div>
+        <form action="{{ route('admin.izin.wa-settings') }}" method="POST" class="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+            @csrf
+            @method('PUT')
+            <div>
+                <label class="text-[11px] font-black uppercase block mb-1 text-gray-800">1 Hari (Divisi Kajian)</label>
+                <input type="text" name="wa_1_hari" value="{{ $waConfig['wa_1_hari'] }}" required placeholder="628123456789"
+                       class="w-full border-2 border-black rounded-lg px-3 py-2 font-bold text-sm bg-white focus:outline-none focus:bg-yellow-50">
+            </div>
+            <div>
+                <label class="text-[11px] font-black uppercase block mb-1 text-gray-800">2 Hari (Ketua Pengurus)</label>
+                <input type="text" name="wa_2_hari" value="{{ $waConfig['wa_2_hari'] }}" required placeholder="628123456789"
+                       class="w-full border-2 border-black rounded-lg px-3 py-2 font-bold text-sm bg-white focus:outline-none focus:bg-yellow-50">
+            </div>
+            <div>
+                <label class="text-[11px] font-black uppercase block mb-1 text-gray-800">&gt; 2 Hari (Musyrif)</label>
+                <input type="text" name="wa_lebih_2_hari" value="{{ $waConfig['wa_lebih_2_hari'] }}" required placeholder="628123456789"
+                       class="w-full border-2 border-black rounded-lg px-3 py-2 font-bold text-sm bg-white focus:outline-none focus:bg-yellow-50">
+            </div>
+            <div>
+                <button type="submit" class="w-full bg-[#39FF14] hover:bg-green-400 text-black border-2 border-black px-4 py-2 font-black text-xs uppercase rounded-lg shadow-[2px_2px_0_0_#000] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all cursor-pointer flex items-center justify-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">save</span> SIMPAN NO WA
+                </button>
+            </div>
+        </form>
+    </div>
+
     <!-- Filters -->
     <form method="GET" class="bg-white border-4 border-black p-4 rounded-lg shadow-[4px_4px_0_0_#000] mb-6">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
@@ -72,6 +113,11 @@
                                     @if($leave->end_date != $leave->start_date)
                                         - {{ $leave->end_date->translatedFormat('d M Y') }}
                                     @endif
+                                    <div class="mt-1">
+                                        <span class="text-[10px] font-black bg-emerald-100 text-emerald-900 border border-black px-1.5 py-0.5 rounded">
+                                            {{ $leave->start_date->diffInDays($leave->end_date) + 1 }} Hari &rarr; {{ $leave->whatsapp_recipient_label }}
+                                        </span>
+                                    </div>
                                 </td>
                                 <td class="px-4 py-3 text-gray-600 max-w-[300px]">
                                     <div class="font-bold text-black mb-1">{{ $leave->reason }}</div>

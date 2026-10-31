@@ -45,32 +45,64 @@ class LeaveRequest extends Model
     }
 
     /**
-     * Kategori musyrif tujuan WhatsApp:
-     * 1 = Izin Pengajian, 2 = Izin tidak di asrama 1 malam, 3 = lebih dari 1 malam / cuti.
+     * Kategori tujuan WhatsApp berdasarkan lama izin (hari):
+     * 1 = Izin 1 hari -> Divisi Kajian
+     * 2 = Izin 2 hari -> Ketua Pengurus
+     * 3 = Izin lebih dari 2 hari (> 2 hari) -> Musyrif
      */
     public function getWhatsappCategoryAttribute(): int
     {
-        if ($this->type === 'pengajian') {
+        $days = $this->start_date->diffInDays($this->end_date) + 1;
+
+        if ($days <= 1) {
             return 1;
         }
 
-        if ($this->type === 'cuti') {
-            return 3;
+        if ($days === 2) {
+            return 2;
         }
 
-        $days = $this->start_date->diffInDays($this->end_date) + 1;
+        return 3;
+    }
 
-        return $days > 1 ? 3 : 2;
+    public function getWhatsappRecipientLabelAttribute(): string
+    {
+        return match ($this->whatsapp_category) {
+            1 => 'Divisi Kajian',
+            2 => 'Ketua Pengurus',
+            default => 'Musyrif',
+        };
     }
 
     public function getWhatsappLinkAttribute(): string
     {
-        $number = config('perizinan.musyrif_wa.' . $this->whatsapp_category);
+        $waConfig = \App\Models\Setting::getIzinWaNumbers();
+        $number = match ($this->whatsapp_category) {
+            1 => $waConfig['wa_1_hari'],
+            2 => $waConfig['wa_2_hari'],
+            default => $waConfig['wa_lebih_2_hari'],
+        };
 
-        $message = "Assalamu'alaikum, saya *{$this->student->name}* mengajukan *{$this->type_label}*\n"
-            . "📅 {$this->start_date->translatedFormat('d M Y')} s.d. {$this->end_date->translatedFormat('d M Y')}\n\n"
-            . "Alasan: {$this->reason}\n\n"
-            . "Mohon izinnya, terima kasih 🙏";
+        $days = $this->start_date->diffInDays($this->end_date) + 1;
+        $kegiatanStr = implode(', ', $this->covered_sessions_labels);
+
+        $recipientGreeting = match ($this->whatsapp_category) {
+            1 => "Yth. Divisi Kajian Pondok Daaru Hiraa",
+            2 => "Yth. Ketua Pengurus Pondok Daaru Hiraa",
+            default => "Yth. Ustadz / Musyrif Pondok Daaru Hiraa",
+        };
+
+        $message = "Assalamu'alaikum Warahmatullahi Wabarakatuh,\n"
+            . "{$recipientGreeting}\n\n"
+            . "Saya santri Daaru Hiraa:\n"
+            . "• Nama: *{$this->student->name}*\n"
+            . "• Jenis Izin: *{$this->type_label}* (*{$days} Hari*)\n"
+            . "• Waktu: 📅 {$this->start_date->translatedFormat('d M Y')} s.d. {$this->end_date->translatedFormat('d M Y')}\n"
+            . "• Kegiatan: {$kegiatanStr}\n\n"
+            . "Alasan Izin:\n"
+            . "\"{$this->reason}\"\n\n"
+            . "Demikian surat izin ini saya ajukan. Mohon izin dan doanya, terima kasih. 🙏\n"
+            . "Jazakumullahu Khairan.";
 
         return 'https://wa.me/' . $number . '?text=' . rawurlencode($message);
     }
@@ -196,10 +228,18 @@ class LeaveRequest extends Model
             $sessionsToCover = ['Kajian', 'Subuh', 'Tahsin'];
         }
 
+        $tahsinDays = \App\Models\Setting::getTahsinDays();
+
         while ($start->lte($end)) {
             $dateStr = $start->toDateString();
+            $isoDay = $start->dayOfWeekIso;
 
             foreach ($sessionsToCover as $sessionType) {
+                // Khusus Tahsin & Tahfidz: Hanya catat izin pada hari jadwal rutin Tahsin
+                if ($sessionType === 'Tahsin' && !in_array($isoDay, $tahsinDays, true)) {
+                    continue;
+                }
+
                 AttendanceLog::updateOrCreate(
                     [
                         'student_id' => $this->student_id,

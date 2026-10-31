@@ -203,7 +203,7 @@
                 <div class="bg-emerald-50/70 border-3 border-black rounded-xl p-4 space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
                         <div class="sm:col-span-6">
-                            <label class="block text-[11px] font-black uppercase mb-1">Surah Al-Qur'an <span class="text-red-600">*</span></label>
+                            <label class="block text-[11px] font-black uppercase mb-1">Surah Awal / Utama <span class="text-red-600">*</span></label>
                             <select name="surah" required class="w-full border-3 border-black rounded-lg p-2.5 text-sm font-bold bg-white focus:outline-none focus:bg-yellow-50">
                                 <option value="">-- Pilih Surah --</option>
                                 @foreach($surahList as $num => $sName)
@@ -214,13 +214,25 @@
                             </select>
                         </div>
 
-                        <div class="sm:col-span-3">
+                        <div class="sm:col-span-6">
+                            <label class="block text-[11px] font-black uppercase mb-1">Surah Akhir <span class="text-[10px] font-bold text-gray-500 normal-case">(Opsional: jika 2–3 surah)</span></label>
+                            <select name="surah_akhir" class="w-full border-3 border-black rounded-lg p-2.5 text-sm font-bold bg-white focus:outline-none focus:bg-yellow-50">
+                                <option value="">-- Sama / 1 Surah Saja --</option>
+                                @foreach($surahList as $num => $sName)
+                                    <option value="{{ $sName }}" @selected(old('surah_akhir') === $sName)>
+                                        {{ $num }}. {{ $sName }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="sm:col-span-6">
                             <label class="block text-[11px] font-black uppercase mb-1">Ayat Awal</label>
                             <input type="number" name="ayat_awal" value="{{ old('ayat_awal') }}" min="1" max="286" placeholder="Contoh: 1"
                                    class="w-full border-3 border-black rounded-lg p-2.5 text-sm font-bold bg-white focus:outline-none focus:bg-yellow-50"/>
                         </div>
 
-                        <div class="sm:col-span-3">
+                        <div class="sm:col-span-6">
                             <label class="block text-[11px] font-black uppercase mb-1">Ayat Akhir</label>
                             <input type="number" name="ayat_akhir" value="{{ old('ayat_akhir') }}" min="1" max="286" placeholder="Contoh: 10"
                                    class="w-full border-3 border-black rounded-lg p-2.5 text-sm font-bold bg-white focus:outline-none focus:bg-yellow-50"/>

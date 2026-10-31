@@ -27,6 +27,44 @@ class RekapController extends Controller
             ->get();
     }
 
+    /**
+     * Bersihkan log Izin ('I') yatim pada sesi Tahsin yang jatuh di luar hari jadwal rutin
+     * dan pada tanggal tersebut tidak ada KBM Tahsin nyata (tidak ada satupun status H/A/S).
+     */
+    public static function cleanOrphanTahsinIzin(?int $month = null, ?int $year = null): void
+    {
+        $tahsinDays = \App\Models\Setting::getTahsinDays();
+
+        $query = AttendanceLog::where('session_type', 'Tahsin')
+            ->selectRaw("attendance_date, SUM(CASE WHEN status IN ('H', 'A', 'S') THEN 1 ELSE 0 END) as kbm_count")
+            ->groupBy('attendance_date')
+            ->havingRaw('kbm_count = 0');
+
+        if ($month !== null) {
+            $query->whereMonth('attendance_date', $month);
+        }
+        if ($year !== null) {
+            $query->whereYear('attendance_date', $year);
+        }
+
+        $nonKbmDatesWithOnlyIzin = $query->pluck('attendance_date')->toArray();
+
+        $orphanIzinDates = [];
+        foreach ($nonKbmDatesWithOnlyIzin as $dStr) {
+            $dtCheck = Carbon::parse($dStr);
+            if (!in_array($dtCheck->dayOfWeekIso, $tahsinDays, true)) {
+                $orphanIzinDates[] = $dStr;
+            }
+        }
+
+        if (!empty($orphanIzinDates)) {
+            AttendanceLog::where('session_type', 'Tahsin')
+                ->where('status', 'I')
+                ->whereIn('attendance_date', $orphanIzinDates)
+                ->delete();
+        }
+    }
+
     public static function resolveBulananActiveDates(int $month, int $year, string $sessionType): array
     {
         $daysInMonth = Carbon::create($year, $month, 1)->daysInMonth;
@@ -70,11 +108,15 @@ class RekapController extends Controller
             return $activeDates;
         }
 
-        // Khusus Tahsin: Filter berdasarkan 2 hari jadwal yang ditentukan Admin + tanggal riil yang ada datanya
+        // Khusus Tahsin: Filter berdasarkan 2 hari jadwal yang ditentukan Admin + tanggal riil yang ada KBM/Hadir/Alpha
+        static::cleanOrphanTahsinIzin($month, $year);
         $tahsinDays = \App\Models\Setting::getTahsinDays(); // [2, 5]
+
+        // Tanggal riil yang punya sesi KBM Tahsin (minimal ada yang Hadir/Alpha/Sakit, atau Izin di hari jadwal)
         $existingLogDates = AttendanceLog::whereMonth('attendance_date', $month)
             ->whereYear('attendance_date', $year)
             ->where('session_type', 'Tahsin')
+            ->whereIn('status', ['H', 'A', 'S'])
             ->distinct('attendance_date')
             ->pluck('attendance_date')
             ->toArray();
@@ -107,9 +149,11 @@ class RekapController extends Controller
         $year = $request->get('year', now()->year);
         $sessionType = $this->resolveSessionType($request);
 
+        static::cleanOrphanTahsinIzin($month, $year);
+
         $santris = $this->getActiveSantris();
 
-        $cacheKey = "rekap_overview_{$sessionType}_{$month}_{$year}";
+        $cacheKey = "rekap_overview_v2_{$sessionType}_{$month}_{$year}";
         $ttl = now()->month == $month && now()->year == $year ? 15 * 60 : 60 * 60;
 
         [$totalKBMDays, $studentStats, $sessionStats] = Cache::remember($cacheKey, $ttl, function () use ($month, $year, $santris, $sessionType) {
@@ -191,11 +235,15 @@ class RekapController extends Controller
 
         $santris = $this->getActiveSantris();
 
+        if ($sessionType === 'Tahsin') {
+            static::cleanOrphanTahsinIzin(null, (int) $year);
+        }
+
         // Build date for the month
         $daysInMonth = Carbon::create($year, $month, 1)->daysInMonth;
 
         if ($view === 'tahunan') {
-            $cacheKeyTahunan = "rekap_tahunan_{$sessionType}_{$year}";
+            $cacheKeyTahunan = "rekap_tahunan_v2_{$sessionType}_{$year}";
             [$totalKBMDays, $rows] = Cache::remember($cacheKeyTahunan, 30 * 60, function () use ($month, $year, $santris, $sessionType) {
 
                 $totalKBMDays = AttendanceLog::whereMonth('attendance_date', $month)
@@ -399,6 +447,9 @@ class RekapController extends Controller
         $year = $request->get('year', now()->year);
         $view = $request->get('view', 'bulanan');
         $sessionType = $this->resolveSessionType($request);
+        if ($sessionType === 'Tahsin') {
+            static::cleanOrphanTahsinIzin(null, (int) $year);
+        }
         $sessionSuffix = $sessionType === 'Tahsin' ? '_tahsin' : '';
 
         if ($view === 'tahunan') {
@@ -434,6 +485,9 @@ class RekapController extends Controller
         $year = $request->get('year', now()->year);
         $view = $request->get('view', 'bulanan');
         $sessionType = $this->resolveSessionType($request);
+        if ($sessionType === 'Tahsin') {
+            static::cleanOrphanTahsinIzin(null, (int) $year);
+        }
         $sessionSuffix = $sessionType === 'Tahsin' ? '_tahsin' : '';
 
         $santris = $this->getActiveSantris();

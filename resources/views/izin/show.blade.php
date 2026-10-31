@@ -67,6 +67,26 @@
                         </div>
                     </div>
 
+                    <!-- Tombol Kirim / Teruskan ke WhatsApp -->
+                    <div class="bg-emerald-50 dark:bg-emerald-950/40 border-2 border-black rounded-lg p-4 space-y-2">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <span class="text-xs font-black uppercase text-emerald-900 dark:text-emerald-200 flex items-center gap-1.5">
+                                <span>📱</span> Pesan WhatsApp Otomatis
+                            </span>
+                            <span class="text-[11px] font-black bg-white dark:bg-zinc-800 border border-black px-2 py-0.5 rounded text-black dark:text-white">
+                                Tujuan: {{ $leave->whatsapp_recipient_label }}
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-600 dark:text-gray-300">
+                            Template pesan sudah terisi otomatis lengkap dengan nama, durasi, tanggal, kegiatan, dan alasan izin.
+                        </p>
+                        <a href="{{ $leave->whatsapp_link }}" target="_blank"
+                           class="inline-flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-black py-2.5 px-4 rounded-lg border-2 border-black shadow-[3px_3px_0_0_#000] text-xs uppercase transition-all">
+                            <span class="material-symbols-outlined text-base">chat</span>
+                            Buka Chat WhatsApp (Tinggal Klik Kirim)
+                        </a>
+                    </div>
+
                     @if($leave->status === 'approved' && $leave->approver)
                     <div class="bg-[#39FF14] bg-opacity-20 border-2 border-black rounded-lg p-4">
                         <div class="flex items-center gap-2">

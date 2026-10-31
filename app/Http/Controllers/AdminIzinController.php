@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LeaveRequest;
 use App\Models\AdminActivityLog;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 
 class AdminIzinController extends Controller
@@ -38,8 +39,40 @@ class AdminIzinController extends Controller
         }
 
         $leaves = $query->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
+        $izinWa = Setting::getIzinWaNumbers();
 
-        return view('admin.izin.index', compact('leaves'));
+        return view('admin.izin.index', compact('leaves', 'izinWa'));
+    }
+
+    public function updateWaSettings(Request $request)
+    {
+        $validated = $request->validate([
+            'wa_1_hari' => ['required', 'string', 'max:30'],
+            'wa_2_hari' => ['required', 'string', 'max:30'],
+            'wa_lebih_2_hari' => ['required', 'string', 'max:30'],
+        ]);
+
+        $normalize = function (string $num): string {
+            $clean = preg_replace('/[^0-9]/', '', $num);
+            if (str_starts_with($clean, '0')) {
+                $clean = '62' . substr($clean, 1);
+            }
+            return $clean;
+        };
+
+        $setting = Setting::firstOrCreate([]);
+        $landingPage = is_array($setting->landing_page) ? $setting->landing_page : [];
+        $landingPage['izin_wa'] = [
+            'wa_1_hari' => $normalize($validated['wa_1_hari']),
+            'wa_2_hari' => $normalize($validated['wa_2_hari']),
+            'wa_lebih_2_hari' => $normalize($validated['wa_lebih_2_hari']),
+        ];
+        $setting->landing_page = $landingPage;
+        $setting->save();
+
+        AdminActivityLog::log('update_izin_wa', 'Memperbarui pengaturan nomor WhatsApp tujuan perizinan (1 Hari, 2 Hari, >2 Hari)');
+
+        return redirect()->back()->with('success', '✅ Nomor WhatsApp Tujuan Perizinan berhasil disimpan!');
     }
 
     public function approve($id)

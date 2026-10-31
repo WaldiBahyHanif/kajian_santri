@@ -79,6 +79,7 @@ class SimakanController extends Controller
             'student_id' => ['required', 'exists:students,id'],
             'jenis' => ['required', 'in:' . implode(',', $allowedJenis)],
             'surah' => ['required', 'string', 'max:100'],
+            'surah_akhir' => ['nullable', 'string', 'max:100'],
             'ayat_awal' => ['nullable', 'integer', 'min:1', 'max:286'],
             'ayat_akhir' => ['nullable', 'integer', 'min:1', 'max:286'],
             'halaman' => ['nullable', 'string', 'max:50'],
@@ -97,6 +98,12 @@ class SimakanController extends Controller
             'student_id.required' => 'Pilih nama Santri yang menyetor.',
             'pin.required' => 'Masukkan PIN Verifikasi Ustadz Penyimak.',
         ]);
+
+        $surahAwal = trim($validated['surah']);
+        $surahAkhir = !empty($validated['surah_akhir']) ? trim($validated['surah_akhir']) : null;
+        $combinedSurah = ($surahAkhir && $surahAkhir !== $surahAwal)
+            ? "{$surahAwal} s/d {$surahAkhir}"
+            : $surahAwal;
 
         $penyimak = SimakanPenyimak::where('is_active', true)->findOrFail($validated['penyimak_id']);
         $inputPin = trim($validated['pin']);
@@ -129,7 +136,7 @@ class SimakanController extends Controller
             'penyimak_id' => $penyimak->id,
             'penyimak_nama' => $penyimak->name,
             'jenis' => $validated['jenis'],
-            'surah' => $validated['surah'],
+            'surah' => $combinedSurah,
             'ayat_awal' => $validated['ayat_awal'] ?? null,
             'ayat_akhir' => $validated['ayat_akhir'] ?? null,
             'halaman' => $validated['halaman'] ?? null,

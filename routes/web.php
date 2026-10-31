@@ -185,6 +185,7 @@ Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(functi
 
     // Izin & Cuti
     Route::get('/izin', [\App\Http\Controllers\AdminIzinController::class, 'index'])->name('izin.index');
+    Route::put('/izin/wa-settings', [\App\Http\Controllers\AdminIzinController::class, 'updateWaSettings'])->name('izin.wa-settings');
     Route::post('/izin/{id}/approve', [\App\Http\Controllers\AdminIzinController::class, 'approve'])->name('izin.approve');
     Route::post('/izin/{id}/reject', [\App\Http\Controllers\AdminIzinController::class, 'reject'])->name('izin.reject');
     Route::delete('/izin/{id}', [\App\Http\Controllers\AdminIzinController::class, 'destroy'])->name('izin.destroy');

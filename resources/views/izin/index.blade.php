@@ -82,9 +82,14 @@
                                             @endif
                                         </td>
                                         <td class="px-4 py-3 text-center">
-                                            <a href="{{ route('izin.show', $leave->id) }}" class="text-xs font-bold text-[#FF007F] hover:underline">
-                                                Detail
-                                            </a>
+                                            <div class="flex items-center justify-center gap-2">
+                                                <a href="{{ route('izin.show', $leave->id) }}" class="text-xs font-bold text-[#FF007F] hover:underline">
+                                                    Detail
+                                                </a>
+                                                <a href="{{ $leave->whatsapp_link }}" target="_blank" title="Kirim/Buka WhatsApp ({{ $leave->whatsapp_recipient_label }})" class="inline-flex items-center justify-center bg-[#25D366] text-white px-2 py-1 rounded border border-black shadow-[1px_1px_0_0_#000] text-[10px] font-black hover:opacity-90">
+                                                    WA
+                                                </a>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
