@@ -448,6 +448,9 @@
                            name="username"
                            value="{{ old('username') }}"
                            placeholder="Masukkan username Anda"
+                           autocapitalize="none"
+                           autocorrect="off"
+                           spellcheck="false"
                            required autofocus autocomplete="username"/>
                     @error('username')
                         <div style="color:#f5576c;font-size:12px;margin-top:4px;">{{ $message }}</div>
@@ -469,6 +472,9 @@
                                name="password"
                                placeholder="••••••••"
                                style="padding-right:48px;"
+                               autocapitalize="none"
+                               autocorrect="off"
+                               spellcheck="false"
                                required autocomplete="current-password"/>
                         <button type="button" onclick="togglePassword()"
                                 style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#9ca3af;padding:0;">

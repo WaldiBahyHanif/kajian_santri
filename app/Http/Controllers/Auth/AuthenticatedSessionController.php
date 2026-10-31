@@ -35,21 +35,35 @@ class AuthenticatedSessionController extends Controller
             Auth::guard($otherGuard)->logout();
         }
 
+        $inputUsername = trim($request->input('username'));
+        $password      = (string) $request->input('password');
+
         // Block alumni from logging in — single DB query, sebelum auth attempt
         if (!$isAdminLogin) {
             $student = \App\Models\Student::select('id', 'username', 'status_aktif')
-                ->where('username', $request->username)
+                ->where('username', $inputUsername)
+                ->orWhereRaw('LOWER(username) = ?', [strtolower($inputUsername)])
                 ->first();
             if ($student && $student->status_aktif === 'Lulus') {
                 return redirect()->route('login')
                     ->withInput($request->only('username'))
                     ->withErrors(['username' => 'Akun alumni tidak memiliki akses masuk.']);
             }
+            if ($student) {
+                $inputUsername = $student->username;
+            }
+        } else {
+            $admin = \App\Models\Admin::where('username', $inputUsername)
+                ->orWhereRaw('LOWER(username) = ?', [strtolower($inputUsername)])
+                ->first();
+            if ($admin) {
+                $inputUsername = $admin->username;
+            }
         }
 
         // Selalu aktifkan "remember me" agar session bertahan 30 hari
         // tanpa perlu user mencentang checkbox secara manual.
-        if (! Auth::guard($guard)->attempt($request->only('username', 'password'), remember: true)) {
+        if (! Auth::guard($guard)->attempt(['username' => $inputUsername, 'password' => $password], remember: true)) {
             return redirect()->route('login', ['admin' => $isAdminLogin ? 1 : null])
                 ->withInput($request->only('username'))
                 ->withErrors(['username' => trans('auth.failed')]);

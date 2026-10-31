@@ -20,6 +20,15 @@ class LoginRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('username')) {
+            $this->merge([
+                'username' => trim((string) $this->username),
+            ]);
+        }
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
