@@ -389,11 +389,11 @@
         @endphp
         <section class="border-3 border-on-background rounded-xl neobrutal-shadow overflow-hidden bg-[#2B1708]">
             <!-- Harvest Moon Retro Top HUD Bar -->
-            <div class="p-3 sm:px-4 border-b-3 border-black bg-[#3B200E] text-[#FEF3C7] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                <div class="flex items-center gap-2.5 flex-wrap">
+            <div class="p-2.5 sm:p-3 sm:px-4 border-b-3 border-black bg-[#3B200E] text-[#FEF3C7] flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-2.5">
+                <div class="flex items-center justify-between sm:justify-start gap-2 flex-wrap">
                     <!-- Pixel Season & Clock Box -->
-                    <div class="inline-flex items-center gap-2 bg-[#1F1006] border-2 border-[#A16207] px-2.5 py-1 rounded shadow-[2px_2px_0_0_#000]">
-                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 16 16" shape-rendering="crispEdges">
+                    <div class="inline-flex items-center gap-1.5 sm:gap-2 bg-[#1F1006] border-2 border-[#A16207] px-2 py-0.5 sm:px-2.5 sm:py-1 rounded shadow-[2px_2px_0_0_#000]">
+                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" viewBox="0 0 16 16" shape-rendering="crispEdges">
                             <rect x="5" y="5" width="6" height="6" fill="#FACC15"/>
                             <rect x="7" y="1" width="2" height="3" fill="#FDE047"/>
                             <rect x="7" y="12" width="2" height="3" fill="#FDE047"/>
@@ -408,15 +408,15 @@
                     </div>
 
                     <div class="flex items-center gap-1.5">
-                        <span class="font-pixel text-[9px] sm:text-[10px] text-white tracking-wide uppercase">Ladang Daaru Hiraa</span>
-                        <span class="text-[10px] font-bold bg-[#D97706] text-black px-2 py-0.5 border border-black rounded shadow-[1px_1px_0_0_#000]">
+                        <span class="font-pixel text-[8px] sm:text-[10px] text-white tracking-wide uppercase">Ladang Daaru Hiraa</span>
+                        <span class="text-[9px] sm:text-[10px] font-bold bg-[#D97706] text-black px-1.5 py-0.5 border border-black rounded shadow-[1px_1px_0_0_#000]">
                             {{ $villageStudents->count() }} Petak
                         </span>
                     </div>
                 </div>
 
                 <!-- Statistik Panen & Lompat ke Petak Santri -->
-                <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-between sm:justify-end">
+                <div class="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-between sm:justify-end">
                     <div class="hidden sm:flex items-center gap-1.5 text-[10px] font-black bg-[#1F1006] border border-[#78350F] px-2.5 py-1 rounded text-[#FDE68A]">
                         <span title="Pohon Berbuah (85%+)">🍎 {{ $stageCounts[4] }}</span>
                         <span class="opacity-40">|</span>
@@ -427,7 +427,7 @@
                         <span title="Benih (0-29%)">🌰 {{ $stageCounts[1] }}</span>
                     </div>
 
-                    <select id="village-jump-select" aria-label="Cari Petak Santri" class="bg-[#FEF3C7] text-black border-2 border-black rounded px-2 py-1 text-[11px] font-black shadow-[2px_2px_0_0_#000] focus:outline-none cursor-pointer flex-1 sm:flex-initial sm:max-w-[190px] truncate">
+                    <select id="village-jump-select" aria-label="Cari Petak Santri" class="bg-[#FEF3C7] text-black border-2 border-black rounded px-2 py-0.5 sm:py-1 text-[10px] sm:text-[11px] font-black shadow-[2px_2px_0_0_#000] focus:outline-none cursor-pointer flex-1 sm:flex-initial sm:max-w-[190px] truncate">
                         <option value="">🔍 Cari Petak Santri...</option>
                         @foreach($villageStudents as $vs)
                             <option value="{{ $vs->id }}" @selected($vs->id === auth()->id())>
@@ -436,14 +436,14 @@
                         @endforeach
                     </select>
 
-                    <button type="button" id="village-focus-mine" class="bg-[#86EFAC] hover:bg-[#4ADE80] text-black border-2 border-black rounded px-2.5 py-1 text-[10px] font-black uppercase shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer shrink-0">
+                    <button type="button" id="village-focus-mine" class="bg-[#86EFAC] hover:bg-[#4ADE80] text-black border-2 border-black rounded px-2 py-0.5 sm:px-2.5 sm:py-1 text-[9px] sm:text-[10px] font-black uppercase shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer shrink-0">
                         Petakku
                     </button>
                 </div>
             </div>
 
             <!-- Viewport Map 2D Top-Down (Drag & Zoomable) -->
-            <div id="village-viewport" class="relative overflow-hidden border-b-3 border-black select-none h-[340px] sm:h-[400px] md:h-[460px]" style="background-color: {{ $grassDark }};">
+            <div id="village-viewport" class="relative overflow-hidden border-b-3 border-black select-none h-[220px] sm:h-[320px] md:h-[400px]" style="background-color: {{ $grassDark }}; touch-action: pan-y;">
                 <div id="village-world" style="width: {{ $villageWidth }}px; height: {{ $villageHeight }}px; position: relative; image-rendering: pixelated;">
 
                     <!-- Layer 0: Seamless 16-bit Pixel Grass & Farm Paths SVG -->
@@ -619,54 +619,58 @@
                 </div>
 
                 <!-- Kontrol Kamera 2D (Kanan Bawah) -->
-                <div class="absolute bottom-3 right-3 flex flex-col gap-1.5 z-20">
-                    <button type="button" id="village-zoom-in" title="Perbesar" class="w-8 h-8 bg-[#FEF3C7] text-black border-2 border-black rounded font-black text-lg leading-none shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none cursor-pointer">+</button>
-                    <button type="button" id="village-zoom-out" title="Perkecil" class="w-8 h-8 bg-[#FEF3C7] text-black border-2 border-black rounded font-black text-lg leading-none shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none cursor-pointer">−</button>
-                    <button type="button" id="village-zoom-reset" title="Lihat Seluruh Ladang" class="w-8 h-8 bg-[#FEF3C7] text-black border-2 border-black rounded flex items-center justify-center shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none cursor-pointer">
-                        <span class="material-symbols-outlined text-base">center_focus_weak</span>
+                <div class="absolute bottom-2.5 right-2.5 sm:bottom-3 sm:right-3 flex flex-col gap-1 sm:gap-1.5 z-20">
+                    <button type="button" id="village-pan-toggle" title="Mode Scroll Halaman (Ketuk untuk Aktifkan Geser 1 Jari)" class="w-7 h-7 sm:w-8 sm:h-8 bg-[#FEF3C7] text-black border-2 border-black rounded flex items-center justify-center font-black text-xs sm:text-sm shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 cursor-pointer">
+                        🖐️
+                    </button>
+                    <button type="button" id="village-zoom-in" title="Perbesar" class="w-7 h-7 sm:w-8 sm:h-8 bg-[#FEF3C7] text-black border-2 border-black rounded font-black text-sm sm:text-lg leading-none shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none cursor-pointer">+</button>
+                    <button type="button" id="village-zoom-out" title="Perkecil" class="w-7 h-7 sm:w-8 sm:h-8 bg-[#FEF3C7] text-black border-2 border-black rounded font-black text-sm sm:text-lg leading-none shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none cursor-pointer">−</button>
+                    <button type="button" id="village-zoom-reset" title="Lihat Seluruh Ladang" class="w-7 h-7 sm:w-8 sm:h-8 bg-[#FEF3C7] text-black border-2 border-black rounded flex items-center justify-center shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none cursor-pointer">
+                        <span class="material-symbols-outlined text-sm sm:text-base">center_focus_weak</span>
                     </button>
                 </div>
 
-                <!-- Petunjuk Geser (Kiri Bawah) -->
-                <div class="absolute bottom-3 left-3 z-20 pointer-events-none hidden sm:flex items-center gap-1.5 bg-[#1F1006]/90 text-[#FEF3C7] border border-[#92400E] px-2.5 py-1 rounded text-[10px] font-bold">
-                    <span>🖐️ Geser peta · Klik petak santri untuk detail tanaman</span>
+                <!-- Petunjuk Geser & Scroll (Kiri Bawah) -->
+                <div id="village-hint-box" class="absolute bottom-2.5 left-2.5 sm:bottom-3 sm:left-3 z-20 pointer-events-none flex items-center gap-1.5 bg-[#1F1006]/90 text-[#FEF3C7] border border-[#92400E] px-2 py-0.5 sm:px-2.5 sm:py-1 rounded text-[9px] sm:text-[10px] font-bold">
+                    <span id="village-hint-text" class="hidden sm:inline">🖐️ Geser peta · Klik petak santri untuk detail</span>
+                    <span id="village-hint-mobile" class="sm:hidden">✌️ 2 jari geser · Ketuk petak</span>
                 </div>
             </div>
 
-            <!-- Harvest Moon RPG Dialogue & Inspector Box -->
-            <div class="p-4 bg-[#F5E6C8] dark:bg-[#24160B] border-t-3 border-black grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+            <!-- Harvest Moon RPG Dialogue & Inspector Box (Compact Mobile) -->
+            <div class="p-2.5 sm:p-4 bg-[#F5E6C8] dark:bg-[#24160B] border-t-3 border-black grid grid-cols-1 md:grid-cols-12 gap-2 sm:gap-4 items-center">
                 <!-- Inspector Petak Terpilih -->
-                <div class="md:col-span-6 bg-[#FFF8E7] dark:bg-[#1A0F07] border-2 border-[#451A03] dark:border-[#92400E] rounded-lg p-3 shadow-[3px_3px_0_0_#271204] flex items-center justify-between gap-3">
+                <div class="md:col-span-6 bg-[#FFF8E7] dark:bg-[#1A0F07] border-2 border-[#451A03] dark:border-[#92400E] rounded-lg p-2.5 sm:p-3 shadow-[2px_2px_0_0_#271204] sm:shadow-[3px_3px_0_0_#271204] flex items-center justify-between gap-2.5 sm:gap-3">
                     <div class="min-w-0">
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-1.5 sm:gap-2">
                             <span class="px-1.5 py-0.5 bg-[#86EFAC] text-black border border-black font-pixel text-[7px] uppercase">Petak Kebun</span>
-                            <span id="hm-inspector-fruit" class="text-[11px] font-black text-[#92400E] dark:text-[#FBBF24] truncate">
+                            <span id="hm-inspector-fruit" class="text-[10px] sm:text-[11px] font-black text-[#92400E] dark:text-[#FBBF24] truncate">
                                 {{ $fruitNames[($myPlotStudent->id ?? 0) % 4] }}
                             </span>
                         </div>
-                        <p id="hm-inspector-name" class="text-sm font-black text-black dark:text-white truncate mt-1">
+                        <p id="hm-inspector-name" class="text-xs sm:text-sm font-black text-black dark:text-white truncate mt-0.5 sm:mt-1">
                             {{ $myPlotStudent->name ?? auth()->user()->name }}
                         </p>
-                        <p id="hm-inspector-stage" class="text-xs font-bold text-[#15803D] dark:text-[#4ADE80]">
+                        <p id="hm-inspector-stage" class="text-[11px] sm:text-xs font-bold text-[#15803D] dark:text-[#4ADE80]">
                             {{ $stageNames[$myPlotStudent->garden_stage ?? 1] }}
                         </p>
                     </div>
-                    <div class="text-right shrink-0 bg-[#FEF08A] text-black border-2 border-black px-2.5 py-1.5 rounded shadow-[2px_2px_0_0_#000]">
-                        <p class="text-[9px] font-black uppercase tracking-wider">Hadir 30 Hari</p>
-                        <p id="hm-inspector-stats" class="text-base font-black leading-tight">
+                    <div class="text-right shrink-0 bg-[#FEF08A] text-black border-2 border-black px-2 py-1 sm:px-2.5 sm:py-1.5 rounded shadow-[2px_2px_0_0_#000]">
+                        <p class="text-[8px] sm:text-[9px] font-black uppercase tracking-wider">Hadir 30 Hari</p>
+                        <p id="hm-inspector-stats" class="text-xs sm:text-base font-black leading-tight">
                             {{ $myPlotStudent->hadir_count ?? 0 }}x ({{ $myPlotStudent->attendance_pct ?? 0 }}%)
                         </p>
                     </div>
                 </div>
 
                 <!-- Pesan Pengasuh & Admin -->
-                <div class="md:col-span-6 flex items-start gap-3 px-1">
-                    <div class="w-9 h-9 bg-[#D97706] border-2 border-black rounded flex items-center justify-center shrink-0 shadow-[2px_2px_0_0_#000] text-white font-pixel text-xs">
+                <div class="md:col-span-6 flex items-start gap-2.5 sm:gap-3 px-1">
+                    <div class="w-7 h-7 sm:w-9 sm:h-9 bg-[#D97706] border-2 border-black rounded flex items-center justify-center shrink-0 shadow-[2px_2px_0_0_#000] text-white font-pixel text-[11px] sm:text-xs">
                         !
                     </div>
                     <div class="min-w-0">
-                        <p class="font-pixel text-[8px] text-[#78350F] dark:text-[#FCD34D] uppercase tracking-wider">Papan Pengumuman Kebun</p>
-                        <p class="text-xs font-bold text-[#1F1006] dark:text-[#FEF3C7] leading-relaxed mt-1">
+                        <p class="font-pixel text-[7px] sm:text-[8px] text-[#78350F] dark:text-[#FCD34D] uppercase tracking-wider">Papan Pengumuman Kebun</p>
+                        <p class="text-[11px] sm:text-xs font-bold text-[#1F1006] dark:text-[#FEF3C7] leading-tight sm:leading-relaxed mt-0.5 sm:mt-1">
                             "{{ $message }}"
                         </p>
                     </div>
@@ -682,9 +686,36 @@
 
             var worldW = parseFloat(world.style.width);
             var worldH = parseFloat(world.style.height);
-            var minScale = 0.45, maxScale = 2.4;
+            var minScale = 0.25, maxScale = 2.4;
             var scale = 1, originX = 0, originY = 0;
             var dragging = false, pointerMoved = false, startX = 0, startY = 0, lastX = 0, lastY = 0;
+            var panMode = false;
+
+            var panToggleBtn = document.getElementById('village-pan-toggle');
+            var hintMobile = document.getElementById('village-hint-mobile');
+
+            function updatePanToggleUI() {
+                if (!panToggleBtn) return;
+                if (panMode) {
+                    panToggleBtn.classList.remove('bg-[#FEF3C7]');
+                    panToggleBtn.classList.add('bg-[#4ADE80]', 'ring-2', 'ring-black');
+                    panToggleBtn.setAttribute('title', 'Mode Geser Kebun: Aktif (Ketuk untuk Mode Scroll Halaman)');
+                    if (hintMobile) hintMobile.textContent = '🖐️ Geser kebun aktif';
+                } else {
+                    panToggleBtn.classList.remove('bg-[#4ADE80]', 'ring-2', 'ring-black');
+                    panToggleBtn.classList.add('bg-[#FEF3C7]');
+                    panToggleBtn.setAttribute('title', 'Mode Scroll Halaman (Ketuk untuk Aktifkan Geser 1 Jari)');
+                    if (hintMobile) hintMobile.textContent = '✌️ 2 jari geser · Ketuk petak';
+                }
+            }
+
+            if (panToggleBtn) {
+                panToggleBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    panMode = !panMode;
+                    updatePanToggleUI();
+                });
+            }
 
             function clampScale(s) {
                 return Math.max(minScale, Math.min(maxScale, s));
@@ -704,7 +735,7 @@
                 }
 
                 if (scaledH <= vh) {
-                    originY = Math.max(0, (vh - scaledH) / 2);
+                    originY = (vh - scaledH) / 2;
                 } else {
                     var minY = vh - scaledH - 16;
                     var maxY = 12;
@@ -739,18 +770,16 @@
 
             function fitView() {
                 var vw = viewport.clientWidth, vh = viewport.clientHeight;
-                // Pas layar: di mobile (portrait/lebar sempit) pas selebar layar (seperti screenshot 2)
                 var fitW = (vw - 8) / worldW;
-                var fitH = (vh - 12) / worldH;
-                var defaultScale = (vw < 640) ? fitW : Math.min(fitW, fitH);
+                var fitH = (vh - 10) / worldH;
+                var defaultScale = Math.min(fitW, fitH);
 
-                // Default adalah skala paling kecil: tidak bisa dikecilkan lagi dari batas pas ini
                 minScale = defaultScale;
                 maxScale = Math.max(minScale * 3.5, 2.5);
                 scale = defaultScale;
 
                 originX = (vw - worldW * scale) / 2;
-                originY = 0;
+                originY = (vh - worldH * scale) / 2;
                 applyTransform();
             }
 
@@ -770,7 +799,7 @@
                 var px = parseFloat(plotEl.getAttribute('data-plot-x') || '0');
                 var py = parseFloat(plotEl.getAttribute('data-plot-y') || '0');
                 var vw = viewport.clientWidth, vh = viewport.clientHeight;
-                scale = clampScale(Math.max(scale, minScale * 1.8));
+                scale = clampScale(Math.max(scale, minScale * 2));
                 originX = (vw / 2) - (px * scale);
                 originY = (vh / 2) - (py * scale);
                 applyTransform();
@@ -823,28 +852,51 @@
             }
 
             viewport.addEventListener('pointerdown', function (e) {
-                if (e.target.closest('button')) return;
-                viewport.setPointerCapture(e.pointerId);
-                activePointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+                if (e.target.closest('button') || e.target.closest('select')) return;
+
+                var isMouse = (e.pointerType === 'mouse');
+                activePointers[e.pointerId] = {
+                    x: e.clientX,
+                    y: e.clientY,
+                    startX: e.clientX,
+                    startY: e.clientY,
+                    time: Date.now()
+                };
+
                 var ids = Object.keys(activePointers);
+
                 if (ids.length === 1) {
-                    dragging = true;
                     pointerMoved = false;
                     startX = lastX = e.clientX;
                     startY = lastY = e.clientY;
-                    viewport.classList.add('dragging');
+
+                    if (isMouse || panMode) {
+                        try { viewport.setPointerCapture(e.pointerId); } catch (err) {}
+                        dragging = true;
+                        viewport.classList.add('dragging');
+                    } else {
+                        // Touch in default mode: do not capture pointer, allow browser vertical page scroll
+                        dragging = false;
+                    }
                 } else if (ids.length === 2) {
-                    dragging = false;
+                    // Two fingers: multi-touch pan & pinch zoom
+                    dragging = true;
                     pointerMoved = true;
+                    viewport.classList.add('dragging');
+                    try { viewport.setPointerCapture(e.pointerId); } catch (err) {}
                     var pts = ids.map(function (id) { return activePointers[id]; });
                     pinchStartDist = getDistance(pts[0], pts[1]);
                     pinchStartScale = scale;
+                    lastX = (pts[0].x + pts[1].x) / 2;
+                    lastY = (pts[0].y + pts[1].y) / 2;
                 }
             });
 
             viewport.addEventListener('pointermove', function (e) {
                 if (!activePointers[e.pointerId]) return;
-                activePointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+                activePointers[e.pointerId].x = e.clientX;
+                activePointers[e.pointerId].y = e.clientY;
+
                 var ids = Object.keys(activePointers);
 
                 if (ids.length === 2 && pinchStartDist) {
@@ -853,7 +905,19 @@
                     var rect = viewport.getBoundingClientRect();
                     var midX = (pts[0].x + pts[1].x) / 2 - rect.left;
                     var midY = (pts[0].y + pts[1].y) / 2 - rect.top;
-                    zoomAt(midX, midY, pinchStartScale * (newDist / pinchStartDist));
+
+                    var curMidX = (pts[0].x + pts[1].x) / 2;
+                    var curMidY = (pts[0].y + pts[1].y) / 2;
+                    originX += (curMidX - lastX);
+                    originY += (curMidY - lastY);
+                    lastX = curMidX;
+                    lastY = curMidY;
+
+                    if (pinchStartDist > 0) {
+                        zoomAt(midX, midY, pinchStartScale * (newDist / pinchStartDist));
+                    } else {
+                        applyTransform();
+                    }
                 } else if (dragging && ids.length === 1) {
                     if (Math.hypot(e.clientX - startX, e.clientY - startY) > 5) {
                         pointerMoved = true;
@@ -863,16 +927,36 @@
                     lastX = e.clientX;
                     lastY = e.clientY;
                     applyTransform();
+                } else if (ids.length === 1) {
+                    if (Math.hypot(e.clientX - startX, e.clientY - startY) > 8) {
+                        pointerMoved = true;
+                    }
                 }
             });
 
             function endPointer(e) {
-                if (!pointerMoved && e.type === 'pointerup') {
-                    var plotItem = e.target.closest('.village-plot-item');
-                    if (plotItem) {
-                        selectPlotElement(plotItem);
+                var pData = activePointers[e.pointerId];
+                if (pData) {
+                    var moveDist = Math.hypot(e.clientX - pData.startX, e.clientY - pData.startY);
+                    var timeDiff = Date.now() - pData.time;
+                    // Detect tap: finger lifted quickly (< 400ms) with small movement (< 12px)
+                    if (moveDist < 12 && timeDiff < 400 && (e.type === 'pointerup')) {
+                        var targetEl = document.elementFromPoint(e.clientX, e.clientY);
+                        if (targetEl) {
+                            var plotItem = targetEl.closest('.village-plot-item');
+                            if (plotItem) {
+                                selectPlotElement(plotItem);
+                            }
+                        }
                     }
                 }
+
+                try {
+                    if (viewport.hasPointerCapture(e.pointerId)) {
+                        viewport.releasePointerCapture(e.pointerId);
+                    }
+                } catch (err) {}
+
                 delete activePointers[e.pointerId];
                 if (Object.keys(activePointers).length < 2) {
                     pinchStartDist = null;
@@ -882,6 +966,7 @@
                     viewport.classList.remove('dragging');
                 }
             }
+
             viewport.addEventListener('pointerup', endPointer);
             viewport.addEventListener('pointercancel', endPointer);
             viewport.addEventListener('pointerleave', endPointer);
